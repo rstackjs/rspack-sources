@@ -840,7 +840,6 @@ impl Chunks for ReplaceSourceChunks<'_> {
           }
         } else {
           // Line ends with newline or not the last line
-          generated_line_offset += 1;
           line += 1;
           generated_column_offset = -(result.generated_column as i64);
           generated_column_offset_line = line;
