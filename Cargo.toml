@@ -7,7 +7,7 @@ resolver = "2"
 license = "MIT"
 description = "Rusty webpack-sources port."
 keywords = ["sources", "sourcemap"]
-repository = "https://github.com/web-infra-dev/rspack-sources"
+repository = "https://github.com/rstackjs/rspack-sources"
 documentation = "https://docs.rs/rspack-sources"
 readme = "README.md"
 
