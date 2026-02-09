@@ -5,7 +5,8 @@ use std::{
   sync::{Mutex, OnceLock},
 };
 
-use rustc_hash::FxHashMap as HashMap;
+use rayon::prelude::*;
+use rustc_hash::{FxHashMap as HashMap, FxHasher};
 
 use crate::{
   helpers::{get_map, Chunks, GeneratedInfo, StreamChunks},
@@ -227,9 +228,22 @@ impl Source for ConcatSource {
 impl Hash for ConcatSource {
   fn hash<H: Hasher>(&self, state: &mut H) {
     "ConcatSource".hash(state);
-    for child in self.optimized_children().iter() {
-      child.hash(state);
+
+    let children = self.optimized_children();
+    let child_hashes: Vec<u64> = children
+      .par_iter()
+      .map(|child| {
+        let mut hasher = FxHasher::default();
+        child.hash(&mut hasher);
+        hasher.finish()
+      })
+      .collect();
+
+    let mut combined = FxHasher::default();
+    for child_hash in child_hashes {
+      child_hash.hash(&mut combined);
     }
+    combined.finish().hash(state);
   }
 }
 
@@ -489,6 +503,10 @@ fn merge_raw_sources(
 
 #[cfg(test)]
 mod tests {
+  use std::hash::Hash;
+
+  use rustc_hash::FxHasher;
+
   use crate::{OriginalSource, RawBufferSource, RawStringSource};
 
   use super::*;
@@ -864,5 +882,30 @@ mod tests {
   RawStringSource::from_static("Hello World! How are you?\nI'm fine.").boxed(),
 ]).boxed()"#
     );
+  }
+
+  #[test]
+  fn test_hash_is_deterministic_for_many_children() {
+    let source = ConcatSource::new([
+      RawStringSource::from("0"),
+      RawStringSource::from("1"),
+      RawStringSource::from("2"),
+      RawStringSource::from("3"),
+      RawStringSource::from("4"),
+      RawStringSource::from("5"),
+      RawStringSource::from("6"),
+      RawStringSource::from("7"),
+      RawStringSource::from("8"),
+    ]);
+
+    let mut hasher1 = FxHasher::default();
+    source.hash(&mut hasher1);
+    let hash1 = hasher1.finish();
+
+    let mut hasher2 = FxHasher::default();
+    source.hash(&mut hasher2);
+    let hash2 = hasher2.finish();
+
+    assert_eq!(hash1, hash2);
   }
 }
