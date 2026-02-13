@@ -435,7 +435,8 @@ impl Stream for ReplaceSourceStream<'_> {
     let mut pos: u32 = 0;
     let mut i: usize = 0;
     let mut replacement_end: Option<u32> = None;
-    let mut next_replacement = (i < replacements.len()).then(|| replacements[i].start);
+    let mut next_replacement =
+      (i < replacements.len()).then(|| replacements[i].start);
     let mut generated_line_offset: i64 = 0;
     let mut generated_column_offset: i64 = 0;
     let mut generated_column_offset_line = 0;
@@ -443,7 +444,8 @@ impl Stream for ReplaceSourceStream<'_> {
       RefCell::new(LinearMap::default());
 
     // if has named replacements, we need to map the name to the global name index
-    let has_named_replacements = replacements.iter().any(|repl| repl.name.is_some());
+    let has_named_replacements =
+      replacements.iter().any(|repl| repl.name.is_some());
     let name_mapping: RefCell<HashMap<&str, u32>> =
       RefCell::new(HashMap::default());
     let name_index_mapping: RefCell<LinearMap<u32>> =
@@ -792,10 +794,12 @@ impl Stream for ReplaceSourceStream<'_> {
         pos = end_pos;
       },
       &mut |source_index, source, source_content| {
-        let mut source_content_lines = source_content_lines.borrow_mut();
-        let lines = source_content
-          .map(|source_content| SourceContent::Raw(source_content.clone()));
-        source_content_lines.insert(source_index, lines);
+        if !self.is_original_source {
+          let mut source_content_lines = source_content_lines.borrow_mut();
+          let lines = source_content
+            .map(|source_content| SourceContent::Raw(source_content.clone()));
+          source_content_lines.insert(source_index, lines);
+        }
         on_source(source_index, source, source_content);
       },
       &mut |name_index, name| {
