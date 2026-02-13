@@ -206,7 +206,6 @@ impl Source for BoxSource {
 dyn_clone::clone_trait_object!(Source);
 
 impl ToStream for BoxSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     self.as_ref().to_stream()
   }

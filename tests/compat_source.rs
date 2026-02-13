@@ -89,7 +89,6 @@ impl Stream for CompatSourceStream<'_> {
 }
 
 impl ToStream for CompatSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(CompatSourceStream::new(self))
   }

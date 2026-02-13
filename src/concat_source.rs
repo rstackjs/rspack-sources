@@ -485,7 +485,6 @@ impl Stream for ConcatSourceStream<'_> {
 }
 
 impl ToStream for ConcatSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     let children = self.optimized_children();
     // Fast path: delegate directly to the single child's stream,

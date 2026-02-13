@@ -272,7 +272,6 @@ impl Stream for OriginalSourceStream<'_> {
 }
 
 impl ToStream for OriginalSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(OriginalSourceStream::new(self))
   }

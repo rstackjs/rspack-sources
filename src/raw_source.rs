@@ -306,7 +306,6 @@ impl Stream for RawBufferSourceStream<'_> {
 }
 
 impl ToStream for RawBufferSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(RawBufferSourceStream(self))
   }

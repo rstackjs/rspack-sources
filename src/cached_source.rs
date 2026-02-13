@@ -318,7 +318,6 @@ impl Stream for CachedSourceStream<'_> {
 }
 
 impl ToStream for CachedSource {
-  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(CachedSourceStream::new(self))
   }
