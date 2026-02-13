@@ -9,7 +9,7 @@ use rustc_hash::FxHasher;
 use crate::{
   helpers::{
     stream_and_get_source_and_map, stream_chunks_of_raw_source,
-    stream_chunks_of_source_map, Stream, GeneratedInfo, ToStream,
+    stream_chunks_of_source_map, GeneratedInfo, Stream, ToStream,
   },
   object_pool::ObjectPool,
   source::{IndexSourceMap, SourceValue},
@@ -249,6 +249,15 @@ impl Stream for CachedSourceStream<'_> {
         generated_info
       }
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    todo!()
   }
 }
 

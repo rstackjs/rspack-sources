@@ -15,20 +15,20 @@ use crate::{
   source::{Mapping, OriginalLocation},
   source_content_lines::SourceContentLines,
   with_utf16::WithUtf16,
-  MapOptions, SourceMap,
+  MapOptions, SectionOffset, SourceMap,
 };
 
 pub fn get_map<'a>(
   object_pool: &'a ObjectPool,
   stream: &'a dyn Stream,
   options: &MapOptions,
-) -> Option<SourceMap> {
+) -> (GeneratedInfo, Option<SourceMap>) {
   let mut mappings_encoder = create_encoder(options.columns);
   let mut sources: Vec<String> = Vec::new();
   let mut sources_content: Vec<Arc<str>> = Vec::new();
   let mut names: Vec<String> = Vec::new();
 
-  stream.chunks(
+  let generated_info = stream.chunks(
     object_pool,
     &MapOptions {
       columns: options.columns,
@@ -61,9 +61,12 @@ pub fn get_map<'a>(
       names[name_index] = name.to_string();
     },
   );
+
   let mappings = mappings_encoder.drain();
-  (!mappings.is_empty())
-    .then(|| SourceMap::new(mappings, sources, sources_content, names))
+  let map = (!mappings.is_empty())
+    .then(|| SourceMap::new(mappings, sources, sources_content, names));
+
+  (generated_info, map)
 }
 
 /// A trait for processing source code chunks and generating source maps.
@@ -86,6 +89,13 @@ pub trait Stream {
     on_source: crate::helpers::OnSource<'_, 'a>,
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo;
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> crate::helpers::GeneratedInfo;
 }
 
 /// [ToStream] abstraction, see [webpack-sources source.streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
@@ -104,6 +114,9 @@ pub type OnSource<'a, 'b> =
 
 /// [OnName] abstraction, see [webpack-sources onName](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
 pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, Cow<'b, str>);
+
+pub type OnSection<'a, 'b> =
+  &'a mut dyn FnMut(SectionOffset, Option<SourceMap>);
 
 /// Default stream chunks behavior impl, see [webpack-sources streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L15-L35).
 pub fn stream_chunks_default<'a>(
@@ -131,7 +144,7 @@ pub fn stream_chunks_default<'a>(
 }
 
 /// `GeneratedSourceInfo` abstraction, see [webpack-sources GeneratedSourceInfo](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/getGeneratedSourceInfo.js)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct GeneratedInfo {
   /// Generated line
   pub generated_line: u32,

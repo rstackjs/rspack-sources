@@ -605,7 +605,7 @@ impl TryFrom<RawSourceMap> for SourceMap {
 ///
 /// Both `line` and `column` are 0-based, as specified by the
 /// [Index Source Map](https://tc39.es/ecma426/#sec-index-source-map) format.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Copy, Default)]
 pub struct SectionOffset {
   /// 0-based line offset in the generated code.
   pub line: u32,
@@ -783,11 +783,9 @@ impl IndexSourceMap {
             .unwrap_or(&orig.source_index),
           original_line: orig.original_line,
           original_column: orig.original_column,
-          name_index: orig.name_index.map(|ni| {
-            *local_name_mapping
-              .get(ni as usize)
-              .unwrap_or(&ni)
-          }),
+          name_index: orig
+            .name_index
+            .map(|ni| *local_name_mapping.get(ni as usize).unwrap_or(&ni)),
         });
 
         all_mappings.push(Mapping {
@@ -803,8 +801,12 @@ impl IndexSourceMap {
     }
 
     let mappings_str = encode_mappings(all_mappings.into_iter());
-    let mut result =
-      SourceMap::new(mappings_str, global_sources, global_sources_content, global_names);
+    let mut result = SourceMap::new(
+      mappings_str,
+      global_sources,
+      global_sources_content,
+      global_names,
+    );
     if self.file.is_some() {
       result.set_file(self.file.clone());
     }
@@ -1125,34 +1127,20 @@ mod tests {
     assert_eq!(mappings.len(), 2);
     assert_eq!(mappings[0].generated_line, 1);
     assert_eq!(mappings[0].generated_column, 0);
-    assert_eq!(
-      mappings[0].original.as_ref().unwrap().source_index,
-      0
-    );
+    assert_eq!(mappings[0].original.as_ref().unwrap().source_index, 0);
     assert_eq!(mappings[1].generated_line, 2);
     assert_eq!(mappings[1].generated_column, 0);
-    assert_eq!(
-      mappings[1].original.as_ref().unwrap().source_index,
-      1
-    );
+    assert_eq!(mappings[1].original.as_ref().unwrap().source_index, 1);
   }
 
   #[test]
   fn index_source_map_to_source_map_with_column_offset() {
     // First section at line 0, col 0
-    let map1 = SourceMap::new(
-      "AAAA",
-      vec!["a.js".into()],
-      vec!["hello".into()],
-      vec![],
-    );
+    let map1 =
+      SourceMap::new("AAAA", vec!["a.js".into()], vec!["hello".into()], vec![]);
     // Second section at line 0, col 5 (same line, after "hello")
-    let map2 = SourceMap::new(
-      "AAAA",
-      vec!["b.js".into()],
-      vec!["world".into()],
-      vec![],
-    );
+    let map2 =
+      SourceMap::new("AAAA", vec!["b.js".into()], vec!["world".into()], vec![]);
     let index_map = IndexSourceMap::new(vec![
       Section {
         offset: SectionOffset { line: 0, column: 0 },
@@ -1196,12 +1184,8 @@ mod tests {
 
   #[test]
   fn index_map_file_field_propagated() {
-    let map = SourceMap::new(
-      "AAAA",
-      vec!["a.js".into()],
-      vec!["hello".into()],
-      vec![],
-    );
+    let map =
+      SourceMap::new("AAAA", vec!["a.js".into()], vec!["hello".into()], vec![]);
     let mut index_map = IndexSourceMap::new(vec![Section {
       offset: SectionOffset { line: 0, column: 0 },
       map,
@@ -1244,13 +1228,7 @@ mod tests {
     assert_eq!(result.sources()[0], "shared.js");
     // Both mappings should reference source index 0
     let mappings: Vec<Mapping> = result.decoded_mappings().collect();
-    assert_eq!(
-      mappings[0].original.as_ref().unwrap().source_index,
-      0
-    );
-    assert_eq!(
-      mappings[1].original.as_ref().unwrap().source_index,
-      0
-    );
+    assert_eq!(mappings[0].original.as_ref().unwrap().source_index, 0);
+    assert_eq!(mappings[1].original.as_ref().unwrap().source_index, 0);
   }
 }

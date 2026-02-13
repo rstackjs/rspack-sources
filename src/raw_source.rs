@@ -6,11 +6,11 @@ use std::{
 
 use crate::{
   helpers::{
-    get_generated_source_info, stream_chunks_of_raw_source, Stream,
-    GeneratedInfo, ToStream,
+    get_generated_source_info, stream_chunks_of_raw_source, GeneratedInfo,
+    Stream, ToStream,
   },
   object_pool::ObjectPool,
-  MapOptions, Source, SourceMap, SourceValue,
+  MapOptions, SectionOffset, Source, SourceMap, SourceValue,
 };
 
 /// A string variant of [RawStringSource].
@@ -116,7 +116,7 @@ impl<'source> RawStringStream<'source> {
 }
 
 impl Stream for RawStringStream<'_> {
-  fn stream<'a>(
+  fn chunks<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -129,6 +129,17 @@ impl Stream for RawStringStream<'_> {
     } else {
       stream_chunks_of_raw_source(self.0, options, on_chunk, on_source, on_name)
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    _object_pool: &'a ObjectPool,
+    _columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let generated_info = get_generated_source_info(self.0);
+    on_section(SectionOffset::default(), None);
+    generated_info
   }
 }
 
@@ -256,7 +267,7 @@ impl Hash for RawBufferSource {
 struct RawBufferSourceStream<'a>(&'a RawBufferSource);
 
 impl Stream for RawBufferSourceStream<'_> {
-  fn stream<'a>(
+  fn chunks<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -270,6 +281,18 @@ impl Stream for RawBufferSourceStream<'_> {
     } else {
       stream_chunks_of_raw_source(code, options, on_chunk, on_source, on_name)
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    _object_pool: &'a ObjectPool,
+    _columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let code = self.0.get_or_init_value_as_string();
+    let generated_info = get_generated_source_info(code);
+    on_section(SectionOffset::default(), None);
+    generated_info
   }
 }
 

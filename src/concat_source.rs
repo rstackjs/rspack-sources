@@ -2,16 +2,16 @@ use std::{
   borrow::Cow,
   cell::RefCell,
   hash::{Hash, Hasher},
-  sync::{Mutex, OnceLock},
+  sync::{Arc, Mutex, OnceLock},
 };
 
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, Stream, GeneratedInfo, ToStream},
+  helpers::{get_map, GeneratedInfo, Stream, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
-  source::{IndexSourceMap, Mapping, OriginalLocation, Section, SectionOffset},
+  source::{IndexSourceMap, Mapping, OriginalLocation, Section},
   BoxSource, MapOptions, RawStringSource, Source, SourceExt, SourceMap,
   SourceValue,
 };
@@ -212,8 +212,7 @@ impl Source for ConcatSource {
     options: &MapOptions,
   ) -> Option<SourceMap> {
     let stream = self.to_stream();
-    let result = get_map(object_pool, stream.as_ref(), options);
-    result
+    get_map(object_pool, stream.as_ref(), options).1
   }
 
   fn index_map(
@@ -221,88 +220,16 @@ impl Source for ConcatSource {
     object_pool: &ObjectPool,
     options: &MapOptions,
   ) -> Option<IndexSourceMap> {
-    let children = self.optimized_children();
-
-    if children.len() == 1 {
-      return children[0].index_map(object_pool, options);
-    }
-
     let mut sections = Vec::new();
-    let mut current_line_offset: u32 = 0;
-    let mut current_column_offset: u32 = 0;
-
-    for child in children {
-      // Get the index map for this child (may itself have sections)
-      if let Some(child_index_map) = child.index_map(object_pool, options) {
-        for section in child_index_map.sections() {
-          // Offset the section by the current position
-          let line = section.offset.line + current_line_offset;
-          let column = if section.offset.line == 0 {
-            section.offset.column + current_column_offset
-          } else {
-            section.offset.column
-          };
-          sections.push(Section {
-            offset: SectionOffset { line, column },
-            map: section.map.clone(),
-          });
+    self.to_stream().sections(
+      object_pool,
+      options.columns,
+      &mut |offset, map| {
+        if let Some(map) = map {
+          sections.push(Section { offset, map });
         }
-      }
-
-      // Calculate generated info to determine offset for the next child.
-      // We iterate via `rope()` to avoid allocating the full source string.
-      let mut line_count: u32 = 0;
-      let mut last_line_column: u32 = 0;
-      let mut ends_with_newline = true;
-      child.rope(&mut |chunk| {
-        for byte in chunk.as_bytes() {
-          if *byte == b'\n' {
-            line_count += 1;
-            last_line_column = 0;
-            ends_with_newline = true;
-          } else {
-            ends_with_newline = false;
-            // Count UTF-16 code units for column offset.
-            // ASCII bytes (< 0x80): 1 UTF-16 unit (only count leading bytes)
-            // We only need to count leading bytes of multi-byte sequences.
-            if (*byte & 0xC0) != 0x80 {
-              if *byte < 0x80 {
-                last_line_column += 1;
-              } else if *byte < 0xF0 {
-                // 2 or 3 byte sequence -> 1 UTF-16 code unit
-                last_line_column += 1;
-              } else {
-                // 4 byte sequence -> 2 UTF-16 code units (surrogate pair)
-                last_line_column += 2;
-              }
-            }
-          }
-        }
-      });
-
-      if child.size() == 0 {
-        // Empty child doesn't change the offset
-        continue;
-      }
-
-      // Update offsets for next child, matching ConcatSource's concat logic.
-      // generated_line is like line_count + 1 (1-based), or line_count + 1 if
-      // ends with newline (extra empty line).
-      let generated_line = if ends_with_newline {
-        line_count + 1
-      } else {
-        line_count.max(1)
-      };
-      let generated_column = if ends_with_newline { 0 } else { last_line_column };
-
-      if generated_line > 1 || line_count > 0 {
-        current_column_offset = generated_column;
-      } else {
-        current_column_offset += generated_column;
-      }
-      current_line_offset += line_count;
-    }
-
+      },
+    );
     if sections.is_empty() {
       None
     } else {
@@ -335,17 +262,17 @@ impl PartialEq for ConcatSource {
 impl Eq for ConcatSource {}
 
 struct ConcatSourceStream<'source> {
-  children_chunks: Vec<Box<dyn Stream + 'source>>,
+  children_streams: Vec<Box<dyn Stream + 'source>>,
 }
 
 impl<'source> ConcatSourceStream<'source> {
   fn new(concat_source: &'source ConcatSource) -> Self {
     let children = concat_source.optimized_children();
-    let children_chunks = children
+    let children_streams = children
       .iter()
       .map(|child| child.to_stream())
       .collect::<Vec<_>>();
-    Self { children_chunks }
+    Self { children_streams }
   }
 }
 
@@ -358,8 +285,8 @@ impl Stream for ConcatSourceStream<'_> {
     on_source: crate::helpers::OnSource<'_, 'b>,
     on_name: crate::helpers::OnName<'_, 'b>,
   ) -> GeneratedInfo {
-    if self.children_chunks.len() == 1 {
-      return self.children_chunks[0].chunks(
+    if self.children_streams.len() == 1 {
+      return self.children_streams[0].chunks(
         object_pool,
         options,
         on_chunk,
@@ -378,14 +305,14 @@ impl Stream for ConcatSourceStream<'_> {
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
 
-    for child_handle in &self.children_chunks {
+    for child_stream in &self.children_streams {
       source_index_mapping.borrow_mut().clear();
       name_index_mapping.borrow_mut().clear();
       let mut last_mapping_line = 0;
       let GeneratedInfo {
         generated_line,
         generated_column,
-      } = child_handle.chunks(
+      } = child_stream.chunks(
         object_pool,
         options,
         &mut |chunk, mapping| {
@@ -522,6 +449,34 @@ impl Stream for ConcatSourceStream<'_> {
       generated_line: current_line_offset + 1,
       generated_column: current_column_offset,
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let mut current_generated_info = GeneratedInfo {
+      generated_line: 1,
+      generated_column: 0,
+    };
+
+    for child_stream in &self.children_streams {
+      let generated_info = child_stream.sections(
+        object_pool,
+        columns,
+        &mut |mut offset, mapping| {
+          offset.line += current_generated_info.generated_line - 1;
+          offset.column += current_generated_info.generated_column;
+          on_section(offset, mapping);
+        },
+      );
+      current_generated_info.generated_line +=
+        generated_info.generated_line - 1;
+      current_generated_info.generated_column = generated_info.generated_column;
+    }
+    current_generated_info
   }
 }
 

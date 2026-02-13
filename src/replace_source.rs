@@ -8,12 +8,12 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, split_into_lines, Stream, GeneratedInfo, ToStream},
+  helpers::{get_map, split_into_lines, GeneratedInfo, Stream, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
-  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource, Source,
-  SourceExt, SourceMap, SourceValue,
+  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource,
+  SectionOffset, Source, SourceExt, SourceMap, SourceValue,
 };
 
 /// Decorates a Source with replacements and insertions of source code,
@@ -326,7 +326,7 @@ impl Source for ReplaceSource {
       return self.inner.map(&ObjectPool::default(), options);
     }
     let stream = self.to_stream();
-    get_map(&ObjectPool::default(), stream.as_ref(), options)
+    get_map(&ObjectPool::default(), stream.as_ref(), options).1
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -859,6 +859,24 @@ impl Stream for ReplaceSourceStream<'_> {
           0
         }) as u32,
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let (generated_info, map) = get_map(
+      object_pool,
+      self,
+      &MapOptions {
+        columns,
+        final_source: true,
+      },
+    );
+    on_section(SectionOffset::default(), map);
+    generated_info
   }
 }
 

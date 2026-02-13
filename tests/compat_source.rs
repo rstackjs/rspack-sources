@@ -3,12 +3,12 @@ use std::borrow::Cow;
 use std::hash::Hash;
 
 use rspack_sources::stream_chunks::{
-  stream_chunks_default, GeneratedInfo, IntoToStream, OnChunk, OnName,
-  OnSource, ToStream,
+  stream_chunks_default, GeneratedInfo, OnChunk, OnName, OnSection, OnSource,
+  Stream, ToStream,
 };
 use rspack_sources::{
-  ConcatSource, MapOptions, ObjectPool, RawStringSource, Source, SourceExt,
-  SourceMap, SourceValue,
+  get_generated_source_info, ConcatSource, MapOptions, ObjectPool,
+  RawStringSource, SectionOffset, Source, SourceExt, SourceMap, SourceValue,
 };
 
 #[derive(Debug, Eq)]
@@ -53,7 +53,7 @@ impl<'source> CompatSourceStream<'source> {
 }
 
 impl Stream for CompatSourceStream<'_> {
-  fn stream<'a>(
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -71,10 +71,21 @@ impl Stream for CompatSourceStream<'_> {
       on_name,
     )
   }
+
+  fn sections<'a>(
+    &'a self,
+    _object_pool: &'a ObjectPool,
+    _columns: bool,
+    on_section: OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let generated_info = get_generated_source_info(self.0);
+    on_section(SectionOffset::default(), self.1.cloned());
+    generated_info
+  }
 }
 
 impl ToStream for CompatSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Stream + 'a> {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(CompatSourceStream::new(self))
   }
 }

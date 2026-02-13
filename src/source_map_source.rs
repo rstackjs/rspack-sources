@@ -7,10 +7,10 @@ use std::{
 use crate::{
   helpers::{
     get_map, stream_chunks_of_combined_source_map, stream_chunks_of_source_map,
-    Stream, ToStream,
+    GeneratedInfo, Stream, ToStream,
   },
   object_pool::ObjectPool,
-  MapOptions, Source, SourceMap, SourceValue,
+  MapOptions, SectionOffset, Source, SourceMap, SourceValue,
 };
 
 /// Options for [SourceMapSource::new].
@@ -115,7 +115,7 @@ impl Source for SourceMapSource {
       return Some(self.source_map.clone());
     }
     let stream = self.to_stream();
-    get_map(object_pool, stream.as_ref(), options)
+    get_map(object_pool, stream.as_ref(), options).1
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -224,6 +224,24 @@ impl Stream for SourceMapSourceStream<'_> {
         on_name,
       )
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let (generated_info, map) = get_map(
+      object_pool,
+      self,
+      &MapOptions {
+        columns,
+        final_source: true,
+      },
+    );
+    on_section(SectionOffset::default(), map);
+    generated_info
   }
 }
 

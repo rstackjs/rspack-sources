@@ -7,11 +7,11 @@ use std::{
 use crate::{
   helpers::{
     get_generated_source_info, get_map, split_into_lines,
-    split_into_potential_tokens, Stream, GeneratedInfo, ToStream,
+    split_into_potential_tokens, GeneratedInfo, Stream, ToStream,
   },
   object_pool::ObjectPool,
   source::{Mapping, OriginalLocation},
-  MapOptions, Source, SourceMap, SourceValue,
+  MapOptions, SectionOffset, Source, SourceMap, SourceValue,
 };
 
 /// Represents source code, it will create source map for the source code,
@@ -74,7 +74,7 @@ impl Source for OriginalSource {
     options: &MapOptions,
   ) -> Option<SourceMap> {
     let stream = self.to_stream();
-    get_map(object_pool, stream.as_ref(), options)
+    get_map(object_pool, stream.as_ref(), options).1
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -246,6 +246,24 @@ impl Stream for OriginalSourceStream<'_> {
         }
       }
     }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let (generated_info, map) = get_map(
+      object_pool,
+      self,
+      &MapOptions {
+        columns,
+        final_source: true,
+      },
+    );
+    on_section(SectionOffset::default(), map);
+    generated_info
   }
 }
 

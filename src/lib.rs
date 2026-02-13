@@ -33,11 +33,13 @@ pub use source_map_source::{
 /// Reexport `ToStream` related types.
 pub mod stream_chunks {
   pub use super::helpers::{
-    stream_chunks_default, Stream, GeneratedInfo, OnChunk, OnName, OnSource,
-    ToStream,
+    stream_chunks_default, GeneratedInfo, OnChunk, OnName, OnSection, OnSource,
+    Stream, ToStream,
   };
 }
 
-pub use helpers::{decode_mappings, encode_mappings};
+pub use helpers::{
+  decode_mappings, encode_mappings, get_generated_source_info,
+};
 
 pub use object_pool::ObjectPool;
