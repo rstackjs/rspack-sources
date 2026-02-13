@@ -2,7 +2,7 @@ use std::{
   borrow::Cow,
   cell::RefCell,
   hash::{Hash, Hasher},
-  sync::{Arc, Mutex, OnceLock},
+  sync::{Mutex, OnceLock},
 };
 
 use rustc_hash::FxHashMap as HashMap;
@@ -220,16 +220,13 @@ impl Source for ConcatSource {
     object_pool: &ObjectPool,
     options: &MapOptions,
   ) -> Option<IndexSourceMap> {
-    let mut sections = Vec::new();
-    self.to_stream().sections(
-      object_pool,
-      options.columns,
-      &mut |offset, map| {
-        if let Some(map) = map {
-          sections.push(Section { offset, map });
-        }
-      },
-    );
+    let stream = self.to_stream();
+    let mut sections = Vec::with_capacity(stream.sections_size_hint());
+    stream.sections(object_pool, options.columns, &mut |offset, map| {
+      if let Some(map) = map {
+        sections.push(Section { offset, map });
+      }
+    });
     if sections.is_empty() {
       None
     } else {
@@ -266,8 +263,7 @@ struct ConcatSourceStream<'source> {
 }
 
 impl<'source> ConcatSourceStream<'source> {
-  fn new(concat_source: &'source ConcatSource) -> Self {
-    let children = concat_source.optimized_children();
+  fn new(children: &'source [BoxSource]) -> Self {
     let children_streams = children
       .iter()
       .map(|child| child.to_stream())
@@ -451,6 +447,14 @@ impl Stream for ConcatSourceStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    self
+      .children_streams
+      .iter()
+      .map(|child_stream| child_stream.sections_size_hint())
+      .sum()
+  }
+
   fn sections<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
@@ -481,8 +485,15 @@ impl Stream for ConcatSourceStream<'_> {
 }
 
 impl ToStream for ConcatSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
-    Box::new(ConcatSourceStream::new(self))
+    let children = self.optimized_children();
+    // Fast path: delegate directly to the single child's stream,
+    // avoiding ConcatSourceStream + Vec + extra Box allocations.
+    if children.len() == 1 {
+      return children[0].to_stream();
+    }
+    Box::new(ConcatSourceStream::new(children))
   }
 }
 

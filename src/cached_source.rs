@@ -252,6 +252,22 @@ impl Stream for CachedSourceStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    if let Some(index_map) = self.cache.columns_index_map.get() {
+      index_map
+        .as_ref()
+        .map(|index_map| index_map.sections().len())
+        .unwrap_or(0)
+    } else if let Some(index_map) = self.cache.line_only_index_map.get() {
+      index_map
+        .as_ref()
+        .map(|index_map| index_map.sections().len())
+        .unwrap_or(0)
+    } else {
+      self.stream.sections_size_hint()
+    }
+  }
+
   fn sections<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
@@ -265,8 +281,7 @@ impl Stream for CachedSourceStream<'_> {
     };
     match cell.get() {
       Some(index_map) => {
-        let generated_info =
-          get_generated_source_info(self.source.as_ref());
+        let generated_info = get_generated_source_info(self.source.as_ref());
         if let Some(index_map) = index_map {
           for section in index_map.sections() {
             on_section(section.offset, Some(section.map.clone()));
@@ -278,19 +293,18 @@ impl Stream for CachedSourceStream<'_> {
       }
       None => {
         let mut sections = Vec::new();
-        let generated_info = self.stream.sections(
-          object_pool,
-          columns,
-          &mut |offset, map| {
-            if let Some(ref map) = map {
-              sections.push(Section {
-                offset,
-                map: map.clone(),
-              });
-            }
-            on_section(offset, map);
-          },
-        );
+        let generated_info =
+          self
+            .stream
+            .sections(object_pool, columns, &mut |offset, map| {
+              if let Some(ref map) = map {
+                sections.push(Section {
+                  offset,
+                  map: map.clone(),
+                });
+              }
+              on_section(offset, map);
+            });
         let index_map = if sections.is_empty() {
           None
         } else {
@@ -304,6 +318,7 @@ impl Stream for CachedSourceStream<'_> {
 }
 
 impl ToStream for CachedSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(CachedSourceStream::new(self))
   }

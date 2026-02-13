@@ -72,6 +72,10 @@ impl Stream for CompatSourceStream<'_> {
     )
   }
 
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
   fn sections<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
@@ -85,6 +89,7 @@ impl Stream for CompatSourceStream<'_> {
 }
 
 impl ToStream for CompatSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(CompatSourceStream::new(self))
   }

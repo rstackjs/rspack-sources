@@ -131,6 +131,10 @@ impl Stream for RawStringStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    0
+  }
+
   fn sections<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
@@ -144,6 +148,7 @@ impl Stream for RawStringStream<'_> {
 }
 
 impl ToStream for RawStringSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(RawStringStream::new(self))
   }
@@ -283,6 +288,10 @@ impl Stream for RawBufferSourceStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    0
+  }
+
   fn sections<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
@@ -297,6 +306,7 @@ impl Stream for RawBufferSourceStream<'_> {
 }
 
 impl ToStream for RawBufferSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(RawBufferSourceStream(self))
   }

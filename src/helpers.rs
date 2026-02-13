@@ -90,6 +90,11 @@ pub trait Stream {
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo;
 
+  /// Returns an estimated upper bound of sections that [`Stream::sections`] will produce.
+  fn sections_size_hint(&self) -> usize;
+
+  /// Streams source map data as discrete sections, calling `on_section` for
+  /// each section with its offset and optional [`SourceMap`].
   fn sections<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
@@ -115,6 +120,8 @@ pub type OnSource<'a, 'b> =
 /// [OnName] abstraction, see [webpack-sources onName](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
 pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, Cow<'b, str>);
 
+/// Callback invoked for each section during [`Stream::sections`], receiving the
+/// section's [`SectionOffset`] and an optional [`SourceMap`].
 pub type OnSection<'a, 'b> =
   &'a mut dyn FnMut(SectionOffset, Option<SourceMap>);
 
@@ -291,6 +298,9 @@ pub fn split_into_lines(source: &str) -> impl Iterator<Item = &str> {
   split(source, b'\n')
 }
 
+/// Computes the [`GeneratedInfo`] (line and column) for the end position of the given source string.
+///
+/// See [webpack-sources getGeneratedSourceInfo](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/getGeneratedSourceInfo.js).
 pub fn get_generated_source_info(source: &str) -> GeneratedInfo {
   let (generated_line, generated_column) = if source.ends_with('\n') {
     (split_into_lines(source).count() + 1, 0)

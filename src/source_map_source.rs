@@ -226,6 +226,10 @@ impl Stream for SourceMapSourceStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
   fn sections<'a>(
     &'a self,
     object_pool: &'a ObjectPool,

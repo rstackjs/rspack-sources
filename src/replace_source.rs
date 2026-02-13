@@ -861,6 +861,10 @@ impl Stream for ReplaceSourceStream<'_> {
     }
   }
 
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
   fn sections<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
@@ -881,6 +885,7 @@ impl Stream for ReplaceSourceStream<'_> {
 }
 
 impl ToStream for ReplaceSource {
+  #[inline]
   fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
     Box::new(ReplaceSourceStream::new(self))
   }
