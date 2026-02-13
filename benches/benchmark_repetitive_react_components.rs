@@ -3513,7 +3513,7 @@ pub fn benchmark_repetitive_react_components_index_map(b: &mut Bencher) {
   let source = REPETITIVE_1K_REACT_COMPONENTS_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.index_map(&ObjectPool::default(), &MapOptions::default()));
+    black_box(source.to_stream().sections_size_hint());
   });
 }
 
