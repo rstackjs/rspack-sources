@@ -8,11 +8,12 @@ use rustc_hash::FxHasher;
 
 use crate::{
   helpers::{
-    stream_and_get_source_and_map, stream_chunks_of_raw_source,
-    stream_chunks_of_source_map, GeneratedInfo, Stream, ToStream,
+    get_generated_source_info, stream_and_get_source_and_map,
+    stream_chunks_of_raw_source, stream_chunks_of_source_map, GeneratedInfo,
+    Stream, ToStream,
   },
   object_pool::ObjectPool,
-  source::{IndexSourceMap, SourceValue},
+  source::{IndexSourceMap, Section, SectionOffset, SourceValue},
   BoxSource, MapOptions, RawBufferSource, Source, SourceExt, SourceMap,
 };
 
@@ -257,7 +258,48 @@ impl Stream for CachedSourceStream<'_> {
     columns: bool,
     on_section: crate::helpers::OnSection<'_, 'a>,
   ) -> GeneratedInfo {
-    todo!()
+    let cell = if columns {
+      &self.cache.columns_index_map
+    } else {
+      &self.cache.line_only_index_map
+    };
+    match cell.get() {
+      Some(index_map) => {
+        let generated_info =
+          get_generated_source_info(self.source.as_ref());
+        if let Some(index_map) = index_map {
+          for section in index_map.sections() {
+            on_section(section.offset, Some(section.map.clone()));
+          }
+        } else {
+          on_section(SectionOffset::default(), None);
+        }
+        generated_info
+      }
+      None => {
+        let mut sections = Vec::new();
+        let generated_info = self.stream.sections(
+          object_pool,
+          columns,
+          &mut |offset, map| {
+            if let Some(ref map) = map {
+              sections.push(Section {
+                offset,
+                map: map.clone(),
+              });
+            }
+            on_section(offset, map);
+          },
+        );
+        let index_map = if sections.is_empty() {
+          None
+        } else {
+          Some(IndexSourceMap::new(sections))
+        };
+        cell.get_or_init(|| index_map);
+        generated_info
+      }
+    }
   }
 }
 
