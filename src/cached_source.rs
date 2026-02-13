@@ -12,7 +12,7 @@ use crate::{
     stream_chunks_of_source_map, Chunks, GeneratedInfo, StreamChunks,
   },
   object_pool::ObjectPool,
-  source::SourceValue,
+  source::{IndexSourceMap, SourceValue},
   BoxSource, MapOptions, RawBufferSource, Source, SourceExt, SourceMap,
 };
 
@@ -23,6 +23,8 @@ struct CachedData {
   chunks: OnceLock<Vec<&'static str>>,
   columns_map: OnceLock<Option<SourceMap>>,
   line_only_map: OnceLock<Option<SourceMap>>,
+  columns_index_map: OnceLock<Option<IndexSourceMap>>,
+  line_only_index_map: OnceLock<Option<IndexSourceMap>>,
 }
 
 /// It tries to reused cached results from other methods to avoid calculations,
@@ -151,6 +153,26 @@ impl Source for CachedSource {
         .cache
         .line_only_map
         .get_or_init(|| self.inner.map(object_pool, options))
+        .clone()
+    }
+  }
+
+  fn index_map(
+    &self,
+    object_pool: &ObjectPool,
+    options: &MapOptions,
+  ) -> Option<IndexSourceMap> {
+    if options.columns {
+      self
+        .cache
+        .columns_index_map
+        .get_or_init(|| self.inner.index_map(object_pool, options))
+        .clone()
+    } else {
+      self
+        .cache
+        .line_only_index_map
+        .get_or_init(|| self.inner.index_map(object_pool, options))
         .clone()
     }
   }
@@ -476,5 +498,42 @@ mod tests {
     let cached = CachedSource::new(raw.boxed());
     let cached_size = cached.size();
     assert_eq!(raw_size, cached_size);
+  }
+
+  #[test]
+  fn index_map_should_be_cached() {
+    let original = OriginalSource::new("hello\nworld\n", "test.txt");
+    let cached = CachedSource::new(original);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+
+    let index_map1 = cached.index_map(&pool, &options);
+    let index_map2 = cached.index_map(&pool, &options);
+    assert!(index_map1.is_some());
+    assert_eq!(index_map1, index_map2);
+  }
+
+  #[test]
+  fn index_map_cached_matches_inner() {
+    let inner = ConcatSource::new([
+      OriginalSource::new("a\n", "a.js").boxed(),
+      OriginalSource::new("b\n", "b.js").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let expected = inner.index_map(&pool, &options);
+    let cached = CachedSource::new(inner);
+    let result = cached.index_map(&pool, &options);
+    assert_eq!(result, expected);
+  }
+
+  #[test]
+  fn index_map_returns_none_for_raw_cached() {
+    let cached = CachedSource::new(RawStringSource::from("no map"));
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    assert!(cached.index_map(&pool, &options).is_none());
+    // Second call also returns None (from cache)
+    assert!(cached.index_map(&pool, &options).is_none());
   }
 }
