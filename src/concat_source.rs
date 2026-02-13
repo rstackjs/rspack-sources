@@ -8,7 +8,7 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, Chunks, GeneratedInfo, StreamChunks},
+  helpers::{get_map, Stream, GeneratedInfo, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source::{IndexSourceMap, Mapping, OriginalLocation, Section, SectionOffset},
@@ -211,8 +211,8 @@ impl Source for ConcatSource {
     object_pool: &'a ObjectPool,
     options: &MapOptions,
   ) -> Option<SourceMap> {
-    let chunks = self.stream_chunks();
-    let result = get_map(object_pool, chunks.as_ref(), options);
+    let stream = self.to_stream();
+    let result = get_map(object_pool, stream.as_ref(), options);
     result
   }
 
@@ -334,23 +334,23 @@ impl PartialEq for ConcatSource {
 }
 impl Eq for ConcatSource {}
 
-struct ConcatSourceChunks<'source> {
-  children_chunks: Vec<Box<dyn Chunks + 'source>>,
+struct ConcatSourceStream<'source> {
+  children_chunks: Vec<Box<dyn Stream + 'source>>,
 }
 
-impl<'source> ConcatSourceChunks<'source> {
+impl<'source> ConcatSourceStream<'source> {
   fn new(concat_source: &'source ConcatSource) -> Self {
     let children = concat_source.optimized_children();
     let children_chunks = children
       .iter()
-      .map(|child| child.stream_chunks())
+      .map(|child| child.to_stream())
       .collect::<Vec<_>>();
     Self { children_chunks }
   }
 }
 
-impl Chunks for ConcatSourceChunks<'_> {
-  fn stream<'b>(
+impl Stream for ConcatSourceStream<'_> {
+  fn chunks<'b>(
     &'b self,
     object_pool: &'b ObjectPool,
     options: &MapOptions,
@@ -359,7 +359,7 @@ impl Chunks for ConcatSourceChunks<'_> {
     on_name: crate::helpers::OnName<'_, 'b>,
   ) -> GeneratedInfo {
     if self.children_chunks.len() == 1 {
-      return self.children_chunks[0].stream(
+      return self.children_chunks[0].chunks(
         object_pool,
         options,
         on_chunk,
@@ -385,7 +385,7 @@ impl Chunks for ConcatSourceChunks<'_> {
       let GeneratedInfo {
         generated_line,
         generated_column,
-      } = child_handle.stream(
+      } = child_handle.chunks(
         object_pool,
         options,
         &mut |chunk, mapping| {
@@ -525,9 +525,9 @@ impl Chunks for ConcatSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for ConcatSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(ConcatSourceChunks::new(self))
+impl ToStream for ConcatSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(ConcatSourceStream::new(self))
   }
 }
 

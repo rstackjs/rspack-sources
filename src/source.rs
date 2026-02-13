@@ -11,7 +11,7 @@ use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-  helpers::{decode_mappings, encode_mappings, Chunks, StreamChunks},
+  helpers::{decode_mappings, encode_mappings, Stream, ToStream},
   object_pool::ObjectPool,
   Result,
 };
@@ -109,7 +109,7 @@ impl<'a> SourceValue<'a> {
 
 /// [Source] abstraction, [webpack-sources docs](https://github.com/webpack/webpack-sources/#source).
 pub trait Source:
-  StreamChunks + DynHash + AsAny + DynEq + DynClone + fmt::Debug + Sync + Send
+  ToStream + DynHash + AsAny + DynEq + DynClone + fmt::Debug + Sync + Send
 {
   /// Get the source code.
   fn source(&self) -> SourceValue<'_>;
@@ -205,9 +205,9 @@ impl Source for BoxSource {
 
 dyn_clone::clone_trait_object!(Source);
 
-impl StreamChunks for BoxSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    self.as_ref().stream_chunks()
+impl ToStream for BoxSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    self.as_ref().to_stream()
   }
 }
 

@@ -3,8 +3,8 @@ use std::borrow::Cow;
 use std::hash::Hash;
 
 use rspack_sources::stream_chunks::{
-  stream_chunks_default, Chunks, GeneratedInfo, OnChunk, OnName, OnSource,
-  StreamChunks,
+  stream_chunks_default, GeneratedInfo, IntoToStream, OnChunk, OnName,
+  OnSource, ToStream,
 };
 use rspack_sources::{
   ConcatSource, MapOptions, ObjectPool, RawStringSource, Source, SourceExt,
@@ -44,15 +44,15 @@ impl Source for CompatSource {
   }
 }
 
-struct CompatSourceChunks<'source>(&'static str, Option<&'source SourceMap>);
+struct CompatSourceStream<'source>(&'static str, Option<&'source SourceMap>);
 
-impl<'source> CompatSourceChunks<'source> {
+impl<'source> CompatSourceStream<'source> {
   pub fn new(source: &'source CompatSource) -> Self {
-    CompatSourceChunks(&source.0, source.1.as_ref())
+    CompatSourceStream(&source.0, source.1.as_ref())
   }
 }
 
-impl Chunks for CompatSourceChunks<'_> {
+impl Stream for CompatSourceStream<'_> {
   fn stream<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
@@ -73,9 +73,9 @@ impl Chunks for CompatSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for CompatSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(CompatSourceChunks::new(self))
+impl ToStream for CompatSource {
+  fn stream_chunks<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(CompatSourceStream::new(self))
   }
 }
 

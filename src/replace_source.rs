@@ -8,7 +8,7 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, split_into_lines, Chunks, GeneratedInfo, StreamChunks},
+  helpers::{get_map, split_into_lines, Stream, GeneratedInfo, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
@@ -325,8 +325,8 @@ impl Source for ReplaceSource {
     if replacements.is_empty() {
       return self.inner.map(&ObjectPool::default(), options);
     }
-    let chunks = self.stream_chunks();
-    get_map(&ObjectPool::default(), chunks.as_ref(), options)
+    let stream = self.to_stream();
+    get_map(&ObjectPool::default(), stream.as_ref(), options)
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -403,26 +403,26 @@ fn check_content_at_position(
   }
 }
 
-struct ReplaceSourceChunks<'a> {
+struct ReplaceSourceStream<'a> {
   is_original_source: bool,
-  chunks: Box<dyn Chunks + 'a>,
+  stream: Box<dyn Stream + 'a>,
   replacements: &'a [Replacement],
 }
 
-impl<'a> ReplaceSourceChunks<'a> {
+impl<'a> ReplaceSourceStream<'a> {
   pub fn new(source: &'a ReplaceSource) -> Self {
     let is_original_source =
       source.inner.as_ref().as_any().is::<OriginalSource>();
     Self {
       is_original_source,
-      chunks: source.inner.stream_chunks(),
+      stream: source.inner.to_stream(),
       replacements: &source.replacements,
     }
   }
 }
 
-impl Chunks for ReplaceSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for ReplaceSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -501,7 +501,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
         }
       };
 
-    let result = self.chunks.stream(
+    let result = self.stream.chunks(
       object_pool,
       &MapOptions {
         columns: options.columns,
@@ -862,9 +862,9 @@ impl Chunks for ReplaceSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for ReplaceSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(ReplaceSourceChunks::new(self))
+impl ToStream for ReplaceSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(ReplaceSourceStream::new(self))
   }
 }
 
@@ -1578,8 +1578,8 @@ return <div>{data.foo}</div>
 
     let mut chunks = vec![];
     let object_pool = ObjectPool::default();
-    let handle = source.stream_chunks();
-    handle.stream(
+    let stream = source.to_stream();
+    stream.chunks(
       &object_pool,
       &MapOptions::default(),
       &mut |chunk, mapping| {

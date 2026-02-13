@@ -7,7 +7,7 @@ use std::{
 use crate::{
   helpers::{
     get_map, stream_chunks_of_combined_source_map, stream_chunks_of_source_map,
-    Chunks, StreamChunks,
+    Stream, ToStream,
   },
   object_pool::ObjectPool,
   MapOptions, Source, SourceMap, SourceValue,
@@ -114,8 +114,8 @@ impl Source for SourceMapSource {
     if self.inner_source_map.is_none() {
       return Some(self.source_map.clone());
     }
-    let chunks = self.stream_chunks();
-    get_map(object_pool, chunks.as_ref(), options)
+    let stream = self.to_stream();
+    get_map(object_pool, stream.as_ref(), options)
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -188,10 +188,10 @@ impl std::fmt::Debug for SourceMapSource {
   }
 }
 
-struct SourceMapSourceChunks<'source>(&'source SourceMapSource);
+struct SourceMapSourceStream<'source>(&'source SourceMapSource);
 
-impl Chunks for SourceMapSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for SourceMapSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -227,9 +227,9 @@ impl Chunks for SourceMapSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for SourceMapSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(SourceMapSourceChunks(self))
+impl ToStream for SourceMapSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(SourceMapSourceStream(self))
   }
 }
 

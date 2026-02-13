@@ -6,8 +6,8 @@ use std::{
 
 use crate::{
   helpers::{
-    get_generated_source_info, stream_chunks_of_raw_source, Chunks,
-    GeneratedInfo, StreamChunks,
+    get_generated_source_info, stream_chunks_of_raw_source, Stream,
+    GeneratedInfo, ToStream,
   },
   object_pool::ObjectPool,
   MapOptions, Source, SourceMap, SourceValue,
@@ -107,15 +107,15 @@ impl Hash for RawStringSource {
   }
 }
 
-struct RawStringChunks<'source>(&'source str);
+struct RawStringStream<'source>(&'source str);
 
-impl<'source> RawStringChunks<'source> {
+impl<'source> RawStringStream<'source> {
   pub fn new(source: &'source RawStringSource) -> Self {
-    RawStringChunks(&source.0)
+    RawStringStream(&source.0)
   }
 }
 
-impl Chunks for RawStringChunks<'_> {
+impl Stream for RawStringStream<'_> {
   fn stream<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
@@ -132,9 +132,9 @@ impl Chunks for RawStringChunks<'_> {
   }
 }
 
-impl StreamChunks for RawStringSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(RawStringChunks::new(self))
+impl ToStream for RawStringSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(RawStringStream::new(self))
   }
 }
 
@@ -253,9 +253,9 @@ impl Hash for RawBufferSource {
   }
 }
 
-struct RawBufferSourceChunks<'a>(&'a RawBufferSource);
+struct RawBufferSourceStream<'a>(&'a RawBufferSource);
 
-impl Chunks for RawBufferSourceChunks<'_> {
+impl Stream for RawBufferSourceStream<'_> {
   fn stream<'a>(
     &'a self,
     _object_pool: &'a ObjectPool,
@@ -273,9 +273,9 @@ impl Chunks for RawBufferSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for RawBufferSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(RawBufferSourceChunks(self))
+impl ToStream for RawBufferSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(RawBufferSourceStream(self))
   }
 }
 

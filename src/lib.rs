@@ -30,11 +30,11 @@ pub use source_map_source::{
   SourceMapSource, SourceMapSourceOptions, WithoutOriginalOptions,
 };
 
-/// Reexport `StreamChunks` related types.
+/// Reexport `ToStream` related types.
 pub mod stream_chunks {
   pub use super::helpers::{
-    stream_chunks_default, Chunks, GeneratedInfo, OnChunk, OnName, OnSource,
-    StreamChunks,
+    stream_chunks_default, Stream, GeneratedInfo, OnChunk, OnName, OnSource,
+    ToStream,
   };
 }
 

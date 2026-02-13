@@ -9,7 +9,7 @@ use rustc_hash::FxHasher;
 use crate::{
   helpers::{
     stream_and_get_source_and_map, stream_chunks_of_raw_source,
-    stream_chunks_of_source_map, Chunks, GeneratedInfo, StreamChunks,
+    stream_chunks_of_source_map, Stream, GeneratedInfo, ToStream,
   },
   object_pool::ObjectPool,
   source::{IndexSourceMap, SourceValue},
@@ -182,26 +182,26 @@ impl Source for CachedSource {
   }
 }
 
-struct CachedSourceChunks<'source> {
-  chunks: Box<dyn Chunks + 'source>,
+struct CachedSourceStream<'source> {
+  stream: Box<dyn Stream + 'source>,
   cache: Arc<CachedData>,
   source: Cow<'source, str>,
 }
 
-impl<'a> CachedSourceChunks<'a> {
+impl<'a> CachedSourceStream<'a> {
   fn new(cache_source: &'a CachedSource) -> Self {
     let source = cache_source.source().into_string_lossy();
 
     Self {
-      chunks: cache_source.inner.stream_chunks(),
+      stream: cache_source.inner.to_stream(),
       cache: cache_source.cache.clone(),
       source,
     }
   }
 }
 
-impl Chunks for CachedSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for CachedSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -240,7 +240,7 @@ impl Chunks for CachedSourceChunks<'_> {
         let (generated_info, map) = stream_and_get_source_and_map(
           options,
           object_pool,
-          self.chunks.as_ref(),
+          self.stream.as_ref(),
           on_chunk,
           on_source,
           on_name,
@@ -252,9 +252,9 @@ impl Chunks for CachedSourceChunks<'_> {
   }
 }
 
-impl StreamChunks for CachedSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(CachedSourceChunks::new(self))
+impl ToStream for CachedSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(CachedSourceStream::new(self))
   }
 }
 
@@ -409,8 +409,8 @@ mod tests {
     let mut on_name_count = 0;
     let generated_info = {
       let object_pool = ObjectPool::default();
-      let chunks = source.stream_chunks();
-      chunks.stream(
+      let stream = source.to_stream();
+      stream.chunks(
         &object_pool,
         &map_options,
         &mut |_chunk, _mapping| {
@@ -426,7 +426,7 @@ mod tests {
     };
 
     let cached_source = CachedSource::new(source);
-    cached_source.stream_chunks().stream(
+    cached_source.to_stream().chunks(
       &ObjectPool::default(),
       &map_options,
       &mut |_chunk, _mapping| {},
@@ -437,7 +437,7 @@ mod tests {
     let mut cached_on_chunk_count = 0;
     let mut cached_on_source_count = 0;
     let mut cached_on_name_count = 0;
-    let cached_generated_info = cached_source.stream_chunks().stream(
+    let cached_generated_info = cached_source.to_stream().chunks(
       &ObjectPool::default(),
       &map_options,
       &mut |_chunk, _mapping| {

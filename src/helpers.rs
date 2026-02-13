@@ -20,7 +20,7 @@ use crate::{
 
 pub fn get_map<'a>(
   object_pool: &'a ObjectPool,
-  chunks: &'a dyn Chunks,
+  stream: &'a dyn Stream,
   options: &MapOptions,
 ) -> Option<SourceMap> {
   let mut mappings_encoder = create_encoder(options.columns);
@@ -28,7 +28,7 @@ pub fn get_map<'a>(
   let mut sources_content: Vec<Arc<str>> = Vec::new();
   let mut names: Vec<String> = Vec::new();
 
-  chunks.stream(
+  stream.chunks(
     object_pool,
     &MapOptions {
       columns: options.columns,
@@ -72,13 +72,13 @@ pub fn get_map<'a>(
 /// while building source map information. It's designed to handle the transformation
 /// of source code into mappings that connect generated code positions to original
 /// source positions.
-pub trait Chunks {
+pub trait Stream {
   /// Streams through source code chunks and generates source map information.
   ///
   /// This method processes the source code in chunks, calling the provided callbacks
   /// for each chunk, source reference, and name reference encountered. It's the core
   /// method for building source maps during code transformation.
-  fn stream<'a>(
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -88,10 +88,10 @@ pub trait Chunks {
   ) -> crate::helpers::GeneratedInfo;
 }
 
-/// [StreamChunks] abstraction, see [webpack-sources source.streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
-pub trait StreamChunks {
-  /// [StreamChunks] abstraction
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a>;
+/// [ToStream] abstraction, see [webpack-sources source.streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
+pub trait ToStream {
+  /// [ToStream] abstraction
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a>;
 }
 
 /// [OnChunk] abstraction, see [webpack-sources onChunk](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
@@ -1229,7 +1229,7 @@ pub fn stream_chunks_of_combined_source_map<'a>(
 pub fn stream_and_get_source_and_map<'a>(
   options: &MapOptions,
   object_pool: &'a ObjectPool,
-  chunks: &'a dyn Chunks,
+  stream: &'a dyn Stream,
   on_chunk: OnChunk<'_, 'a>,
   on_source: OnSource<'_, 'a>,
   on_name: OnName<'_, 'a>,
@@ -1239,7 +1239,7 @@ pub fn stream_and_get_source_and_map<'a>(
   let mut sources_content: Vec<Arc<str>> = Vec::new();
   let mut names: Vec<String> = Vec::new();
 
-  let generated_info = chunks.stream(
+  let generated_info = stream.chunks(
     object_pool,
     options,
     &mut |chunk, mapping| {
