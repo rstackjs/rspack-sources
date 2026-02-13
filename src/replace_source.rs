@@ -431,17 +431,20 @@ impl Stream for ReplaceSourceStream<'_> {
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo {
     let on_name = RefCell::new(on_name);
-    let repls = &self.replacements;
+    let replacements = &self.replacements;
     let mut pos: u32 = 0;
     let mut i: usize = 0;
     let mut replacement_end: Option<u32> = None;
-    let mut next_replacement = (i < repls.len()).then(|| repls[i].start);
+    let mut next_replacement = (i < replacements.len()).then(|| replacements[i].start);
     let mut generated_line_offset: i64 = 0;
     let mut generated_column_offset: i64 = 0;
     let mut generated_column_offset_line = 0;
     let source_content_lines: RefCell<LinearMap<Option<SourceContent>>> =
       RefCell::new(LinearMap::default());
-    let name_mapping: RefCell<HashMap<Cow<str>, u32>> =
+
+    // if has named replacements, we need to map the name to the global name index
+    let has_named_replacements = replacements.iter().any(|repl| repl.name.is_some());
+    let name_mapping: RefCell<HashMap<&str, u32>> =
       RefCell::new(HashMap::default());
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
@@ -585,9 +588,13 @@ impl Stream for ReplaceSourceStream<'_> {
                     source_index: original.source_index,
                     original_line: original.original_line,
                     original_column: original.original_column,
-                    name_index: original.name_index.and_then(|name_index| {
-                      name_index_mapping.borrow().get(&name_index).copied()
-                    }),
+                    name_index: if !has_named_replacements {
+                      original.name_index
+                    } else {
+                      original.name_index.and_then(|name_index| {
+                        name_index_mapping.borrow().get(&name_index).copied()
+                      })
+                    },
                   }
                 }),
               },
@@ -612,7 +619,7 @@ impl Stream for ReplaceSourceStream<'_> {
           // Insert replacement content split into chunks by lines
           #[allow(unsafe_code)]
           // SAFETY: The safety of this operation relies on the fact that the `ReplaceSource` type will not delete the `replacements` during its entire lifetime.
-          let repl = &repls[i];
+          let repl = &replacements[i];
 
           let lines =
             split_into_lines(repl.content.as_str()).collect::<Vec<_>>();
@@ -627,8 +634,8 @@ impl Stream for ReplaceSourceStream<'_> {
             let mut global_index = name_mapping.get(name.as_str()).copied();
             if global_index.is_none() {
               let len = name_mapping.len() as u32;
-              name_mapping.insert(Cow::Borrowed(name), len);
-              on_name.borrow_mut()(len, Cow::Borrowed(name));
+              name_mapping.insert(name, len);
+              on_name.borrow_mut()(len, name);
               global_index = Some(len);
             }
             replacement_name_index = global_index;
@@ -683,8 +690,8 @@ impl Stream for ReplaceSourceStream<'_> {
 
           // Move to next replacement
           i += 1;
-          next_replacement = if i < repls.len() {
-            Some(repls[i].start)
+          next_replacement = if i < replacements.len() {
+            Some(replacements[i].start)
           } else {
             None
           };
@@ -792,24 +799,28 @@ impl Stream for ReplaceSourceStream<'_> {
         on_source(source_index, source, source_content);
       },
       &mut |name_index, name| {
-        let mut name_mapping = name_mapping.borrow_mut();
-        let mut global_index = name_mapping.get(&name).copied();
-        if global_index.is_none() {
-          let len = name_mapping.len() as u32;
-          name_mapping.insert(name.clone(), len);
-          on_name.borrow_mut()(len, name);
-          global_index = Some(len);
+        if !has_named_replacements {
+          on_name.borrow_mut()(name_index, name);
+        } else {
+          let mut name_mapping = name_mapping.borrow_mut();
+          let mut global_index = name_mapping.get(&name).copied();
+          if global_index.is_none() {
+            let len = name_mapping.len() as u32;
+            name_mapping.insert(name, len);
+            on_name.borrow_mut()(len, name);
+            global_index = Some(len);
+          }
+          name_index_mapping
+            .borrow_mut()
+            .insert(name_index, global_index.unwrap());
         }
-        name_index_mapping
-          .borrow_mut()
-          .insert(name_index, global_index.unwrap());
       },
     );
 
     // Handle remaining replacements one by one
     let mut line = result.generated_line as i64 + generated_line_offset;
-    while i < repls.len() {
-      let content = &repls[i].content;
+    while i < replacements.len() {
+      let content = &replacements[i].content;
       let lines: Vec<&str> = split_into_lines(content).collect();
 
       for (line_idx, content_line) in lines.iter().enumerate() {

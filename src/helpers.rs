@@ -118,7 +118,7 @@ pub type OnSource<'a, 'b> =
   &'a mut dyn FnMut(u32, Cow<'b, str>, Option<&'b Arc<str>>);
 
 /// [OnName] abstraction, see [webpack-sources onName](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
-pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, Cow<'b, str>);
+pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, &'b str);
 
 /// Callback invoked for each section during [`Stream::sections`], receiving the
 /// section's [`SectionOffset`] and an optional [`SourceMap`].
@@ -436,7 +436,7 @@ fn stream_chunks_of_source_map_final<'a>(
     )
   }
   for (i, name) in source_map.names().iter().enumerate() {
-    on_name(i as u32, Cow::Borrowed(name));
+    on_name(i as u32, name);
   }
   let mut mapping_active_line = 0;
   let mut on_mapping = |mapping: Mapping| {
@@ -499,7 +499,7 @@ fn stream_chunks_of_source_map_full<'a>(
     )
   }
   for (i, name) in source_map.names().iter().enumerate() {
-    on_name(i as u32, Cow::Borrowed(name));
+    on_name(i as u32, name);
   }
   let last_line = &lines[lines.len() - 1].line;
   let last_new_line = last_line.ends_with('\n');
@@ -780,12 +780,12 @@ pub fn stream_chunks_of_combined_source_map<'a>(
   let inner_source: RefCell<Option<&Arc<str>>> = RefCell::new(inner_source);
   let source_mapping: RefCell<HashMap<Cow<str>, u32>> =
     RefCell::new(HashMap::default());
-  let mut name_mapping: HashMap<Cow<str>, u32> = HashMap::default();
+  let mut name_mapping: HashMap<&str, u32> = HashMap::default();
   let source_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
   let name_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
-  let name_index_value_mapping: RefCell<LinearMap<Cow<str>>> =
+  let name_index_value_mapping: RefCell<LinearMap<&str>> =
     RefCell::new(LinearMap::default());
   let inner_source_index: RefCell<i64> = RefCell::new(-2);
   let inner_source_index_mapping: RefCell<LinearMap<i64>> =
@@ -799,7 +799,7 @@ pub fn stream_chunks_of_combined_source_map<'a>(
   > = RefCell::new(LinearMap::default());
   let inner_name_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
-  let inner_name_index_value_mapping: RefCell<LinearMap<Cow<str>>> =
+  let inner_name_index_value_mapping: RefCell<LinearMap<&str>> =
     RefCell::new(LinearMap::default());
   let inner_source_map_line_data: RefCell<Vec<SourceMapLineData>> =
     RefCell::new(Vec::new());
@@ -962,8 +962,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
                   let mut global_index = name_mapping.get(name).copied();
                   if global_index.is_none() {
                     let len = name_mapping.len() as u32;
-                    name_mapping.insert(name.clone(), len);
-                    on_name(len, name.clone());
+                    name_mapping.insert(name, len);
+                    on_name(len, name);
                     global_index = Some(len);
                   }
                   final_name_index = global_index.unwrap() as i64;
@@ -1019,8 +1019,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
                       let mut global_index = name_mapping.get(name).copied();
                       if global_index.is_none() {
                         let len = name_mapping.len() as u32;
-                        name_mapping.insert(name.clone(), len);
-                        on_name(len, name.clone());
+                        name_mapping.insert(name, len);
+                        on_name(len, name);
                         global_index = Some(len);
                       }
                       final_name_index = global_index.unwrap() as i64;
@@ -1119,8 +1119,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
           let mut global_index = name_mapping.get(name).copied();
           if global_index.is_none() {
             let len = name_mapping.len() as u32;
-            name_mapping.borrow_mut().insert(name.clone(), len);
-            on_name(len, name.clone());
+            name_mapping.borrow_mut().insert(name, len);
+            on_name(len, name);
             global_index = Some(len);
           }
           final_name_index = global_index.unwrap() as i64;
