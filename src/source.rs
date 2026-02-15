@@ -739,9 +739,8 @@ impl IndexSourceMap {
             let idx = global_sources.len() as u32;
             source_mapping.insert(source.clone(), idx);
             global_sources.push(source.clone());
-            while global_sources_content.len() < global_sources.len() {
-              global_sources_content.push("".into());
-            }
+            global_sources_content
+              .resize_with(global_sources.len(), || "".into());
             if let Some(content) = map.get_source_content(i) {
               global_sources_content[idx as usize] = content.clone();
             }

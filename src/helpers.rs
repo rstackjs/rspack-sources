@@ -302,21 +302,30 @@ pub fn split_into_lines(source: &str) -> impl Iterator<Item = &str> {
 ///
 /// See [webpack-sources getGeneratedSourceInfo](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/getGeneratedSourceInfo.js).
 pub fn get_generated_source_info(source: &str) -> GeneratedInfo {
-  let (generated_line, generated_column) = if source.ends_with('\n') {
-    (split_into_lines(source).count() + 1, 0)
-  } else {
-    let mut line_count = 0;
-    let mut last_line = "";
+  let bytes = source.as_bytes();
 
-    for line in split_into_lines(source) {
-      line_count += 1;
-      last_line = line;
+  let mut line_count = 0;
+  let mut last_newline_pos = None;
+
+  for pos in memchr::memchr_iter(b'\n', bytes) {
+    line_count += 1;
+    last_newline_pos = Some(pos);
+  }
+
+  let generated_column = if let Some(pos) = last_newline_pos {
+    if pos == bytes.len() - 1 {
+      0
+    } else {
+      #[allow(unsafe_code)]
+      let last_line_slice = unsafe { source.get_unchecked(pos + 1..) };
+      last_line_slice.chars().map(|c| c.len_utf16()).sum()
     }
-
-    (line_count.max(1), last_line.encode_utf16().count())
+  } else {
+    source.chars().map(|c| c.len_utf16()).sum()
   };
+
   GeneratedInfo {
-    generated_line: generated_line as u32,
+    generated_line: line_count + 1,
     generated_column: generated_column as u32,
   }
 }

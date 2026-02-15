@@ -523,6 +523,7 @@ fn optimize(children: &mut Vec<BoxSource>) -> Vec<BoxSource> {
 }
 
 /// Helper function to merge and flush pending raw sources.
+#[inline(always)]
 fn merge_raw_sources(
   raw_sources: &mut Vec<BoxSource>,
   new_children: &mut Vec<BoxSource>,
@@ -538,7 +539,7 @@ fn merge_raw_sources(
       let capacity = raw_sources.iter().map(|s| s.size()).sum();
       let mut merged_content = String::with_capacity(capacity);
       for source in raw_sources.drain(..) {
-        merged_content.push_str(source.source().into_string_lossy().as_ref());
+        source.rope(&mut |chunk| merged_content.push_str(chunk));
       }
       let merged_source = RawStringSource::from(merged_content);
       new_children.push(merged_source.boxed());
