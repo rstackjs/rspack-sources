@@ -24,7 +24,7 @@ use bench_complex_replace_source::{
   benchmark_complex_replace_source_source,
 };
 use bench_source_map::{
-  benchmark_parse_source_map_from_json, benchmark_source_map_clone,
+  benchmark_parse_source_map_from_json, benchmark_source_map_to_json,
 };
 
 use benchmark_repetitive_react_components::{
@@ -82,8 +82,7 @@ fn benchmark_concat_generate_string(b: &mut Bencher) {
     concat
       .map(&ObjectPool::default(), &MapOptions::default())
       .unwrap()
-      .to_json()
-      .unwrap();
+      .to_json();
   })
 }
 
@@ -111,8 +110,7 @@ fn benchmark_concat_generate_string_with_cache(b: &mut Bencher) {
     cached
       .map(&ObjectPool::default(), &MapOptions::default())
       .unwrap()
-      .to_json()
-      .unwrap();
+      .to_json();
   })
 }
 
@@ -181,7 +179,7 @@ fn bench_rspack_sources(criterion: &mut Criterion) {
     benchmark_parse_source_map_from_json,
   );
 
-  group.bench_function("source_map_clone", benchmark_source_map_clone);
+  group.bench_function("source_map_to_json", benchmark_source_map_to_json);
 
   group.bench_function(
     "repetitive_react_components_map",

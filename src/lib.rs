@@ -14,6 +14,7 @@ mod replace_source;
 mod source;
 mod source_content_lines;
 mod source_map_source;
+mod to_json;
 mod with_utf16;
 
 pub use cached_source::CachedSource;
