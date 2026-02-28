@@ -19,10 +19,10 @@ pub fn benchmark_parse_source_map_from_json(b: &mut Bencher) {
   })
 }
 
-pub fn benchmark_source_map_clone(b: &mut Bencher) {
-  let source = SourceMap::from_json(ANTD_MIN_JS_MAP).unwrap();
+pub fn benchmark_source_map_to_json(b: &mut Bencher) {
+  let source_map = SourceMap::from_json(black_box(ANTD_MIN_JS_MAP)).unwrap();
   b.iter(|| {
-    let _ = black_box(source.clone());
+    black_box(source_map.to_json().unwrap())
   })
 }
 
