@@ -25,7 +25,14 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
   // Calculate string lengths in a single pass for better cache locality
   let names_count = sourcemap.names().len();
   let sources_count = sourcemap.sources().len();
-  let sc_count = sourcemap.sources_content().len();
+
+  let should_skip_sources_content = sourcemap.sources_content().is_empty()
+    || sourcemap.sources_content().iter().all(|s| s.is_empty());
+  let sc_count = if should_skip_sources_content {
+    0
+  } else {
+    sourcemap.sources_content().len()
+  };
 
   // Accumulate total string bytes across all collections
   let mut total_string_bytes = 0usize;
@@ -38,8 +45,10 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
     total_string_bytes += source.len();
   }
 
-  for content in sourcemap.sources_content() {
-    total_string_bytes += content.len();
+  if !should_skip_sources_content {
+    for content in sourcemap.sources_content() {
+      total_string_bytes += content.len();
+    }
   }
 
   // Calculate total capacity needed
@@ -88,15 +97,13 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
     contents.push("\",");
   }
 
-  contents.push("\"names\":[");
-  contents.push_list(sourcemap.names().iter(), escape_into);
-
-  contents.push("],\"sources\":[");
+  contents.push("\"sources\":[");
   contents.push_list(sourcemap.sources().iter(), escape_into);
 
-  // Quote `source_content` in parallel
-  contents.push("],\"sourcesContent\":[");
-  contents.push_list(sourcemap.sources_content().iter(), escape_into);
+  if !should_skip_sources_content {
+    contents.push("],\"sourcesContent\":[");
+    contents.push_list(sourcemap.sources_content().iter(), escape_into);
+  }
 
   if let Some(ignore_list) = &sourcemap.ignore_list() {
     contents.push("],\"ignoreList\":[");
@@ -104,6 +111,9 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
       output.extend_from_slice(s.to_string().as_bytes());
     });
   }
+
+  contents.push("],\"names\":[");
+  contents.push_list(sourcemap.names().iter(), escape_into);
 
   contents.push("],\"mappings\":\"");
   contents.push_str(sourcemap.mappings());
