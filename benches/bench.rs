@@ -28,6 +28,7 @@ use bench_source_map::{
 };
 
 use benchmark_repetitive_react_components::{
+  benchmark_repetitive_react_components_index_map,
   benchmark_repetitive_react_components_map,
   benchmark_repetitive_react_components_source,
 };
@@ -184,6 +185,11 @@ fn bench_rspack_sources(criterion: &mut Criterion) {
   group.bench_function(
     "repetitive_react_components_map",
     benchmark_repetitive_react_components_map,
+  );
+
+  group.bench_function(
+    "repetitive_react_components_index_map",
+    benchmark_repetitive_react_components_index_map,
   );
 
   group.bench_function(

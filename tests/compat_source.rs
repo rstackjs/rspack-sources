@@ -3,12 +3,12 @@ use std::borrow::Cow;
 use std::hash::Hash;
 
 use rspack_sources::stream_chunks::{
-  stream_chunks_default, Chunks, GeneratedInfo, OnChunk, OnName, OnSource,
-  StreamChunks,
+  stream_chunks_default, GeneratedInfo, OnChunk, OnName, OnSection, OnSource,
+  Stream, ToStream,
 };
 use rspack_sources::{
-  ConcatSource, MapOptions, ObjectPool, RawStringSource, Source, SourceExt,
-  SourceMap, SourceValue,
+  get_generated_source_info, ConcatSource, MapOptions, ObjectPool,
+  RawStringSource, SectionOffset, Source, SourceExt, SourceMap, SourceValue,
 };
 
 #[derive(Debug, Eq)]
@@ -44,16 +44,16 @@ impl Source for CompatSource {
   }
 }
 
-struct CompatSourceChunks<'source>(&'static str, Option<&'source SourceMap>);
+struct CompatSourceStream<'source>(&'static str, Option<&'source SourceMap>);
 
-impl<'source> CompatSourceChunks<'source> {
+impl<'source> CompatSourceStream<'source> {
   pub fn new(source: &'source CompatSource) -> Self {
-    CompatSourceChunks(&source.0, source.1.as_ref())
+    CompatSourceStream(&source.0, source.1.as_ref())
   }
 }
 
-impl Chunks for CompatSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for CompatSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -71,11 +71,26 @@ impl Chunks for CompatSourceChunks<'_> {
       on_name,
     )
   }
+
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
+  fn sections<'a>(
+    &'a self,
+    _object_pool: &'a ObjectPool,
+    _columns: bool,
+    on_section: OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let generated_info = get_generated_source_info(self.0);
+    on_section(SectionOffset::default(), self.1.cloned());
+    generated_info
+  }
 }
 
-impl StreamChunks for CompatSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(CompatSourceChunks::new(self))
+impl ToStream for CompatSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(CompatSourceStream::new(self))
   }
 }
 

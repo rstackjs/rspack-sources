@@ -8,10 +8,10 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, Chunks, GeneratedInfo, StreamChunks},
+  helpers::{get_map, GeneratedInfo, Stream, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
-  source::{Mapping, OriginalLocation},
+  source::{IndexSourceMap, Mapping, OriginalLocation, Section},
   BoxSource, MapOptions, RawStringSource, Source, SourceExt, SourceMap,
   SourceValue,
 };
@@ -211,9 +211,27 @@ impl Source for ConcatSource {
     object_pool: &'a ObjectPool,
     options: &MapOptions,
   ) -> Option<SourceMap> {
-    let chunks = self.stream_chunks();
-    let result = get_map(object_pool, chunks.as_ref(), options);
-    result
+    let stream = self.to_stream();
+    get_map(object_pool, stream.as_ref(), options).1
+  }
+
+  fn index_map(
+    &self,
+    object_pool: &ObjectPool,
+    options: &MapOptions,
+  ) -> Option<IndexSourceMap> {
+    let stream = self.to_stream();
+    let mut sections = Vec::with_capacity(stream.sections_size_hint());
+    stream.sections(object_pool, options.columns, &mut |offset, map| {
+      if let Some(map) = map {
+        sections.push(Section { offset, map });
+      }
+    });
+    if sections.is_empty() {
+      None
+    } else {
+      Some(IndexSourceMap::new(sections))
+    }
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -240,23 +258,22 @@ impl PartialEq for ConcatSource {
 }
 impl Eq for ConcatSource {}
 
-struct ConcatSourceChunks<'source> {
-  children_chunks: Vec<Box<dyn Chunks + 'source>>,
+struct ConcatSourceStream<'source> {
+  children_streams: Vec<Box<dyn Stream + 'source>>,
 }
 
-impl<'source> ConcatSourceChunks<'source> {
-  fn new(concat_source: &'source ConcatSource) -> Self {
-    let children = concat_source.optimized_children();
-    let children_chunks = children
+impl<'source> ConcatSourceStream<'source> {
+  fn new(children: &'source [BoxSource]) -> Self {
+    let children_streams = children
       .iter()
-      .map(|child| child.stream_chunks())
+      .map(|child| child.to_stream())
       .collect::<Vec<_>>();
-    Self { children_chunks }
+    Self { children_streams }
   }
 }
 
-impl Chunks for ConcatSourceChunks<'_> {
-  fn stream<'b>(
+impl Stream for ConcatSourceStream<'_> {
+  fn chunks<'b>(
     &'b self,
     object_pool: &'b ObjectPool,
     options: &MapOptions,
@@ -264,8 +281,8 @@ impl Chunks for ConcatSourceChunks<'_> {
     on_source: crate::helpers::OnSource<'_, 'b>,
     on_name: crate::helpers::OnName<'_, 'b>,
   ) -> GeneratedInfo {
-    if self.children_chunks.len() == 1 {
-      return self.children_chunks[0].stream(
+    if self.children_streams.len() == 1 {
+      return self.children_streams[0].chunks(
         object_pool,
         options,
         on_chunk,
@@ -276,7 +293,7 @@ impl Chunks for ConcatSourceChunks<'_> {
     let mut current_line_offset = 0;
     let mut current_column_offset = 0;
     let mut source_mapping: HashMap<Cow<str>, u32> = HashMap::default();
-    let mut name_mapping: HashMap<Cow<str>, u32> = HashMap::default();
+    let mut name_mapping: HashMap<&str, u32> = HashMap::default();
     let mut need_to_close_mapping = false;
 
     let source_index_mapping: RefCell<LinearMap<u32>> =
@@ -284,14 +301,14 @@ impl Chunks for ConcatSourceChunks<'_> {
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
 
-    for child_handle in &self.children_chunks {
+    for child_stream in &self.children_streams {
       source_index_mapping.borrow_mut().clear();
       name_index_mapping.borrow_mut().clear();
       let mut last_mapping_line = 0;
       let GeneratedInfo {
         generated_line,
         generated_column,
-      } = child_handle.stream(
+      } = child_stream.chunks(
         object_pool,
         options,
         &mut |chunk, mapping| {
@@ -394,7 +411,7 @@ impl Chunks for ConcatSourceChunks<'_> {
           let mut global_index = name_mapping.get(&name).copied();
           if global_index.is_none() {
             let len = name_mapping.len() as u32;
-            name_mapping.insert(name.clone(), len);
+            name_mapping.insert(name, len);
             on_name(len, name);
             global_index = Some(len);
           }
@@ -429,11 +446,53 @@ impl Chunks for ConcatSourceChunks<'_> {
       generated_column: current_column_offset,
     }
   }
+
+  fn sections_size_hint(&self) -> usize {
+    self
+      .children_streams
+      .iter()
+      .map(|child_stream| child_stream.sections_size_hint())
+      .sum()
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let mut current_generated_info = GeneratedInfo {
+      generated_line: 1,
+      generated_column: 0,
+    };
+
+    for child_stream in &self.children_streams {
+      let generated_info = child_stream.sections(
+        object_pool,
+        columns,
+        &mut |mut offset, mapping| {
+          offset.line += current_generated_info.generated_line - 1;
+          offset.column += current_generated_info.generated_column;
+          on_section(offset, mapping);
+        },
+      );
+      current_generated_info.generated_line +=
+        generated_info.generated_line - 1;
+      current_generated_info.generated_column = generated_info.generated_column;
+    }
+    current_generated_info
+  }
 }
 
-impl StreamChunks for ConcatSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(ConcatSourceChunks::new(self))
+impl ToStream for ConcatSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    let children = self.optimized_children();
+    // Fast path: delegate directly to the single child's stream,
+    // avoiding ConcatSourceStream + Vec + extra Box allocations.
+    if children.len() == 1 {
+      return children[0].to_stream();
+    }
+    Box::new(ConcatSourceStream::new(children))
   }
 }
 
@@ -464,6 +523,7 @@ fn optimize(children: &mut Vec<BoxSource>) -> Vec<BoxSource> {
 }
 
 /// Helper function to merge and flush pending raw sources.
+#[inline(always)]
 fn merge_raw_sources(
   raw_sources: &mut Vec<BoxSource>,
   new_children: &mut Vec<BoxSource>,
@@ -479,7 +539,7 @@ fn merge_raw_sources(
       let capacity = raw_sources.iter().map(|s| s.size()).sum();
       let mut merged_content = String::with_capacity(capacity);
       for source in raw_sources.drain(..) {
-        merged_content.push_str(source.source().into_string_lossy().as_ref());
+        source.rope(&mut |chunk| merged_content.push_str(chunk));
       }
       let merged_source = RawStringSource::from(merged_content);
       new_children.push(merged_source.boxed());
@@ -492,6 +552,251 @@ mod tests {
   use crate::{OriginalSource, RawBufferSource, RawStringSource};
 
   use super::*;
+
+  #[test]
+  fn index_map_returns_none_for_only_raw_sources() {
+    let source = ConcatSource::new([
+      RawStringSource::from("Hello World\n").boxed(),
+      RawStringSource::from("Bye\n").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    assert!(source.index_map(&pool, &options).is_none());
+  }
+
+  #[test]
+  fn index_map_single_original_source_child() {
+    let source = ConcatSource::new([OriginalSource::new(
+      "console.log('test');\n",
+      "test.js",
+    )
+    .boxed()]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    // Single child -> delegates to child's index_map (1 section, offset 0,0)
+    assert_eq!(index_map.sections().len(), 1);
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+    // The flattened source map should equal the child's map
+    let map = source.map(&pool, &options).unwrap();
+    assert_eq!(index_map.to_source_map().unwrap(), map);
+  }
+
+  #[test]
+  fn index_map_concat_two_original_sources() {
+    let source = ConcatSource::new([
+      OriginalSource::new("line1\n", "a.js").boxed(),
+      OriginalSource::new("line2\n", "b.js").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    assert_eq!(index_map.sections().len(), 2);
+    // First section at 0,0
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+    // Second section at line 1 (after "line1\n")
+    assert_eq!(index_map.sections()[1].offset.line, 1);
+    assert_eq!(index_map.sections()[1].offset.column, 0);
+
+    // Flattened should match regular map
+    let flat = index_map.to_source_map().unwrap();
+    let map = source.map(&pool, &options).unwrap();
+    assert_eq!(flat.sources(), map.sources());
+    assert_eq!(flat.sources_content(), map.sources_content());
+  }
+
+  #[test]
+  fn index_map_with_raw_prefix() {
+    // RawStringSource (no map) followed by OriginalSource (has map)
+    let source = ConcatSource::new([
+      RawStringSource::from("// header\n").boxed(),
+      OriginalSource::new(
+        "console.log('test');\nconsole.log('test2');\n",
+        "console.js",
+      )
+      .boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    // Only one section (from the OriginalSource), offset by 1 line
+    assert_eq!(index_map.sections().len(), 1);
+    assert_eq!(index_map.sections()[0].offset.line, 1);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+  }
+
+  #[test]
+  fn index_map_with_raw_suffix() {
+    // OriginalSource followed by RawStringSource
+    let source = ConcatSource::new([
+      OriginalSource::new("hello\n", "a.js").boxed(),
+      RawStringSource::from("// footer\n").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    assert_eq!(index_map.sections().len(), 1);
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+  }
+
+  #[test]
+  fn index_map_same_line_concat() {
+    // Two sources on the same line (no trailing newline in first)
+    let source = ConcatSource::new([
+      OriginalSource::new("hello", "a.js").boxed(),
+      OriginalSource::new(" world", "b.js").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    assert_eq!(index_map.sections().len(), 2);
+    // First at 0,0
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+    // Second at 0,5 (same line, column 5 = length of "hello")
+    assert_eq!(index_map.sections()[1].offset.line, 0);
+    assert_eq!(index_map.sections()[1].offset.column, 5);
+  }
+
+  #[test]
+  fn index_map_mixed_raw_and_original_sources() {
+    let source = ConcatSource::new([
+      RawStringSource::from("Hello World\n").boxed(),
+      OriginalSource::new(
+        "console.log('test');\nconsole.log('test2');\n",
+        "console.js",
+      )
+      .boxed(),
+      OriginalSource::new("Hello2\n", "hello.md").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::new(false);
+    let index_map = source.index_map(&pool, &options).unwrap();
+
+    // Two sections (from the two OriginalSources)
+    assert_eq!(index_map.sections().len(), 2);
+
+    // First OriginalSource starts after "Hello World\n" -> line offset 1
+    assert_eq!(index_map.sections()[0].offset.line, 1);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+
+    // Second OriginalSource starts after the first one's 2 lines
+    // "Hello World\n" (1 line) + "console.log('test');\nconsole.log('test2');\n" (2 lines) = 3 lines
+    assert_eq!(index_map.sections()[1].offset.line, 3);
+    assert_eq!(index_map.sections()[1].offset.column, 0);
+  }
+
+  #[test]
+  fn index_map_to_source_map_matches_regular_map() {
+    // Comprehensive test: the flattened IndexSourceMap should produce
+    // equivalent mappings to the regular map() method
+    let mut source = ConcatSource::new([
+      RawStringSource::from("Hello World\n".to_string()).boxed(),
+      OriginalSource::new(
+        "console.log('test');\nconsole.log('test2');\n",
+        "console.js",
+      )
+      .boxed(),
+    ]);
+    source.add(OriginalSource::new("Hello2\n", "hello.md"));
+
+    let pool = ObjectPool::default();
+    let options = MapOptions::new(false);
+
+    let regular_map = source.map(&pool, &options).unwrap();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    let flat_map = index_map.to_source_map().unwrap();
+
+    // Sources should match
+    assert_eq!(flat_map.sources(), regular_map.sources());
+    assert_eq!(flat_map.sources_content(), regular_map.sources_content());
+
+    // Decoded mappings should match
+    let regular_mappings: Vec<Mapping> =
+      regular_map.decoded_mappings().collect();
+    let flat_mappings: Vec<Mapping> = flat_map.decoded_mappings().collect();
+    assert_eq!(regular_mappings.len(), flat_mappings.len());
+    for (r, f) in regular_mappings.iter().zip(flat_mappings.iter()) {
+      assert_eq!(r.generated_line, f.generated_line);
+      assert_eq!(r.generated_column, f.generated_column);
+      assert_eq!(
+        r.original.as_ref().map(|o| o.source_index),
+        f.original.as_ref().map(|o| o.source_index)
+      );
+      assert_eq!(
+        r.original.as_ref().map(|o| o.original_line),
+        f.original.as_ref().map(|o| o.original_line)
+      );
+      assert_eq!(
+        r.original.as_ref().map(|o| o.original_column),
+        f.original.as_ref().map(|o| o.original_column)
+      );
+    }
+  }
+
+  #[test]
+  fn index_map_nested_concat_source() {
+    // Nested ConcatSource should flatten sections
+    let inner = ConcatSource::new([
+      OriginalSource::new("a\n", "a.js").boxed(),
+      OriginalSource::new("b\n", "b.js").boxed(),
+    ]);
+    let outer = ConcatSource::new([
+      inner.boxed(),
+      OriginalSource::new("c\n", "c.js").boxed(),
+    ]);
+
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = outer.index_map(&pool, &options).unwrap();
+
+    // Inner concat should contribute 2 sections, outer adds 1 = 3 total
+    assert_eq!(index_map.sections().len(), 3);
+
+    // Verify offsets
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+    assert_eq!(index_map.sections()[1].offset.line, 1); // after "a\n"
+    assert_eq!(index_map.sections()[1].offset.column, 0);
+    assert_eq!(index_map.sections()[2].offset.line, 2); // after "a\n" + "b\n"
+    assert_eq!(index_map.sections()[2].offset.column, 0);
+
+    // Verify sources
+    assert_eq!(index_map.sections()[0].map.sources(), &["a.js".to_string()]);
+    assert_eq!(index_map.sections()[1].map.sources(), &["b.js".to_string()]);
+    assert_eq!(index_map.sections()[2].map.sources(), &["c.js".to_string()]);
+
+    // Flattened should match regular map
+    let regular_map = outer.map(&pool, &options).unwrap();
+    let flat_map = index_map.to_source_map().unwrap();
+    assert_eq!(flat_map.sources(), regular_map.sources());
+    let regular_mappings: Vec<Mapping> =
+      regular_map.decoded_mappings().collect();
+    let flat_mappings: Vec<Mapping> = flat_map.decoded_mappings().collect();
+    assert_eq!(regular_mappings.len(), flat_mappings.len());
+    for (r, f) in regular_mappings.iter().zip(flat_mappings.iter()) {
+      assert_eq!(r.generated_line, f.generated_line);
+      assert_eq!(r.generated_column, f.generated_column);
+    }
+  }
+
+  #[test]
+  fn index_map_with_empty_children() {
+    let source = ConcatSource::new([
+      OriginalSource::new("hello\n", "a.js").boxed(),
+      RawStringSource::from("").boxed(),
+      OriginalSource::new("world\n", "b.js").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let index_map = source.index_map(&pool, &options).unwrap();
+    assert_eq!(index_map.sections().len(), 2);
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[1].offset.line, 1);
+  }
 
   #[test]
   fn should_concat_two_sources() {

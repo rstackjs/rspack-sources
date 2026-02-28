@@ -7,11 +7,11 @@ use std::{
 use crate::{
   helpers::{
     get_generated_source_info, get_map, split_into_lines,
-    split_into_potential_tokens, Chunks, GeneratedInfo, StreamChunks,
+    split_into_potential_tokens, GeneratedInfo, Stream, ToStream,
   },
   object_pool::ObjectPool,
   source::{Mapping, OriginalLocation},
-  MapOptions, Source, SourceMap, SourceValue,
+  MapOptions, SectionOffset, Source, SourceMap, SourceValue,
 };
 
 /// Represents source code, it will create source map for the source code,
@@ -73,8 +73,8 @@ impl Source for OriginalSource {
     object_pool: &ObjectPool,
     options: &MapOptions,
   ) -> Option<SourceMap> {
-    let chunks = self.stream_chunks();
-    get_map(object_pool, chunks.as_ref(), options)
+    let stream = self.to_stream();
+    get_map(object_pool, stream.as_ref(), options).1
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -111,16 +111,16 @@ impl std::fmt::Debug for OriginalSource {
   }
 }
 
-struct OriginalSourceChunks<'a>(&'a OriginalSource);
+struct OriginalSourceStream<'a>(&'a OriginalSource);
 
-impl<'source> OriginalSourceChunks<'source> {
+impl<'source> OriginalSourceStream<'source> {
   pub fn new(source: &'source OriginalSource) -> Self {
     Self(source)
   }
 }
 
-impl Chunks for OriginalSourceChunks<'_> {
-  fn stream<'b>(
+impl Stream for OriginalSourceStream<'_> {
+  fn chunks<'b>(
     &'b self,
     _object_pool: &'b ObjectPool,
     options: &MapOptions,
@@ -247,11 +247,33 @@ impl Chunks for OriginalSourceChunks<'_> {
       }
     }
   }
+
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let (generated_info, map) = get_map(
+      object_pool,
+      self,
+      &MapOptions {
+        columns,
+        final_source: true,
+      },
+    );
+    on_section(SectionOffset::default(), map);
+    generated_info
+  }
 }
 
-impl StreamChunks for OriginalSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(OriginalSourceChunks::new(self))
+impl ToStream for OriginalSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(OriginalSourceStream::new(self))
   }
 }
 
@@ -365,8 +387,8 @@ mod tests {
     let source = OriginalSource::new(code, "test.js");
     let mut chunks = vec![];
     let object_pool = ObjectPool::default();
-    let handle = source.stream_chunks();
-    let generated_info = handle.stream(
+    let handle = source.to_stream();
+    let generated_info = handle.chunks(
       &object_pool,
       &MapOptions::default(),
       &mut |chunk, mapping| {

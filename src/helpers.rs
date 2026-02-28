@@ -15,20 +15,20 @@ use crate::{
   source::{Mapping, OriginalLocation},
   source_content_lines::SourceContentLines,
   with_utf16::WithUtf16,
-  MapOptions, SourceMap,
+  MapOptions, SectionOffset, SourceMap,
 };
 
 pub fn get_map<'a>(
   object_pool: &'a ObjectPool,
-  chunks: &'a dyn Chunks,
+  stream: &'a dyn Stream,
   options: &MapOptions,
-) -> Option<SourceMap> {
+) -> (GeneratedInfo, Option<SourceMap>) {
   let mut mappings_encoder = create_encoder(options.columns);
   let mut sources: Vec<String> = Vec::new();
   let mut sources_content: Vec<Arc<str>> = Vec::new();
   let mut names: Vec<String> = Vec::new();
 
-  chunks.stream(
+  let generated_info = stream.chunks(
     object_pool,
     &MapOptions {
       columns: options.columns,
@@ -61,9 +61,12 @@ pub fn get_map<'a>(
       names[name_index] = name.to_string();
     },
   );
+
   let mappings = mappings_encoder.drain();
-  (!mappings.is_empty())
-    .then(|| SourceMap::new(mappings, sources, sources_content, names))
+  let map = (!mappings.is_empty())
+    .then(|| SourceMap::new(mappings, sources, sources_content, names));
+
+  (generated_info, map)
 }
 
 /// A trait for processing source code chunks and generating source maps.
@@ -72,13 +75,13 @@ pub fn get_map<'a>(
 /// while building source map information. It's designed to handle the transformation
 /// of source code into mappings that connect generated code positions to original
 /// source positions.
-pub trait Chunks {
+pub trait Stream {
   /// Streams through source code chunks and generates source map information.
   ///
   /// This method processes the source code in chunks, calling the provided callbacks
   /// for each chunk, source reference, and name reference encountered. It's the core
   /// method for building source maps during code transformation.
-  fn stream<'a>(
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -86,12 +89,24 @@ pub trait Chunks {
     on_source: crate::helpers::OnSource<'_, 'a>,
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo;
+
+  /// Returns an estimated upper bound of sections that [`Stream::sections`] will produce.
+  fn sections_size_hint(&self) -> usize;
+
+  /// Streams source map data as discrete sections, calling `on_section` for
+  /// each section with its offset and optional [`SourceMap`].
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> crate::helpers::GeneratedInfo;
 }
 
-/// [StreamChunks] abstraction, see [webpack-sources source.streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
-pub trait StreamChunks {
-  /// [StreamChunks] abstraction
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a>;
+/// [ToStream] abstraction, see [webpack-sources source.streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
+pub trait ToStream {
+  /// [ToStream] abstraction
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a>;
 }
 
 /// [OnChunk] abstraction, see [webpack-sources onChunk](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
@@ -103,7 +118,12 @@ pub type OnSource<'a, 'b> =
   &'a mut dyn FnMut(u32, Cow<'b, str>, Option<&'b Arc<str>>);
 
 /// [OnName] abstraction, see [webpack-sources onName](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L13).
-pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, Cow<'b, str>);
+pub type OnName<'a, 'b> = &'a mut dyn FnMut(u32, &'b str);
+
+/// Callback invoked for each section during [`Stream::sections`], receiving the
+/// section's [`SectionOffset`] and an optional [`SourceMap`].
+pub type OnSection<'a, 'b> =
+  &'a mut dyn FnMut(SectionOffset, Option<SourceMap>);
 
 /// Default stream chunks behavior impl, see [webpack-sources streamChunks](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/streamChunks.js#L15-L35).
 pub fn stream_chunks_default<'a>(
@@ -131,7 +151,7 @@ pub fn stream_chunks_default<'a>(
 }
 
 /// `GeneratedSourceInfo` abstraction, see [webpack-sources GeneratedSourceInfo](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/getGeneratedSourceInfo.js)
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub struct GeneratedInfo {
   /// Generated line
   pub generated_line: u32,
@@ -278,22 +298,34 @@ pub fn split_into_lines(source: &str) -> impl Iterator<Item = &str> {
   split(source, b'\n')
 }
 
+/// Computes the [`GeneratedInfo`] (line and column) for the end position of the given source string.
+///
+/// See [webpack-sources getGeneratedSourceInfo](https://github.com/webpack/webpack-sources/blob/9f98066311d53a153fdc7c633422a1d086528027/lib/helpers/getGeneratedSourceInfo.js).
 pub fn get_generated_source_info(source: &str) -> GeneratedInfo {
-  let (generated_line, generated_column) = if source.ends_with('\n') {
-    (split_into_lines(source).count() + 1, 0)
-  } else {
-    let mut line_count = 0;
-    let mut last_line = "";
+  let bytes = source.as_bytes();
 
-    for line in split_into_lines(source) {
-      line_count += 1;
-      last_line = line;
+  let mut line_count = 0;
+  let mut last_newline_pos = None;
+
+  for pos in memchr::memchr_iter(b'\n', bytes) {
+    line_count += 1;
+    last_newline_pos = Some(pos);
+  }
+
+  let generated_column = if let Some(pos) = last_newline_pos {
+    if pos == bytes.len() - 1 {
+      0
+    } else {
+      #[allow(unsafe_code)]
+      let last_line_slice = unsafe { source.get_unchecked(pos + 1..) };
+      last_line_slice.chars().map(|c| c.len_utf16()).sum()
     }
-
-    (line_count.max(1), last_line.encode_utf16().count())
+  } else {
+    source.chars().map(|c| c.len_utf16()).sum()
   };
+
   GeneratedInfo {
-    generated_line: generated_line as u32,
+    generated_line: line_count + 1,
     generated_column: generated_column as u32,
   }
 }
@@ -413,7 +445,7 @@ fn stream_chunks_of_source_map_final<'a>(
     )
   }
   for (i, name) in source_map.names().iter().enumerate() {
-    on_name(i as u32, Cow::Borrowed(name));
+    on_name(i as u32, name);
   }
   let mut mapping_active_line = 0;
   let mut on_mapping = |mapping: Mapping| {
@@ -476,7 +508,7 @@ fn stream_chunks_of_source_map_full<'a>(
     )
   }
   for (i, name) in source_map.names().iter().enumerate() {
-    on_name(i as u32, Cow::Borrowed(name));
+    on_name(i as u32, name);
   }
   let last_line = &lines[lines.len() - 1].line;
   let last_new_line = last_line.ends_with('\n');
@@ -757,12 +789,12 @@ pub fn stream_chunks_of_combined_source_map<'a>(
   let inner_source: RefCell<Option<&Arc<str>>> = RefCell::new(inner_source);
   let source_mapping: RefCell<HashMap<Cow<str>, u32>> =
     RefCell::new(HashMap::default());
-  let mut name_mapping: HashMap<Cow<str>, u32> = HashMap::default();
+  let mut name_mapping: HashMap<&str, u32> = HashMap::default();
   let source_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
   let name_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
-  let name_index_value_mapping: RefCell<LinearMap<Cow<str>>> =
+  let name_index_value_mapping: RefCell<LinearMap<&str>> =
     RefCell::new(LinearMap::default());
   let inner_source_index: RefCell<i64> = RefCell::new(-2);
   let inner_source_index_mapping: RefCell<LinearMap<i64>> =
@@ -776,7 +808,7 @@ pub fn stream_chunks_of_combined_source_map<'a>(
   > = RefCell::new(LinearMap::default());
   let inner_name_index_mapping: RefCell<LinearMap<i64>> =
     RefCell::new(LinearMap::default());
-  let inner_name_index_value_mapping: RefCell<LinearMap<Cow<str>>> =
+  let inner_name_index_value_mapping: RefCell<LinearMap<&str>> =
     RefCell::new(LinearMap::default());
   let inner_source_map_line_data: RefCell<Vec<SourceMapLineData>> =
     RefCell::new(Vec::new());
@@ -939,8 +971,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
                   let mut global_index = name_mapping.get(name).copied();
                   if global_index.is_none() {
                     let len = name_mapping.len() as u32;
-                    name_mapping.insert(name.clone(), len);
-                    on_name(len, name.clone());
+                    name_mapping.insert(name, len);
+                    on_name(len, name);
                     global_index = Some(len);
                   }
                   final_name_index = global_index.unwrap() as i64;
@@ -996,8 +1028,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
                       let mut global_index = name_mapping.get(name).copied();
                       if global_index.is_none() {
                         let len = name_mapping.len() as u32;
-                        name_mapping.insert(name.clone(), len);
-                        on_name(len, name.clone());
+                        name_mapping.insert(name, len);
+                        on_name(len, name);
                         global_index = Some(len);
                       }
                       final_name_index = global_index.unwrap() as i64;
@@ -1096,8 +1128,8 @@ pub fn stream_chunks_of_combined_source_map<'a>(
           let mut global_index = name_mapping.get(name).copied();
           if global_index.is_none() {
             let len = name_mapping.len() as u32;
-            name_mapping.borrow_mut().insert(name.clone(), len);
-            on_name(len, name.clone());
+            name_mapping.borrow_mut().insert(name, len);
+            on_name(len, name);
             global_index = Some(len);
           }
           final_name_index = global_index.unwrap() as i64;
@@ -1229,7 +1261,7 @@ pub fn stream_chunks_of_combined_source_map<'a>(
 pub fn stream_and_get_source_and_map<'a>(
   options: &MapOptions,
   object_pool: &'a ObjectPool,
-  chunks: &'a dyn Chunks,
+  stream: &'a dyn Stream,
   on_chunk: OnChunk<'_, 'a>,
   on_source: OnSource<'_, 'a>,
   on_name: OnName<'_, 'a>,
@@ -1239,7 +1271,7 @@ pub fn stream_and_get_source_and_map<'a>(
   let mut sources_content: Vec<Arc<str>> = Vec::new();
   let mut names: Vec<String> = Vec::new();
 
-  let generated_info = chunks.stream(
+  let generated_info = stream.chunks(
     object_pool,
     options,
     &mut |chunk, mapping| {

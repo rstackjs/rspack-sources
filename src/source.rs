@@ -11,7 +11,7 @@ use dyn_clone::DynClone;
 use serde::Deserialize;
 
 use crate::{
-  helpers::{decode_mappings, Chunks, StreamChunks},
+  helpers::{decode_mappings, encode_mappings, Stream, ToStream},
   object_pool::ObjectPool,
   to_json::to_json,
   Result,
@@ -110,7 +110,7 @@ impl<'a> SourceValue<'a> {
 
 /// [Source] abstraction, [webpack-sources docs](https://github.com/webpack/webpack-sources/#source).
 pub trait Source:
-  StreamChunks + DynHash + AsAny + DynEq + DynClone + fmt::Debug + Sync + Send
+  ToStream + DynHash + AsAny + DynEq + DynClone + fmt::Debug + Sync + Send
 {
   /// Get the source code.
   fn source(&self) -> SourceValue<'_>;
@@ -130,6 +130,25 @@ pub trait Source:
     object_pool: &ObjectPool,
     options: &MapOptions,
   ) -> Option<SourceMap>;
+
+  /// Get the [IndexSourceMap].
+  ///
+  /// Returns an index source map which uses sections to represent the mappings.
+  /// This is more efficient for concatenated sources as it avoids the expensive
+  /// mapping merge. The default implementation wraps the result of [Source::map]
+  /// into a single-section [IndexSourceMap].
+  fn index_map(
+    &self,
+    object_pool: &ObjectPool,
+    options: &MapOptions,
+  ) -> Option<IndexSourceMap> {
+    self.map(object_pool, options).map(|map| {
+      IndexSourceMap::new(vec![Section {
+        offset: SectionOffset { line: 0, column: 0 },
+        map,
+      }])
+    })
+  }
 
   /// Update hash based on the source.
   fn update_hash(&self, state: &mut dyn Hasher) {
@@ -171,6 +190,15 @@ impl Source for BoxSource {
   }
 
   #[inline]
+  fn index_map(
+    &self,
+    object_pool: &ObjectPool,
+    options: &MapOptions,
+  ) -> Option<IndexSourceMap> {
+    self.as_ref().index_map(object_pool, options)
+  }
+
+  #[inline]
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
     self.as_ref().to_writer(writer)
   }
@@ -178,9 +206,9 @@ impl Source for BoxSource {
 
 dyn_clone::clone_trait_object!(Source);
 
-impl StreamChunks for BoxSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    self.as_ref().stream_chunks()
+impl ToStream for BoxSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    self.as_ref().to_stream()
   }
 }
 
@@ -555,6 +583,230 @@ impl TryFrom<RawSourceMap> for SourceMap {
   }
 }
 
+/// The offset of a section within the generated code.
+///
+/// Both `line` and `column` are 0-based, as specified by the
+/// [Index Source Map](https://tc39.es/ecma426/#sec-index-source-map) format.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Copy, Default)]
+pub struct SectionOffset {
+  /// 0-based line offset in the generated code.
+  pub line: u32,
+  /// 0-based column offset in the generated code.
+  pub column: u32,
+}
+
+/// A section within an [IndexSourceMap], pairing an [offset](SectionOffset)
+/// with a regular [SourceMap].
+///
+/// See [Index Source Map § Section](https://tc39.es/ecma426/#sec-index-source-map).
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize)]
+pub struct Section {
+  /// The offset in the generated code where this section begins.
+  pub offset: SectionOffset,
+  /// The source map for this section.
+  pub map: SourceMap,
+}
+
+/// An [Index Source Map](https://tc39.es/ecma426/#sec-index-source-map)
+/// that represents concatenated source maps as a list of [Section]s.
+///
+/// Each section contains a regular [SourceMap] and an offset indicating
+/// where that section starts in the generated output. This avoids the
+/// need to merge mappings from multiple sources, improving performance
+/// for concatenated sources like [ConcatSource](crate::ConcatSource).
+///
+/// Use [IndexSourceMap::to_source_map] to flatten it into a regular [SourceMap].
+#[derive(Clone, PartialEq, Eq, Serialize)]
+pub struct IndexSourceMap {
+  version: u8,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  file: Option<Arc<str>>,
+  sections: Vec<Section>,
+}
+
+impl std::fmt::Debug for IndexSourceMap {
+  fn fmt(
+    &self,
+    f: &mut std::fmt::Formatter<'_>,
+  ) -> std::result::Result<(), std::fmt::Error> {
+    write!(
+      f,
+      "IndexSourceMap {{ version: {}, file: {:?}, sections: {:?} }}",
+      self.version, self.file, self.sections
+    )
+  }
+}
+
+impl Hash for IndexSourceMap {
+  fn hash<H: Hasher>(&self, state: &mut H) {
+    self.file.hash(state);
+    self.sections.hash(state);
+  }
+}
+
+impl IndexSourceMap {
+  /// Create a new [IndexSourceMap] from a list of [Section]s.
+  pub fn new(sections: Vec<Section>) -> Self {
+    Self {
+      version: 3,
+      file: None,
+      sections,
+    }
+  }
+
+  /// Get the file field.
+  pub fn file(&self) -> Option<&str> {
+    self.file.as_deref()
+  }
+
+  /// Set the file field.
+  pub fn set_file<T: Into<Arc<str>>>(&mut self, file: Option<T>) {
+    self.file = file.map(Into::into);
+  }
+
+  /// Get the sections.
+  pub fn sections(&self) -> &[Section] {
+    &self.sections
+  }
+
+  /// Flatten this [IndexSourceMap] into a regular [SourceMap] by merging
+  /// all sections, offsetting their mappings accordingly.
+  pub fn to_source_map(&self) -> Option<SourceMap> {
+    if self.sections.is_empty() {
+      return None;
+    }
+
+    // Single section with zero offset — return its map directly.
+    if self.sections.len() == 1 {
+      let section = &self.sections[0];
+      if section.offset.line == 0 && section.offset.column == 0 {
+        let mut map = section.map.clone();
+        if self.file.is_some() {
+          map.set_file(self.file.clone());
+        }
+        return Some(map);
+      }
+    }
+
+    let mut global_sources: Vec<String> = Vec::new();
+    let mut global_sources_content: Vec<Arc<str>> = Vec::new();
+    let mut global_names: Vec<String> = Vec::new();
+    let mut source_mapping: std::collections::HashMap<String, u32> =
+      std::collections::HashMap::new();
+    let mut name_mapping: std::collections::HashMap<String, u32> =
+      std::collections::HashMap::new();
+
+    let mut all_mappings: Vec<Mapping> = Vec::new();
+
+    for section in &self.sections {
+      let map = &section.map;
+
+      // Build local-to-global source index mapping
+      let local_source_mapping: Vec<u32> = map
+        .sources()
+        .iter()
+        .enumerate()
+        .map(|(i, source)| {
+          if let Some(&idx) = source_mapping.get(source) {
+            // Update source content if we have better content
+            if let Some(content) = map.get_source_content(i) {
+              if (idx as usize) < global_sources_content.len()
+                && global_sources_content[idx as usize].is_empty()
+              {
+                global_sources_content[idx as usize] = content.clone();
+              }
+            }
+            idx
+          } else {
+            let idx = global_sources.len() as u32;
+            source_mapping.insert(source.clone(), idx);
+            global_sources.push(source.clone());
+            global_sources_content
+              .resize_with(global_sources.len(), || "".into());
+            if let Some(content) = map.get_source_content(i) {
+              global_sources_content[idx as usize] = content.clone();
+            }
+            idx
+          }
+        })
+        .collect();
+
+      // Build local-to-global name index mapping
+      let local_name_mapping: Vec<u32> = map
+        .names()
+        .iter()
+        .map(|name| {
+          if let Some(&idx) = name_mapping.get(name) {
+            idx
+          } else {
+            let idx = global_names.len() as u32;
+            name_mapping.insert(name.clone(), idx);
+            global_names.push(name.clone());
+            idx
+          }
+        })
+        .collect();
+
+      // Decode, offset, and remap mappings
+      for mapping in map.decoded_mappings() {
+        // Offset the generated position.
+        // generated_line is 1-based; section.offset.line is 0-based.
+        let generated_line = mapping.generated_line + section.offset.line;
+        let generated_column = if mapping.generated_line == 1 {
+          mapping.generated_column + section.offset.column
+        } else {
+          mapping.generated_column
+        };
+
+        let original = mapping.original.map(|orig| OriginalLocation {
+          source_index: *local_source_mapping
+            .get(orig.source_index as usize)
+            .unwrap_or(&orig.source_index),
+          original_line: orig.original_line,
+          original_column: orig.original_column,
+          name_index: orig
+            .name_index
+            .map(|ni| *local_name_mapping.get(ni as usize).unwrap_or(&ni)),
+        });
+
+        all_mappings.push(Mapping {
+          generated_line,
+          generated_column,
+          original,
+        });
+      }
+    }
+
+    if all_mappings.is_empty() {
+      return None;
+    }
+
+    let mappings_str = encode_mappings(all_mappings.into_iter());
+    let mut result = SourceMap::new(
+      mappings_str,
+      global_sources,
+      global_sources_content,
+      global_names,
+    );
+    if self.file.is_some() {
+      result.set_file(self.file.clone());
+    }
+    Some(result)
+  }
+
+  /// Generate index source map to a JSON string.
+  pub fn to_json(&self) -> Result<String> {
+    let json = simd_json::serde::to_string(&self)?;
+    Ok(json)
+  }
+
+  /// Generate index source map to writer.
+  pub fn to_writer<W: std::io::Write>(self, w: W) -> Result<()> {
+    simd_json::serde::to_writer(w, &self)?;
+    Ok(())
+  }
+}
+
 /// Represent a [Mapping] information of source map.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Mapping {
@@ -618,7 +870,7 @@ mod tests {
   use std::collections::HashMap;
 
   use crate::{
-    CachedSource, ConcatSource, OriginalSource, RawBufferSource,
+    CachedSource, ConcatSource, ObjectPool, OriginalSource, RawBufferSource,
     RawStringSource, ReplaceSource, SourceMapSource, WithoutOriginalOptions,
   };
 
@@ -775,5 +1027,188 @@ mod tests {
       String::from_utf8(writer.into_inner().unwrap()).unwrap(),
       "ab"
     );
+  }
+
+  #[test]
+  fn index_source_map_serialization() {
+    let map = SourceMap::new(
+      "AAAA;AACA",
+      vec!["file.js".into()],
+      vec!["line1\nline2\n".into()],
+      vec![],
+    );
+    let index_map = IndexSourceMap::new(vec![Section {
+      offset: SectionOffset { line: 0, column: 0 },
+      map,
+    }]);
+    let json = index_map.to_json().unwrap();
+    assert!(json.contains("\"version\":3"));
+    assert!(json.contains("\"sections\""));
+    assert!(json.contains("\"offset\""));
+    assert!(json.contains("\"map\""));
+  }
+
+  #[test]
+  fn index_source_map_to_source_map_single_section() {
+    let map = SourceMap::new(
+      "AAAA;AACA",
+      vec!["file.js".into()],
+      vec!["line1\nline2\n".into()],
+      vec![],
+    );
+    let index_map = IndexSourceMap::new(vec![Section {
+      offset: SectionOffset { line: 0, column: 0 },
+      map: map.clone(),
+    }]);
+    let result = index_map.to_source_map().unwrap();
+    assert_eq!(result, map);
+  }
+
+  #[test]
+  fn index_source_map_to_source_map_empty_sections() {
+    let index_map = IndexSourceMap::new(vec![]);
+    assert!(index_map.to_source_map().is_none());
+  }
+
+  #[test]
+  fn index_source_map_to_source_map_with_offset() {
+    // First section at line 0, col 0
+    let map1 = SourceMap::new(
+      "AAAA",
+      vec!["a.js".into()],
+      vec!["hello\n".into()],
+      vec![],
+    );
+    // Second section at line 1, col 0 (after the first line)
+    let map2 = SourceMap::new(
+      "AAAA",
+      vec!["b.js".into()],
+      vec!["world\n".into()],
+      vec![],
+    );
+    let index_map = IndexSourceMap::new(vec![
+      Section {
+        offset: SectionOffset { line: 0, column: 0 },
+        map: map1,
+      },
+      Section {
+        offset: SectionOffset { line: 1, column: 0 },
+        map: map2,
+      },
+    ]);
+    let result = index_map.to_source_map().unwrap();
+    assert_eq!(result.sources(), &["a.js".to_string(), "b.js".to_string()]);
+    assert_eq!(
+      result.sources_content(),
+      &[Arc::from("hello\n"), Arc::from("world\n")]
+    );
+    // Verify mappings: first mapping at line 1 (1-based), second at line 2
+    let mappings: Vec<Mapping> = result.decoded_mappings().collect();
+    assert_eq!(mappings.len(), 2);
+    assert_eq!(mappings[0].generated_line, 1);
+    assert_eq!(mappings[0].generated_column, 0);
+    assert_eq!(mappings[0].original.as_ref().unwrap().source_index, 0);
+    assert_eq!(mappings[1].generated_line, 2);
+    assert_eq!(mappings[1].generated_column, 0);
+    assert_eq!(mappings[1].original.as_ref().unwrap().source_index, 1);
+  }
+
+  #[test]
+  fn index_source_map_to_source_map_with_column_offset() {
+    // First section at line 0, col 0
+    let map1 =
+      SourceMap::new("AAAA", vec!["a.js".into()], vec!["hello".into()], vec![]);
+    // Second section at line 0, col 5 (same line, after "hello")
+    let map2 =
+      SourceMap::new("AAAA", vec!["b.js".into()], vec!["world".into()], vec![]);
+    let index_map = IndexSourceMap::new(vec![
+      Section {
+        offset: SectionOffset { line: 0, column: 0 },
+        map: map1,
+      },
+      Section {
+        offset: SectionOffset { line: 0, column: 5 },
+        map: map2,
+      },
+    ]);
+    let result = index_map.to_source_map().unwrap();
+    let mappings: Vec<Mapping> = result.decoded_mappings().collect();
+    assert_eq!(mappings.len(), 2);
+    assert_eq!(mappings[0].generated_line, 1);
+    assert_eq!(mappings[0].generated_column, 0);
+    assert_eq!(mappings[1].generated_line, 1);
+    assert_eq!(mappings[1].generated_column, 5);
+  }
+
+  #[test]
+  fn index_map_default_impl_wraps_map() {
+    let source = OriginalSource::new("hello\nworld\n", "test.txt");
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let map = source.map(&pool, &options).unwrap();
+    let index_map = source.index_map(&pool, &options).unwrap();
+
+    assert_eq!(index_map.sections().len(), 1);
+    assert_eq!(index_map.sections()[0].offset.line, 0);
+    assert_eq!(index_map.sections()[0].offset.column, 0);
+    assert_eq!(index_map.sections()[0].map, map);
+  }
+
+  #[test]
+  fn index_map_returns_none_for_raw_source() {
+    let source = RawStringSource::from("hello world");
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    assert!(source.index_map(&pool, &options).is_none());
+  }
+
+  #[test]
+  fn index_map_file_field_propagated() {
+    let map =
+      SourceMap::new("AAAA", vec!["a.js".into()], vec!["hello".into()], vec![]);
+    let mut index_map = IndexSourceMap::new(vec![Section {
+      offset: SectionOffset { line: 0, column: 0 },
+      map,
+    }]);
+    index_map.set_file(Some("bundle.js"));
+    assert_eq!(index_map.file(), Some("bundle.js"));
+
+    let result = index_map.to_source_map().unwrap();
+    assert_eq!(result.file(), Some("bundle.js"));
+  }
+
+  #[test]
+  fn index_source_map_shared_sources_across_sections() {
+    // Both sections reference the same source file
+    let map1 = SourceMap::new(
+      "AAAA",
+      vec!["shared.js".into()],
+      vec!["content".into()],
+      vec![],
+    );
+    let map2 = SourceMap::new(
+      "AAAA",
+      vec!["shared.js".into()],
+      vec!["content".into()],
+      vec![],
+    );
+    let index_map = IndexSourceMap::new(vec![
+      Section {
+        offset: SectionOffset { line: 0, column: 0 },
+        map: map1,
+      },
+      Section {
+        offset: SectionOffset { line: 1, column: 0 },
+        map: map2,
+      },
+    ]);
+    let result = index_map.to_source_map().unwrap();
+    // Should deduplicate sources
+    assert_eq!(result.sources().len(), 1);
+    assert_eq!(result.sources()[0], "shared.js");
+    // Both mappings should reference source index 0
+    let mappings: Vec<Mapping> = result.decoded_mappings().collect();
+    assert_eq!(mappings[0].original.as_ref().unwrap().source_index, 0);
+    assert_eq!(mappings[1].original.as_ref().unwrap().source_index, 0);
   }
 }

@@ -8,11 +8,12 @@ use rustc_hash::FxHasher;
 
 use crate::{
   helpers::{
-    stream_and_get_source_and_map, stream_chunks_of_raw_source,
-    stream_chunks_of_source_map, Chunks, GeneratedInfo, StreamChunks,
+    get_generated_source_info, stream_and_get_source_and_map,
+    stream_chunks_of_raw_source, stream_chunks_of_source_map, GeneratedInfo,
+    Stream, ToStream,
   },
   object_pool::ObjectPool,
-  source::SourceValue,
+  source::{IndexSourceMap, Section, SectionOffset, SourceValue},
   BoxSource, MapOptions, RawBufferSource, Source, SourceExt, SourceMap,
 };
 
@@ -23,6 +24,8 @@ struct CachedData {
   chunks: OnceLock<Vec<&'static str>>,
   columns_map: OnceLock<Option<SourceMap>>,
   line_only_map: OnceLock<Option<SourceMap>>,
+  columns_index_map: OnceLock<Option<IndexSourceMap>>,
+  line_only_index_map: OnceLock<Option<IndexSourceMap>>,
 }
 
 /// It tries to reused cached results from other methods to avoid calculations,
@@ -155,31 +158,51 @@ impl Source for CachedSource {
     }
   }
 
+  fn index_map(
+    &self,
+    object_pool: &ObjectPool,
+    options: &MapOptions,
+  ) -> Option<IndexSourceMap> {
+    if options.columns {
+      self
+        .cache
+        .columns_index_map
+        .get_or_init(|| self.inner.index_map(object_pool, options))
+        .clone()
+    } else {
+      self
+        .cache
+        .line_only_index_map
+        .get_or_init(|| self.inner.index_map(object_pool, options))
+        .clone()
+    }
+  }
+
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
     self.inner.to_writer(writer)
   }
 }
 
-struct CachedSourceChunks<'source> {
-  chunks: Box<dyn Chunks + 'source>,
+struct CachedSourceStream<'source> {
+  stream: Box<dyn Stream + 'source>,
   cache: Arc<CachedData>,
   source: Cow<'source, str>,
 }
 
-impl<'a> CachedSourceChunks<'a> {
+impl<'a> CachedSourceStream<'a> {
   fn new(cache_source: &'a CachedSource) -> Self {
     let source = cache_source.source().into_string_lossy();
 
     Self {
-      chunks: cache_source.inner.stream_chunks(),
+      stream: cache_source.inner.to_stream(),
       cache: cache_source.cache.clone(),
       source,
     }
   }
 }
 
-impl Chunks for CachedSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for CachedSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -218,7 +241,7 @@ impl Chunks for CachedSourceChunks<'_> {
         let (generated_info, map) = stream_and_get_source_and_map(
           options,
           object_pool,
-          self.chunks.as_ref(),
+          self.stream.as_ref(),
           on_chunk,
           on_source,
           on_name,
@@ -228,11 +251,75 @@ impl Chunks for CachedSourceChunks<'_> {
       }
     }
   }
+
+  fn sections_size_hint(&self) -> usize {
+    if let Some(index_map) = self.cache.columns_index_map.get() {
+      index_map
+        .as_ref()
+        .map(|index_map| index_map.sections().len())
+        .unwrap_or(0)
+    } else if let Some(index_map) = self.cache.line_only_index_map.get() {
+      index_map
+        .as_ref()
+        .map(|index_map| index_map.sections().len())
+        .unwrap_or(0)
+    } else {
+      self.stream.sections_size_hint()
+    }
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let cell = if columns {
+      &self.cache.columns_index_map
+    } else {
+      &self.cache.line_only_index_map
+    };
+    match cell.get() {
+      Some(index_map) => {
+        let generated_info = get_generated_source_info(self.source.as_ref());
+        if let Some(index_map) = index_map {
+          for section in index_map.sections() {
+            on_section(section.offset, Some(section.map.clone()));
+          }
+        } else {
+          on_section(SectionOffset::default(), None);
+        }
+        generated_info
+      }
+      None => {
+        let mut sections = Vec::new();
+        let generated_info =
+          self
+            .stream
+            .sections(object_pool, columns, &mut |offset, map| {
+              if let Some(ref map) = map {
+                sections.push(Section {
+                  offset,
+                  map: map.clone(),
+                });
+              }
+              on_section(offset, map);
+            });
+        let index_map = if sections.is_empty() {
+          None
+        } else {
+          Some(IndexSourceMap::new(sections))
+        };
+        cell.get_or_init(|| index_map);
+        generated_info
+      }
+    }
+  }
 }
 
-impl StreamChunks for CachedSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(CachedSourceChunks::new(self))
+impl ToStream for CachedSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(CachedSourceStream::new(self))
   }
 }
 
@@ -387,8 +474,8 @@ mod tests {
     let mut on_name_count = 0;
     let generated_info = {
       let object_pool = ObjectPool::default();
-      let chunks = source.stream_chunks();
-      chunks.stream(
+      let stream = source.to_stream();
+      stream.chunks(
         &object_pool,
         &map_options,
         &mut |_chunk, _mapping| {
@@ -404,7 +491,7 @@ mod tests {
     };
 
     let cached_source = CachedSource::new(source);
-    cached_source.stream_chunks().stream(
+    cached_source.to_stream().chunks(
       &ObjectPool::default(),
       &map_options,
       &mut |_chunk, _mapping| {},
@@ -415,7 +502,7 @@ mod tests {
     let mut cached_on_chunk_count = 0;
     let mut cached_on_source_count = 0;
     let mut cached_on_name_count = 0;
-    let cached_generated_info = cached_source.stream_chunks().stream(
+    let cached_generated_info = cached_source.to_stream().chunks(
       &ObjectPool::default(),
       &map_options,
       &mut |_chunk, _mapping| {
@@ -476,5 +563,42 @@ mod tests {
     let cached = CachedSource::new(raw.boxed());
     let cached_size = cached.size();
     assert_eq!(raw_size, cached_size);
+  }
+
+  #[test]
+  fn index_map_should_be_cached() {
+    let original = OriginalSource::new("hello\nworld\n", "test.txt");
+    let cached = CachedSource::new(original);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+
+    let index_map1 = cached.index_map(&pool, &options);
+    let index_map2 = cached.index_map(&pool, &options);
+    assert!(index_map1.is_some());
+    assert_eq!(index_map1, index_map2);
+  }
+
+  #[test]
+  fn index_map_cached_matches_inner() {
+    let inner = ConcatSource::new([
+      OriginalSource::new("a\n", "a.js").boxed(),
+      OriginalSource::new("b\n", "b.js").boxed(),
+    ]);
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    let expected = inner.index_map(&pool, &options);
+    let cached = CachedSource::new(inner);
+    let result = cached.index_map(&pool, &options);
+    assert_eq!(result, expected);
+  }
+
+  #[test]
+  fn index_map_returns_none_for_raw_cached() {
+    let cached = CachedSource::new(RawStringSource::from("no map"));
+    let pool = ObjectPool::default();
+    let options = MapOptions::default();
+    assert!(cached.index_map(&pool, &options).is_none());
+    // Second call also returns None (from cache)
+    assert!(cached.index_map(&pool, &options).is_none());
   }
 }

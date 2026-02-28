@@ -9,7 +9,7 @@ pub use criterion::*;
 pub use codspeed_criterion_compat::*;
 
 use rspack_sources::{
-  stream_chunks::StreamChunks, BoxSource, CachedSource, MapOptions, ObjectPool,
+  stream_chunks::ToStream, BoxSource, CachedSource, MapOptions, ObjectPool,
   OriginalSource, ReplaceSource, Source, SourceExt,
 };
 
@@ -36737,7 +36737,7 @@ pub fn benchmark_complex_replace_source_map_cached_source_stream_chunks(
   cached_source.map(&ObjectPool::default(), &MapOptions::default());
 
   b.iter(|| {
-    black_box(cached_source.stream_chunks().stream(
+    black_box(cached_source.to_stream().chunks(
       &ObjectPool::default(),
       &MapOptions::default(),
       &mut |_chunk, _mapping| {},

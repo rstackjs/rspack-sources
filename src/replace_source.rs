@@ -8,12 +8,12 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, split_into_lines, Chunks, GeneratedInfo, StreamChunks},
+  helpers::{get_map, split_into_lines, GeneratedInfo, Stream, ToStream},
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
-  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource, Source,
-  SourceExt, SourceMap, SourceValue,
+  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource,
+  SectionOffset, Source, SourceExt, SourceMap, SourceValue,
 };
 
 /// Decorates a Source with replacements and insertions of source code,
@@ -325,8 +325,8 @@ impl Source for ReplaceSource {
     if replacements.is_empty() {
       return self.inner.map(&ObjectPool::default(), options);
     }
-    let chunks = self.stream_chunks();
-    get_map(&ObjectPool::default(), chunks.as_ref(), options)
+    let stream = self.to_stream();
+    get_map(&ObjectPool::default(), stream.as_ref(), options).1
   }
 
   fn to_writer(&self, writer: &mut dyn std::io::Write) -> std::io::Result<()> {
@@ -403,26 +403,26 @@ fn check_content_at_position(
   }
 }
 
-struct ReplaceSourceChunks<'a> {
+struct ReplaceSourceStream<'a> {
   is_original_source: bool,
-  chunks: Box<dyn Chunks + 'a>,
+  stream: Box<dyn Stream + 'a>,
   replacements: &'a [Replacement],
 }
 
-impl<'a> ReplaceSourceChunks<'a> {
+impl<'a> ReplaceSourceStream<'a> {
   pub fn new(source: &'a ReplaceSource) -> Self {
     let is_original_source =
       source.inner.as_ref().as_any().is::<OriginalSource>();
     Self {
       is_original_source,
-      chunks: source.inner.stream_chunks(),
+      stream: source.inner.to_stream(),
       replacements: &source.replacements,
     }
   }
 }
 
-impl Chunks for ReplaceSourceChunks<'_> {
-  fn stream<'a>(
+impl Stream for ReplaceSourceStream<'_> {
+  fn chunks<'a>(
     &'a self,
     object_pool: &'a ObjectPool,
     options: &MapOptions,
@@ -431,17 +431,19 @@ impl Chunks for ReplaceSourceChunks<'_> {
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo {
     let on_name = RefCell::new(on_name);
-    let repls = &self.replacements;
+    let replacements = &self.replacements;
     let mut pos: u32 = 0;
     let mut i: usize = 0;
     let mut replacement_end: Option<u32> = None;
-    let mut next_replacement = (i < repls.len()).then(|| repls[i].start);
+    let mut next_replacement =
+      (i < replacements.len()).then(|| replacements[i].start);
     let mut generated_line_offset: i64 = 0;
     let mut generated_column_offset: i64 = 0;
     let mut generated_column_offset_line = 0;
     let source_content_lines: RefCell<LinearMap<Option<SourceContent>>> =
       RefCell::new(LinearMap::default());
-    let name_mapping: RefCell<HashMap<Cow<str>, u32>> =
+
+    let name_mapping: RefCell<HashMap<&str, u32>> =
       RefCell::new(HashMap::default());
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
@@ -501,7 +503,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
         }
       };
 
-    let result = self.chunks.stream(
+    let result = self.stream.chunks(
       object_pool,
       &MapOptions {
         columns: options.columns,
@@ -612,7 +614,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
           // Insert replacement content split into chunks by lines
           #[allow(unsafe_code)]
           // SAFETY: The safety of this operation relies on the fact that the `ReplaceSource` type will not delete the `replacements` during its entire lifetime.
-          let repl = &repls[i];
+          let repl = &replacements[i];
 
           let lines =
             split_into_lines(repl.content.as_str()).collect::<Vec<_>>();
@@ -627,8 +629,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             let mut global_index = name_mapping.get(name.as_str()).copied();
             if global_index.is_none() {
               let len = name_mapping.len() as u32;
-              name_mapping.insert(Cow::Borrowed(name), len);
-              on_name.borrow_mut()(len, Cow::Borrowed(name));
+              name_mapping.insert(name, len);
+              on_name.borrow_mut()(len, name);
               global_index = Some(len);
             }
             replacement_name_index = global_index;
@@ -683,8 +685,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
 
           // Move to next replacement
           i += 1;
-          next_replacement = if i < repls.len() {
-            Some(repls[i].start)
+          next_replacement = if i < replacements.len() {
+            Some(replacements[i].start)
           } else {
             None
           };
@@ -785,10 +787,12 @@ impl Chunks for ReplaceSourceChunks<'_> {
         pos = end_pos;
       },
       &mut |source_index, source, source_content| {
-        let mut source_content_lines = source_content_lines.borrow_mut();
-        let lines = source_content
-          .map(|source_content| SourceContent::Raw(source_content.clone()));
-        source_content_lines.insert(source_index, lines);
+        if !self.is_original_source {
+          let mut source_content_lines = source_content_lines.borrow_mut();
+          let lines = source_content
+            .map(|source_content| SourceContent::Raw(source_content.clone()));
+          source_content_lines.insert(source_index, lines);
+        }
         on_source(source_index, source, source_content);
       },
       &mut |name_index, name| {
@@ -796,7 +800,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
         let mut global_index = name_mapping.get(&name).copied();
         if global_index.is_none() {
           let len = name_mapping.len() as u32;
-          name_mapping.insert(name.clone(), len);
+          name_mapping.insert(name, len);
           on_name.borrow_mut()(len, name);
           global_index = Some(len);
         }
@@ -808,8 +812,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
 
     // Handle remaining replacements one by one
     let mut line = result.generated_line as i64 + generated_line_offset;
-    while i < repls.len() {
-      let content = &repls[i].content;
+    while i < replacements.len() {
+      let content = &replacements[i].content;
       let lines: Vec<&str> = split_into_lines(content).collect();
 
       for (line_idx, content_line) in lines.iter().enumerate() {
@@ -859,11 +863,33 @@ impl Chunks for ReplaceSourceChunks<'_> {
         }) as u32,
     }
   }
+
+  fn sections_size_hint(&self) -> usize {
+    1
+  }
+
+  fn sections<'a>(
+    &'a self,
+    object_pool: &'a ObjectPool,
+    columns: bool,
+    on_section: crate::helpers::OnSection<'_, 'a>,
+  ) -> GeneratedInfo {
+    let (generated_info, map) = get_map(
+      object_pool,
+      self,
+      &MapOptions {
+        columns,
+        final_source: true,
+      },
+    );
+    on_section(SectionOffset::default(), map);
+    generated_info
+  }
 }
 
-impl StreamChunks for ReplaceSource {
-  fn stream_chunks<'a>(&'a self) -> Box<dyn Chunks + 'a> {
-    Box::new(ReplaceSourceChunks::new(self))
+impl ToStream for ReplaceSource {
+  fn to_stream<'a>(&'a self) -> Box<dyn Stream + 'a> {
+    Box::new(ReplaceSourceStream::new(self))
   }
 }
 
@@ -1576,8 +1602,8 @@ return <div>{data.foo}</div>
 
     let mut chunks = vec![];
     let object_pool = ObjectPool::default();
-    let handle = source.stream_chunks();
-    handle.stream(
+    let stream = source.to_stream();
+    stream.chunks(
       &object_pool,
       &MapOptions::default(),
       &mut |chunk, mapping| {

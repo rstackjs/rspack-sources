@@ -24,21 +24,23 @@ pub use original_source::OriginalSource;
 pub use raw_source::{RawBufferSource, RawStringSource};
 pub use replace_source::{ReplaceSource, ReplacementEnforce};
 pub use source::{
-  BoxSource, MapOptions, Mapping, OriginalLocation, Source, SourceExt,
-  SourceMap, SourceValue,
+  BoxSource, IndexSourceMap, MapOptions, Mapping, OriginalLocation, Section,
+  SectionOffset, Source, SourceExt, SourceMap, SourceValue,
 };
 pub use source_map_source::{
   SourceMapSource, SourceMapSourceOptions, WithoutOriginalOptions,
 };
 
-/// Reexport `StreamChunks` related types.
+/// Reexport `ToStream` related types.
 pub mod stream_chunks {
   pub use super::helpers::{
-    stream_chunks_default, Chunks, GeneratedInfo, OnChunk, OnName, OnSource,
-    StreamChunks,
+    stream_chunks_default, GeneratedInfo, OnChunk, OnName, OnSection, OnSource,
+    Stream, ToStream,
   };
 }
 
-pub use helpers::{decode_mappings, encode_mappings};
+pub use helpers::{
+  decode_mappings, encode_mappings, get_generated_source_info,
+};
 
 pub use object_pool::ObjectPool;
