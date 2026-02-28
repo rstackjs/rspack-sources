@@ -26,12 +26,12 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
   let names_count = sourcemap.names().len();
   let sources_count = sourcemap.sources().len();
 
-  let should_skip_sources_content = sourcemap.sources_content().is_empty()
-    || sourcemap.sources_content().iter().all(|s| s.is_empty());
-  let sc_count = if should_skip_sources_content {
-    0
-  } else {
+  let has_sources_content = !sourcemap.sources_content().is_empty()
+    && !sourcemap.sources_content().iter().all(|s| s.is_empty());
+  let sc_count = if has_sources_content {
     sourcemap.sources_content().len()
+  } else {
+    0
   };
 
   // Accumulate total string bytes across all collections
@@ -45,43 +45,56 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
     total_string_bytes += source.len();
   }
 
-  if !should_skip_sources_content {
+  if has_sources_content {
     for content in sourcemap.sources_content() {
       total_string_bytes += content.len();
     }
   }
 
   // Calculate total capacity needed
-  max_segments += 9 + 13 + 20; // "names":[ + ],"sources":[ + ],"sourcesContent":[
-  max_segments += 6 * total_string_bytes; // worst-case escaping (* 6), \0 -> \\u0000
-  max_segments += 2 * (names_count + sources_count + sc_count); // quotes around each item
+  // JSON structure overhead
+  max_segments += 9; // "sources":[
+  max_segments += 10; // ],"names":[
+  max_segments += 14; // ],"mappings":"
+  max_segments += 1; // closing "
+  if has_sources_content {
+    max_segments += 20; // ],"sourcesContent":[
+  }
+
+  // Worst-case escaping for strings (control chars -> \\u0000)
+  max_segments += 6 * total_string_bytes;
+
+  // Quotes around each string item
+  max_segments += 2 * (names_count + sources_count + sc_count);
 
   // Commas between array items
-  let comma_count = names_count.saturating_sub(1)
+  max_segments += names_count.saturating_sub(1)
     + sources_count.saturating_sub(1)
     + sc_count.saturating_sub(1);
-  max_segments += comma_count;
 
-  // Optional ],"ignoreList":[
+  // Optional ignoreList field
   if let Some(ignore_list) = sourcemap.ignore_list() {
-    max_segments += 16; // ],"ignoreList":[
-
+    max_segments += 15; // ,"ignoreList":[
+    max_segments += 1; // ]
     let ig_count = ignore_list.len();
-    // guess 10 digits per item, 100_000_000 maximum per element
-    max_segments += 10 * ig_count;
+    // Estimate 10 digits per number (max u32: 4,294,967,295)
+    max_segments += 10 * ig_count + ig_count.saturating_sub(1);
   }
 
   // ],"mappings":"
   max_segments += 14;
   max_segments += sourcemap.mappings().len();
+  max_segments += 1; // closing "
 
   // Optional ,"debugId":"..."
   if let Some(debug_id) = sourcemap.get_debug_id() {
-    max_segments += 13 /* ,"debugId":" */ + debug_id.len();
+    max_segments += 12; // ,"debugId":"
+    max_segments += debug_id.len();
+    max_segments += 1; // closing "
   }
 
-  // "}
-  max_segments += 2;
+  // }
+  max_segments += 1;
   let mut contents = PreAllocatedString::new(max_segments);
 
   contents.push("{\"version\":3,");
@@ -100,16 +113,9 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
   contents.push("\"sources\":[");
   contents.push_list(sourcemap.sources().iter(), escape_into);
 
-  if !should_skip_sources_content {
+  if has_sources_content {
     contents.push("],\"sourcesContent\":[");
     contents.push_list(sourcemap.sources_content().iter(), escape_into);
-  }
-
-  if let Some(ignore_list) = &sourcemap.ignore_list() {
-    contents.push("],\"ignoreList\":[");
-    contents.push_list(ignore_list.iter(), |s, output| {
-      output.extend_from_slice(s.to_string().as_bytes());
-    });
   }
 
   contents.push("],\"names\":[");
@@ -117,13 +123,23 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
 
   contents.push("],\"mappings\":\"");
   contents.push_str(sourcemap.mappings());
+  contents.push("\"");
 
-  if let Some(debug_id) = sourcemap.get_debug_id() {
-    contents.push("\",\"debugId\":\"");
-    contents.push(debug_id);
+  if let Some(ignore_list) = &sourcemap.ignore_list() {
+    contents.push(",\"ignoreList\":[");
+    contents.push_list(ignore_list.iter(), |s, output| {
+      output.extend_from_slice(s.to_string().as_bytes());
+    });
+    contents.push("]");
   }
 
-  contents.push("\"}");
+  if let Some(debug_id) = sourcemap.get_debug_id() {
+    contents.push(",\"debugId\":\"");
+    contents.push(debug_id);
+    contents.push("\"");
+  }
+
+  contents.push("}");
 
   // Check we calculated number of segments required correctly
   debug_assert!(contents.len() <= max_segments);
@@ -163,6 +179,11 @@ impl PreAllocatedString {
   }
 
   #[inline]
+  fn push_str(&mut self, s: &str) {
+    self.0.push_str(s);
+  }
+
+  #[inline]
   fn push_list<S, I>(&mut self, mut iter: I, encode: impl Fn(S, &mut Vec<u8>))
   where
     I: Iterator<Item = S>,
@@ -172,9 +193,9 @@ impl PreAllocatedString {
     };
     encode(first, self.as_mut_vec());
 
-    for other in iter {
+    for item in iter {
       self.0.push(',');
-      encode(other, self.as_mut_vec());
+      encode(item, self.as_mut_vec());
     }
   }
 
