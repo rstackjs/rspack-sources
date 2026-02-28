@@ -82,8 +82,7 @@ fn benchmark_concat_generate_string(b: &mut Bencher) {
     concat
       .map(&ObjectPool::default(), &MapOptions::default())
       .unwrap()
-      .to_json()
-      .unwrap();
+      .to_json();
   })
 }
 
@@ -111,8 +110,7 @@ fn benchmark_concat_generate_string_with_cache(b: &mut Bencher) {
     cached
       .map(&ObjectPool::default(), &MapOptions::default())
       .unwrap()
-      .to_json()
-      .unwrap();
+      .to_json();
   })
 }
 

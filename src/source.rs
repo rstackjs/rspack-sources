@@ -321,7 +321,7 @@ impl std::fmt::Debug for SourceMap {
     write!(
       f,
       "{indent_str}SourceMap::from_json({:?}).unwrap()",
-      self.clone().to_json()
+      self.clone()
     )?;
 
     Ok(())
@@ -644,8 +644,7 @@ mod tests {
       vec!["".into(), "".into(), "".into()],
       vec!["".into(), "".into()],
     )
-    .to_json()
-    .unwrap();
+    .to_json();
     assert!(!map.contains("sourcesContent"));
   }
 
