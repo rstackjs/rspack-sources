@@ -153,6 +153,12 @@ pub fn encode_mappings(mappings: impl Iterator<Item = Mapping>) -> String {
   encoder.drain()
 }
 
+/// Compute the number of UTF-16 code units for a UTF-8 string, using SIMD.
+#[inline]
+pub fn utf16_len(s: &str) -> usize {
+  simdutf::utf16_length_from_utf8(s.as_bytes())
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct Token<'a> {
   pub text: &'a str,
@@ -290,7 +296,7 @@ pub fn get_generated_source_info(source: &str) -> GeneratedInfo {
       last_line = line;
     }
 
-    (line_count.max(1), last_line.encode_utf16().count())
+    (line_count.max(1), utf16_len(last_line))
   };
   GeneratedInfo {
     generated_line: generated_line as u32,
@@ -488,7 +494,7 @@ fn stream_chunks_of_source_map_full<'a>(
   let final_column: u32 = if last_new_line {
     0
   } else {
-    last_line.encode_utf16().count()
+    utf16_len(last_line)
   } as u32;
   let mut current_generated_line: u32 = 1;
   let mut current_generated_column: u32 = 0;
@@ -722,7 +728,7 @@ fn stream_chunks_of_source_map_lines_full<'a>(
   let final_column = if last_new_line {
     0
   } else {
-    last_line.encode_utf16().count()
+    utf16_len(last_line)
   } as u32;
   GeneratedInfo {
     generated_line: final_line,
