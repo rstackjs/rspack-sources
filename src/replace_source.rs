@@ -569,7 +569,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             let offset = next_replacement_pos - pos;
             let chunk_slice =
               &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
-            let utf8_offset = chunk_slice.encode_utf16().count() as u32;
+            let chunk_slice_utf16_offset =
+              chunk_slice.encode_utf16().count() as u32;
             on_chunk(
               Some(chunk_slice),
               Mapping {
@@ -592,7 +593,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }),
               },
             );
-            mapping.generated_column += utf8_offset;
+            mapping.generated_column += chunk_slice_utf16_offset;
             chunk_pos += offset;
             pos = next_replacement_pos;
             if let Some(original) =
@@ -605,8 +606,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 )
               })
             {
-              original.original_column +=
-                chunk_slice.encode_utf16().count() as u32;
+              original.original_column += chunk_slice_utf16_offset;
             }
           }
           // Insert replacement content split into chunks by lines
@@ -810,9 +810,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
     let mut line = result.generated_line as i64 + generated_line_offset;
     while i < repls.len() {
       let content = &repls[i].content;
-      let lines: Vec<&str> = split_into_lines(content).collect();
 
-      for (line_idx, content_line) in lines.iter().enumerate() {
+      for content_line in split_into_lines(content) {
         on_chunk(
           Some(content_line),
           Mapping {
@@ -828,14 +827,13 @@ impl Chunks for ReplaceSourceChunks<'_> {
         );
 
         // Handle line and column offset updates
-        if line_idx == lines.len() - 1 && !content_line.ends_with('\n') {
+        if !content_line.ends_with('\n') {
+          let content_utf16_len = content_line.encode_utf16().count() as i64;
           // Last line of current replacement doesn't end with newline
           if generated_column_offset_line == line {
-            generated_column_offset +=
-              content_line.encode_utf16().count() as i64;
+            generated_column_offset += content_utf16_len;
           } else {
-            generated_column_offset =
-              content_line.encode_utf16().count() as i64;
+            generated_column_offset = content_utf16_len;
             generated_column_offset_line = line;
           }
         } else {
