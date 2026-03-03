@@ -3,6 +3,7 @@ use crate::Mapping;
 const B64_CHARS: &[u8] =
   b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
+#[inline(always)]
 pub fn encode_vlq(out: &mut Vec<u8>, a: u32, b: u32) {
   let mut num = if a >= b {
     (a - b) << 1
@@ -23,20 +24,38 @@ pub fn encode_vlq(out: &mut Vec<u8>, a: u32, b: u32) {
   }
 }
 
-pub(crate) trait MappingsEncoder {
-  fn encode(&mut self, mapping: &Mapping);
-  fn drain(&mut self) -> String;
+pub(crate) enum MappingsEncoder {
+  Full(FullMappingsEncoder),
+  LinesOnly(LinesOnlyMappingsEncoder),
 }
 
-pub fn create_encoder(columns: bool) -> Box<dyn MappingsEncoder> {
-  if columns {
-    Box::new(FullMappingsEncoder::new())
-  } else {
-    Box::new(LinesOnlyMappingsEncoder::new())
+impl MappingsEncoder {
+  #[inline]
+  pub fn encode(&mut self, mapping: &Mapping) {
+    match self {
+      MappingsEncoder::Full(enc) => enc.encode(mapping),
+      MappingsEncoder::LinesOnly(enc) => enc.encode(mapping),
+    }
+  }
+
+  #[inline]
+  pub fn drain(&mut self) -> String {
+    match self {
+      MappingsEncoder::Full(enc) => enc.drain(),
+      MappingsEncoder::LinesOnly(enc) => enc.drain(),
+    }
   }
 }
 
-struct FullMappingsEncoder {
+pub fn create_encoder(columns: bool) -> MappingsEncoder {
+  if columns {
+    MappingsEncoder::Full(FullMappingsEncoder::new())
+  } else {
+    MappingsEncoder::LinesOnly(LinesOnlyMappingsEncoder::new())
+  }
+}
+
+pub(crate) struct FullMappingsEncoder {
   current_line: u32,
   current_column: u32,
   current_original_line: u32,
@@ -66,7 +85,7 @@ impl FullMappingsEncoder {
   }
 }
 
-impl MappingsEncoder for FullMappingsEncoder {
+impl FullMappingsEncoder {
   fn encode(&mut self, mapping: &Mapping) {
     if self.active_mapping && self.current_line == mapping.generated_line {
       // A mapping is still active
@@ -89,8 +108,8 @@ impl MappingsEncoder for FullMappingsEncoder {
     }
 
     if self.current_line < mapping.generated_line {
-      (0..mapping.generated_line - self.current_line)
-        .for_each(|_| self.mappings.push(b';'));
+      let count = (mapping.generated_line - self.current_line) as usize;
+      self.mappings.extend(std::iter::repeat_n(b';', count));
       self.current_line = mapping.generated_line;
       self.current_column = 0;
       self.initial = false;
@@ -175,7 +194,7 @@ impl LinesOnlyMappingsEncoder {
   }
 }
 
-impl MappingsEncoder for LinesOnlyMappingsEncoder {
+impl LinesOnlyMappingsEncoder {
   fn encode(&mut self, mapping: &Mapping) {
     if let Some(original) = &mapping.original {
       if self.last_written_line == mapping.generated_line {
