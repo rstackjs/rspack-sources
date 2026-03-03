@@ -58,8 +58,8 @@ pub enum ReplacementEnforce {
 struct Replacement {
   start: u32,
   end: u32,
-  content: String,
-  name: Option<String>,
+  content: Cow<'static, str>,
+  name: Option<Cow<'static, str>>,
   enforce: ReplacementEnforce,
   insertion_order: u32,
 }
@@ -93,7 +93,7 @@ impl ReplaceSource {
 
 impl ReplaceSource {
   /// Insert a content at start.
-  pub fn insert(&mut self, start: u32, content: &str, name: Option<&str>) {
+  pub fn insert(&mut self, start: u32, content: impl Into<Cow<'static, str>>, name: Option<Cow<'static, str>>) {
     self.replace(start, start, content, name)
   }
 
@@ -101,8 +101,8 @@ impl ReplaceSource {
   pub fn insert_with_enforce(
     &mut self,
     start: u32,
-    content: &str,
-    name: Option<&str>,
+    content: impl Into<Cow<'static, str>>,
+    name: Option<Cow<'static, str>>,
     enforce: ReplacementEnforce,
   ) {
     self.replace_with_enforce(start, start, content, name, enforce)
@@ -113,8 +113,8 @@ impl ReplaceSource {
     &mut self,
     start: u32,
     end: u32,
-    content: &str,
-    name: Option<&str>,
+    content: impl Into<Cow<'static, str>>,
+    name: Option<Cow<'static, str>>,
   ) {
     self.replace_with_enforce(
       start,
@@ -130,15 +130,15 @@ impl ReplaceSource {
     &mut self,
     start: u32,
     end: u32,
-    content: &str,
-    name: Option<&str>,
+    content: impl Into<Cow<'static, str>>,
+    name: Option<Cow<'static, str>>,
     enforce: ReplacementEnforce,
   ) {
     let replacement = Replacement {
       start,
       end,
       content: content.into(),
-      name: name.map(|s| s.into()),
+      name,
       enforce,
       insertion_order: self.replacements.len() as u32,
     };
@@ -1152,8 +1152,8 @@ Line 2"#
     let bootstrap_code = "   var hello\n   var world\n";
     let mut source =
       ReplaceSource::new(OriginalSource::new(bootstrap_code, "file.js"));
-    source.replace(7, 12, "h", Some("hello"));
-    source.replace(20, 25, "w", Some("world"));
+    source.replace(7, 12, "h", Some("hello".into()));
+    source.replace(20, 25, "w", Some("world".into()));
     let result_map = source
       .map(&ObjectPool::default(), &MapOptions::default())
       .expect("failed");
@@ -1299,7 +1299,7 @@ return <div>{data.foo}</div>
     source.replace(0, 0, "start2\n", None);
     source.replace(999, 10000, "end2", None);
     source.insert(888, "end1\n", None);
-    source.replace(0, 999, "replaced!\n", Some("whole"));
+    source.replace(0, 999, "replaced!\n", Some("whole".into()));
 
     let result_text = source.source();
     let result_map = source
