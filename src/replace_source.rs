@@ -8,7 +8,10 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  helpers::{get_map, split_into_lines, Chunks, GeneratedInfo, StreamChunks},
+  helpers::{
+    get_map, split_into_lines, utf16_len, Chunks, GeneratedInfo,
+    StreamChunks,
+  },
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
@@ -526,9 +529,9 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 generated_column_offset += mapping.generated_column as i64;
               }
             } else if generated_column_offset_line == line {
-              generated_column_offset -= chunk.encode_utf16().count() as i64;
+              generated_column_offset -= utf16_len(chunk) as i64;
             } else {
-              generated_column_offset = -(chunk.encode_utf16().count() as i64);
+              generated_column_offset = -(utf16_len(chunk) as i64);
               generated_column_offset_line = line;
             }
             pos = end_pos;
@@ -548,7 +551,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
           }
           pos += chunk_pos;
           let chunk_utf16_pos =
-            chunk[..chunk_pos as usize].encode_utf16().count();
+            utf16_len(&chunk[..chunk_pos as usize]);
           let line = mapping.generated_line as i64 + generated_line_offset;
           if generated_column_offset_line == line {
             generated_column_offset -= chunk_utf16_pos as i64;
@@ -569,7 +572,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
             let offset = next_replacement_pos - pos;
             let chunk_slice =
               &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
-            let utf8_offset = chunk_slice.encode_utf16().count() as u32;
+            let utf8_offset = utf16_len(chunk_slice) as u32;
             on_chunk(
               Some(chunk_slice),
               Mapping {
@@ -606,7 +609,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
               })
             {
               original.original_column +=
-                chunk_slice.encode_utf16().count() as u32;
+                utf16_len(chunk_slice) as u32;
             }
           }
           // Insert replacement content split into chunks by lines
@@ -660,10 +663,10 @@ impl Chunks for ReplaceSourceChunks<'_> {
             if m == lines.len() - 1 && !content_line.ends_with('\n') {
               if generated_column_offset_line == line {
                 generated_column_offset +=
-                  content_line.encode_utf16().count() as i64;
+                  utf16_len(content_line) as i64;
               } else {
                 generated_column_offset =
-                  content_line.encode_utf16().count() as i64;
+                  utf16_len(content_line) as i64;
                 generated_column_offset_line = line;
               }
             } else {
@@ -707,11 +710,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }
               } else if generated_column_offset_line == line {
                 let remaining_chunk_utf16_len =
-                  chunk[chunk_pos as usize..].encode_utf16().count() as i64;
+                  utf16_len(&chunk[chunk_pos as usize..]) as i64;
                 generated_column_offset -= remaining_chunk_utf16_len;
               } else {
                 generated_column_offset =
-                  -(chunk[chunk_pos as usize..].encode_utf16().count() as i64);
+                  -(utf16_len(&chunk[chunk_pos as usize..]) as i64);
                 generated_column_offset_line = line;
               }
               pos = end_pos;
@@ -832,10 +835,10 @@ impl Chunks for ReplaceSourceChunks<'_> {
           // Last line of current replacement doesn't end with newline
           if generated_column_offset_line == line {
             generated_column_offset +=
-              content_line.encode_utf16().count() as i64;
+              utf16_len(content_line) as i64;
           } else {
             generated_column_offset =
-              content_line.encode_utf16().count() as i64;
+              utf16_len(content_line) as i64;
             generated_column_offset_line = line;
           }
         } else {

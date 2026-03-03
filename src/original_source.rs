@@ -7,7 +7,8 @@ use std::{
 use crate::{
   helpers::{
     get_generated_source_info, get_map, split_into_lines,
-    split_into_potential_tokens, Chunks, GeneratedInfo, StreamChunks,
+    split_into_potential_tokens, utf16_len, Chunks, GeneratedInfo,
+    StreamChunks,
   },
   object_pool::ObjectPool,
   source::{Mapping, OriginalLocation},
@@ -237,7 +238,7 @@ impl Chunks for OriginalSourceChunks<'_> {
       {
         GeneratedInfo {
           generated_line: line - 1,
-          generated_column: last_line.encode_utf16().count() as u32,
+          generated_column: utf16_len(last_line) as u32,
         }
       } else {
         GeneratedInfo {
