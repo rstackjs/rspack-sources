@@ -838,7 +838,6 @@ impl Chunks for ReplaceSourceChunks<'_> {
           }
         } else {
           // Line ends with newline or not the last line
-          generated_line_offset += 1;
           line += 1;
           generated_column_offset = -(result.generated_column as i64);
           generated_column_offset_line = line;
@@ -1118,11 +1117,11 @@ Hello
 Line 2"#
     );
     assert_eq!(
-      result_map.to_json().unwrap(),
+      result_map.to_json(),
       r#"{"version":3,"sources":["file.txt"],"sourcesContent":["Line 1\nLine 2"],"names":[],"mappings":"AAAA;AAAA,KAAM;AACN"}"#
     );
     assert_eq!(
-      result_list_map.to_json().unwrap(),
+      result_list_map.to_json(),
       r#"{"version":3,"sources":["file.txt"],"sourcesContent":["Line 1\nLine 2"],"names":[],"mappings":"AAAA;AAAA;AACA"}"#
     );
   }
@@ -1142,11 +1141,11 @@ Line 2"#
 
     assert_eq!(result_text.into_string_lossy(), "Line 1\nLine 2\n");
     assert_eq!(
-      result_map.to_json().unwrap(),
+      result_map.to_json(),
       r#"{"version":3,"sources":["file.txt"],"sourcesContent":["Line 1\n"],"names":[],"mappings":"AAAA"}"#
     );
     assert_eq!(
-      result_list_map.to_json().unwrap(),
+      result_list_map.to_json(),
       r#"{"version":3,"sources":["file.txt"],"sourcesContent":["Line 1\n"],"names":[],"mappings":"AAAA"}"#
     );
   }
@@ -1172,7 +1171,7 @@ Line 2"#
 2:0 -> [file.js] 2:0, :7 -> [file.js] 2:7 (world), :8 -> [file.js] 2:12"#
     );
     assert_eq!(
-      result_map.to_json().unwrap(),
+      result_map.to_json(),
       r#"{"version":3,"sources":["file.js"],"sourcesContent":["   var hello\n   var world\n"],"names":["hello","world"],"mappings":"AAAA,OAAOA,CAAK;AACZ,OAAOC,CAAK"}"#
     );
   }
@@ -1289,7 +1288,7 @@ return <div>{data.foo}</div>
 1:0 -> [document.js] 1:0, :4 -> [document.js] 1:4, :9 -> [document.js] 1:9, :12 -> [document.js] 3:0"#
     );
     assert_eq!(
-      source_map.to_json().unwrap(),
+      source_map.to_json(),
       r#"{"version":3,"sources":["document.js"],"sourcesContent":["if (a;b;c) {\n  a; b; c;\n}"],"names":[],"mappings":"AAAA,IAAI,KAAK,GAET"}"#
     );
   }
@@ -1369,8 +1368,7 @@ return <div>{data.foo}</div>
       source
         .map(&ObjectPool::default(), &MapOptions::default())
         .unwrap()
-        .to_json()
-        .unwrap(),
+        .to_json(),
       r#"{"version":3,"sources":["file.css"],"sourcesContent":["\n\"abc\"; url(__PUBLIC_PATH__logo.png);\n\"ヒラギノ角ゴ\"; url(__PUBLIC_PATH__logo.png);\n\"游ゴシック体\"; url(__PUBLIC_PATH__logo.png);\n\"🤪\"; url(__PUBLIC_PATH__logo.png);\n\"👨‍👩‍👧‍👧\"; url(__PUBLIC_PATH__logo.png);\n"],"names":[],"mappings":";AACA,OAAO,IAAI,GAAe;AAC1B,UAAU,IAAI,GAAe;AAC7B,UAAU,IAAI,GAAe;AAC7B,MAAM,IAAI,GAAe;AACzB,eAAe,IAAI,GAAe"}"#,
     );
   }
