@@ -449,7 +449,7 @@ mod tests {
     let hash1 = {
       let mut source =
         ReplaceSource::new(OriginalSource::new("Hello", "hello.txt").boxed());
-      source.insert(5, " world", None);
+      source.insert_static(5, " world", None);
       let cache = CachedSource::new(source);
       let mut hasher = FxHasher::default();
       cache.hash(&mut hasher);
