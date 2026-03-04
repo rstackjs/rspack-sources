@@ -51,7 +51,6 @@ codspeed-criterion-compat = { version = "4.1.0", default-features = false, optio
 static_assertions = "1.1.0"
 simd-json = "0.17.0"
 json-escape-simd = "3.0.1"
-simdutf = "0.7.0"
 
 [dev-dependencies]
 twox-hash = "2.1.0"

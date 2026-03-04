@@ -7,6 +7,7 @@ mod encoder;
 mod error;
 mod helpers;
 mod linear_map;
+mod utf16_len;
 mod object_pool;
 mod original_source;
 mod raw_source;
