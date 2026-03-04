@@ -1,4 +1,9 @@
-use crate::{black_box, BenchmarkId};
+#[cfg(not(codspeed))]
+pub use criterion::*;
+
+#[cfg(codspeed)]
+pub use codspeed_criterion_compat::*;
+
 use rspack_sources::utf16_len;
 
 const ASCII: &str = "The quick brown fox jumps over the lazy dog. This is a longer sentence to provide more data for benchmarking purposes, with various words and punctuation marks included.";
@@ -10,23 +15,14 @@ const EMOJI: &str =
 
 const MIXED: &str = "Hello, 世界! 🌍 Привет мир! こんにちは世界！Héllo wörld! 你好世界！안녕하세요 세계! مرحبا بالعالم";
 
-pub fn bench_utf16_len(
-  group: &mut criterion::BenchmarkGroup<'_, criterion::measurement::WallTime>,
-) {
-  let inputs: &[(&str, &str)] = &[
-    ("ascii", ASCII),
-    ("cjk", CJK),
-    ("emoji", EMOJI),
-    ("mixed", MIXED),
-  ];
-
-  for &(name, input) in inputs {
-    group.bench_function(format!("simd_utf16_len_{}", name), |b| {
-      b.iter(|| utf16_len(black_box(input)));
-    });
-
-    group.bench_function(format!("std_utf16_len_{}", name), |b| {
-      b.iter(|| black_box(input).encode_utf16().count());
-    });
-  }
+pub fn bench_simd_utf16_len(b: &mut Bencher) {
+  let input = [ASCII, CJK, EMOJI, MIXED].join("\n");
+  b.iter(|| black_box(utf16_len(&input)));
 }
+
+pub fn bench_std_utf16_len(b: &mut Bencher) {
+  let input = [ASCII, CJK, EMOJI, MIXED].join("\n");
+  b.iter(|| black_box(input.encode_utf16().count()));
+}
+
+fn main() {}

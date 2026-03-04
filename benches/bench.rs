@@ -28,7 +28,7 @@ use bench_source_map::{
   benchmark_parse_source_map_from_json, benchmark_source_map_to_json,
 };
 
-use crate::bench_utf16_len::bench_utf16_len;
+use crate::bench_utf16_len::{bench_simd_utf16_len, bench_std_utf16_len};
 use benchmark_repetitive_react_components::{
   benchmark_repetitive_react_components_map,
   benchmark_repetitive_react_components_source,
@@ -193,7 +193,9 @@ fn bench_rspack_sources(criterion: &mut Criterion) {
     benchmark_repetitive_react_components_source,
   );
 
-  bench_utf16_len(&mut group);
+  group.bench_function("simd_utf16_len", bench_simd_utf16_len);
+
+  group.bench_function("std_utf16_len", bench_std_utf16_len);
 
   group.finish();
 }
