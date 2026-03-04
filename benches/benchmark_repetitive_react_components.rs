@@ -41,15 +41,15 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(76, 116, "", None);
-        source.replace(117, 145, "", None);
-        source.replace(146, 165, "react_dom_client__WEBPACK_IMPORTED_MODULE_2__.createRoot", None);
-        source.replace(220, 224, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(225, 241, "(react__WEBPACK_IMPORTED_MODULE_1___default().StrictMode)", None);
-        source.replace(273, 277, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(278, 282, "_src_f0__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(76, 116, "", None);
+        source.replace_static(117, 145, "", None);
+        source.replace_static(146, 165, "react_dom_client__WEBPACK_IMPORTED_MODULE_2__.createRoot", None);
+        source.replace_static(220, 224, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(225, 241, "(react__WEBPACK_IMPORTED_MODULE_1___default().StrictMode)", None);
+        source.replace_static(273, 277, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(278, 282, "_src_f0__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -73,14 +73,14 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 105, "", None);
-        source.replace(162, 171, "(0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)", None);
-        source.replace(244, 249, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(305, 309, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(416, 431, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(416, 431, "", None);
-        source.replace_with_enforce(437, 438, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 105, "", None);
+        source.replace_static(162, 171, "(0,react__WEBPACK_IMPORTED_MODULE_1__.useEffect)", None);
+        source.replace_static(244, 249, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(305, 309, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(416, 431, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(416, 431, "", None);
+        source.replace_static_with_enforce(437, 438, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -104,12 +104,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -133,12 +133,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -162,12 +162,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -191,12 +191,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -220,12 +220,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -249,12 +249,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -278,12 +278,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -307,12 +307,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -336,12 +336,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -365,12 +365,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -394,12 +394,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -423,12 +423,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -452,12 +452,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -481,12 +481,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -510,12 +510,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -539,12 +539,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -568,12 +568,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -597,12 +597,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -626,12 +626,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -655,12 +655,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -684,12 +684,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -713,12 +713,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -742,12 +742,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -771,12 +771,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -800,12 +800,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -829,12 +829,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -858,12 +858,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -887,12 +887,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -916,12 +916,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -945,12 +945,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -974,12 +974,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1003,12 +1003,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1032,12 +1032,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1061,12 +1061,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1090,12 +1090,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1119,12 +1119,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1148,12 +1148,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1177,12 +1177,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1206,12 +1206,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1235,12 +1235,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1264,12 +1264,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1293,12 +1293,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1322,12 +1322,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1351,12 +1351,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1380,12 +1380,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1409,12 +1409,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1438,12 +1438,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1467,12 +1467,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1496,12 +1496,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1525,12 +1525,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1554,12 +1554,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1583,12 +1583,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1612,12 +1612,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1641,12 +1641,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1670,12 +1670,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1699,12 +1699,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1728,12 +1728,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1757,12 +1757,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1786,12 +1786,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1815,12 +1815,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1844,12 +1844,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1873,12 +1873,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1902,12 +1902,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1931,12 +1931,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1960,12 +1960,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -1989,12 +1989,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2018,12 +2018,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2047,12 +2047,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2076,12 +2076,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2105,12 +2105,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2134,12 +2134,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2163,12 +2163,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2192,12 +2192,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2221,12 +2221,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2250,12 +2250,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2279,12 +2279,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2308,12 +2308,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2337,12 +2337,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2366,12 +2366,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2395,12 +2395,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2424,12 +2424,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2453,12 +2453,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2482,12 +2482,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2511,12 +2511,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2540,12 +2540,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2569,12 +2569,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2598,12 +2598,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2627,12 +2627,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2656,12 +2656,12 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 48, "", None);
-        source.replace(49, 75, "", None);
-        source.replace(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(172, 187, "", None);
-        source.replace_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 48, "", None);
+        source.replace_static(49, 75, "", None);
+        source.replace_static(153, 157, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(172, 187, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(172, 187, "", None);
+        source.replace_static_with_enforce(193, 194, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2694,39 +2694,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d0_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d0_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d0_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d0_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d0_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d0_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d0_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d0_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d0_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d0_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d0_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d0_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d0_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d0_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d0_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d0_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2759,39 +2759,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d1_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d1_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d1_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d1_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d1_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d1_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d1_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d1_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d1_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d1_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d1_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d1_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d1_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d1_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d1_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d1_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d1_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d1_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2824,39 +2824,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d2_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d2_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d2_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d2_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d2_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d2_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d2_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d2_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d2_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d2_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d2_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d2_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d2_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d2_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d2_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d2_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d2_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d2_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2889,39 +2889,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d3_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d3_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d3_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d3_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d3_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d3_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d3_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d3_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d3_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d3_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d3_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d3_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d3_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d3_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d3_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d3_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d3_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d3_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -2954,39 +2954,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d4_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d4_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d4_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d4_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d4_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d4_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d4_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d4_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d4_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d4_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d4_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d4_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d4_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d4_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d4_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d4_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d4_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d4_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3019,39 +3019,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d5_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d5_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d5_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d5_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d5_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d5_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d5_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d5_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d5_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d5_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d5_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d5_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d5_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d5_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d5_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d5_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d5_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d5_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3084,39 +3084,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d6_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d6_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d6_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d6_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d6_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d6_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d6_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d6_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d6_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d6_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d6_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d6_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d6_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d6_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d6_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d6_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d6_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d6_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3149,39 +3149,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d7_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d7_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d7_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d7_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d7_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d7_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d7_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d7_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d7_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d7_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d7_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d7_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d7_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d7_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d7_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d7_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d7_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d7_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3223,66 +3223,66 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(451, 490, "", None);
-        source.replace(491, 531, "", None);
-        source.replace(532, 572, "", None);
-        source.replace(573, 613, "", None);
-        source.replace(614, 654, "", None);
-        source.replace(655, 695, "", None);
-        source.replace(696, 736, "", None);
-        source.replace(737, 777, "", None);
-        source.replace(778, 818, "", None);
-        source.replace(896, 901, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(957, 961, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(962, 974, "_d8_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(1007, 1011, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1012, 1024, "_d8_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(1057, 1061, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1062, 1074, "_d8_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(1107, 1111, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1112, 1124, "_d8_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(1157, 1161, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1162, 1174, "_d8_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(1207, 1211, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1212, 1224, "_d8_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(1257, 1261, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1262, 1274, "_d8_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(1307, 1311, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1312, 1324, "_d8_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(1357, 1361, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1362, 1374, "_d8_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1407, 1411, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1412, 1424, "_d9_f0_jsx__WEBPACK_IMPORTED_MODULE_11__[\"default\"]", None);
-        source.replace(1457, 1461, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1462, 1475, "_d9_f1_jsx__WEBPACK_IMPORTED_MODULE_12__[\"default\"]", None);
-        source.replace(1508, 1512, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1513, 1526, "_d9_f2_jsx__WEBPACK_IMPORTED_MODULE_13__[\"default\"]", None);
-        source.replace(1559, 1563, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1564, 1577, "_d9_f3_jsx__WEBPACK_IMPORTED_MODULE_14__[\"default\"]", None);
-        source.replace(1610, 1614, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1615, 1628, "_d9_f4_jsx__WEBPACK_IMPORTED_MODULE_15__[\"default\"]", None);
-        source.replace(1661, 1665, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1666, 1679, "_d9_f5_jsx__WEBPACK_IMPORTED_MODULE_16__[\"default\"]", None);
-        source.replace(1712, 1716, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1717, 1730, "_d9_f6_jsx__WEBPACK_IMPORTED_MODULE_17__[\"default\"]", None);
-        source.replace(1763, 1767, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1768, 1781, "_d9_f7_jsx__WEBPACK_IMPORTED_MODULE_18__[\"default\"]", None);
-        source.replace(1814, 1818, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1819, 1832, "_d9_f8_jsx__WEBPACK_IMPORTED_MODULE_19__[\"default\"]", None);
-        source.replace(1858, 1873, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1858, 1873, "", None);
-        source.replace_with_enforce(1879, 1880, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(451, 490, "", None);
+        source.replace_static(491, 531, "", None);
+        source.replace_static(532, 572, "", None);
+        source.replace_static(573, 613, "", None);
+        source.replace_static(614, 654, "", None);
+        source.replace_static(655, 695, "", None);
+        source.replace_static(696, 736, "", None);
+        source.replace_static(737, 777, "", None);
+        source.replace_static(778, 818, "", None);
+        source.replace_static(896, 901, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(957, 961, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(962, 974, "_d8_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(1007, 1011, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1012, 1024, "_d8_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(1057, 1061, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1062, 1074, "_d8_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(1107, 1111, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1112, 1124, "_d8_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(1157, 1161, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1162, 1174, "_d8_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(1207, 1211, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1212, 1224, "_d8_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(1257, 1261, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1262, 1274, "_d8_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(1307, 1311, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1312, 1324, "_d8_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(1357, 1361, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1362, 1374, "_d8_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1407, 1411, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1412, 1424, "_d9_f0_jsx__WEBPACK_IMPORTED_MODULE_11__[\"default\"]", None);
+        source.replace_static(1457, 1461, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1462, 1475, "_d9_f1_jsx__WEBPACK_IMPORTED_MODULE_12__[\"default\"]", None);
+        source.replace_static(1508, 1512, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1513, 1526, "_d9_f2_jsx__WEBPACK_IMPORTED_MODULE_13__[\"default\"]", None);
+        source.replace_static(1559, 1563, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1564, 1577, "_d9_f3_jsx__WEBPACK_IMPORTED_MODULE_14__[\"default\"]", None);
+        source.replace_static(1610, 1614, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1615, 1628, "_d9_f4_jsx__WEBPACK_IMPORTED_MODULE_15__[\"default\"]", None);
+        source.replace_static(1661, 1665, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1666, 1679, "_d9_f5_jsx__WEBPACK_IMPORTED_MODULE_16__[\"default\"]", None);
+        source.replace_static(1712, 1716, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1717, 1730, "_d9_f6_jsx__WEBPACK_IMPORTED_MODULE_17__[\"default\"]", None);
+        source.replace_static(1763, 1767, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1768, 1781, "_d9_f7_jsx__WEBPACK_IMPORTED_MODULE_18__[\"default\"]", None);
+        source.replace_static(1814, 1818, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1819, 1832, "_d9_f8_jsx__WEBPACK_IMPORTED_MODULE_19__[\"default\"]", None);
+        source.replace_static(1858, 1873, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1858, 1873, "", None);
+        source.replace_static_with_enforce(1879, 1880, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3315,39 +3315,39 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(131, 170, "", None);
-        source.replace(171, 210, "", None);
-        source.replace(211, 250, "", None);
-        source.replace(251, 290, "", None);
-        source.replace(291, 330, "", None);
-        source.replace(331, 370, "", None);
-        source.replace(371, 410, "", None);
-        source.replace(411, 450, "", None);
-        source.replace(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(594, 606, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(644, 656, "_d0_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
-        source.replace(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(694, 706, "_d0_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
-        source.replace(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(744, 756, "_d0_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
-        source.replace(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(794, 806, "_d0_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
-        source.replace(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(844, 856, "_d0_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
-        source.replace(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(894, 906, "_d0_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
-        source.replace(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(944, 956, "_d0_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
-        source.replace(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(994, 1006, "_d0_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
-        source.replace(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1032, 1047, "", None);
-        source.replace_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(131, 170, "", None);
+        source.replace_static(171, 210, "", None);
+        source.replace_static(211, 250, "", None);
+        source.replace_static(251, 290, "", None);
+        source.replace_static(291, 330, "", None);
+        source.replace_static(331, 370, "", None);
+        source.replace_static(371, 410, "", None);
+        source.replace_static(411, 450, "", None);
+        source.replace_static(528, 533, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(589, 593, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(594, 606, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(639, 643, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(644, 656, "_d0_f1_jsx__WEBPACK_IMPORTED_MODULE_3__[\"default\"]", None);
+        source.replace_static(689, 693, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(694, 706, "_d0_f2_jsx__WEBPACK_IMPORTED_MODULE_4__[\"default\"]", None);
+        source.replace_static(739, 743, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(744, 756, "_d0_f3_jsx__WEBPACK_IMPORTED_MODULE_5__[\"default\"]", None);
+        source.replace_static(789, 793, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(794, 806, "_d0_f4_jsx__WEBPACK_IMPORTED_MODULE_6__[\"default\"]", None);
+        source.replace_static(839, 843, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(844, 856, "_d0_f5_jsx__WEBPACK_IMPORTED_MODULE_7__[\"default\"]", None);
+        source.replace_static(889, 893, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(894, 906, "_d0_f6_jsx__WEBPACK_IMPORTED_MODULE_8__[\"default\"]", None);
+        source.replace_static(939, 943, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(944, 956, "_d0_f7_jsx__WEBPACK_IMPORTED_MODULE_9__[\"default\"]", None);
+        source.replace_static(989, 993, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(994, 1006, "_d0_f8_jsx__WEBPACK_IMPORTED_MODULE_10__[\"default\"]", None);
+        source.replace_static(1032, 1047, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1032, 1047, "", None);
+        source.replace_static_with_enforce(1053, 1054, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3372,23 +3372,23 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(544, 549, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(605, 609, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(610, 622, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(655, 659, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(705, 709, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(755, 759, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(805, 809, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(855, 859, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(905, 909, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(955, 959, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1005, 1009, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(1048, 1063, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(1048, 1063, "", None);
-        source.replace_with_enforce(1069, 1070, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(544, 549, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(605, 609, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(610, 622, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(655, 659, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(705, 709, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(755, 759, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(805, 809, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(855, 859, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(905, 909, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(955, 959, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1005, 1009, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(1048, 1063, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(1048, 1063, "", None);
+        source.replace_static_with_enforce(1069, 1070, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
@@ -3413,15 +3413,15 @@ static REPETITIVE_1K_REACT_COMPONENTS_SOURCE: LazyLock<BoxSource> =
             remove_original_source: false,
           }).boxed()
         );
-        source.replace(0, 63, "", None);
-        source.replace(64, 90, "", None);
-        source.replace(91, 130, "", None);
-        source.replace(544, 549, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
-        source.replace(622, 626, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
-        source.replace(627, 639, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
-        source.replace(665, 680, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
-        source.replace(665, 680, "", None);
-        source.replace_with_enforce(686, 687, ");", None, ReplacementEnforce::Post);
+        source.replace_static(0, 63, "", None);
+        source.replace_static(64, 90, "", None);
+        source.replace_static(91, 130, "", None);
+        source.replace_static(544, 549, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsxs)", None);
+        source.replace_static(622, 626, "(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_0__.jsx)", None);
+        source.replace_static(627, 639, "_d0_f0_jsx__WEBPACK_IMPORTED_MODULE_2__[\"default\"]", None);
+        source.replace_static(665, 680, "/* ESM default export */ const __WEBPACK_DEFAULT_EXPORT__ = (", None);
+        source.replace_static(665, 680, "", None);
+        source.replace_static_with_enforce(686, 687, ");", None, ReplacementEnforce::Post);
         source.boxed()
       },
       RawStringSource::from_static("\n\n})").boxed(),
