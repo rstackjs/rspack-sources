@@ -7,7 +7,6 @@ mod encoder;
 mod error;
 mod helpers;
 mod linear_map;
-mod utf16_len;
 mod object_pool;
 mod original_source;
 mod raw_source;
@@ -16,6 +15,7 @@ mod source;
 mod source_content_lines;
 mod source_map_source;
 mod to_json;
+mod utf16_len;
 mod with_utf16;
 
 pub use cached_source::CachedSource;

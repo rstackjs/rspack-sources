@@ -30,8 +30,7 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
       let mut four_acc = zero;
 
       for _ in 0..batch {
-        let chunk =
-          _mm_loadu_si128(bytes.as_ptr().add(i) as *const __m128i);
+        let chunk = _mm_loadu_si128(bytes.as_ptr().add(i) as *const __m128i);
 
         // Continuation bytes: (byte & 0xC0) == 0x80
         let masked = _mm_and_si128(chunk, cont_mask);
@@ -64,8 +63,7 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
   }
 
   // Scalar tail for remaining bytes.
-  for j in i..len {
-    let b = bytes[j];
+  for &b in &bytes[i..] {
     continuation_count += ((b & 0xC0) == 0x80) as usize;
     four_byte_count += (b >= 0xF0) as usize;
   }

@@ -55,8 +55,7 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
   }
 
   // Scalar tail for remaining bytes.
-  for j in i..len {
-    let b = bytes[j];
+  for &b in &bytes[i..] {
     continuation_count += ((b & 0xC0) == 0x80) as usize;
     four_byte_count += (b >= 0xF0) as usize;
   }

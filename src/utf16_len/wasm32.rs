@@ -28,8 +28,7 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
 
     for _ in 0..batch {
       // SAFETY: i + 16 <= len is guaranteed by the while condition.
-      let chunk =
-        unsafe { v128_load(bytes.as_ptr().add(i) as *const v128) };
+      let chunk = unsafe { v128_load(bytes.as_ptr().add(i) as *const v128) };
 
       // Continuation bytes: (byte & 0xC0) == 0x80
       let masked = v128_and(chunk, cont_mask);
@@ -54,8 +53,7 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
   }
 
   // Scalar tail for remaining bytes.
-  for j in i..len {
-    let b = bytes[j];
+  for &b in &bytes[i..] {
     continuation_count += ((b & 0xC0) == 0x80) as usize;
     four_byte_count += (b >= 0xF0) as usize;
   }
