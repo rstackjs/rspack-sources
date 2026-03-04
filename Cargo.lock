@@ -594,7 +594,6 @@ dependencies = [
  "regex",
  "rustc-hash",
  "serde",
- "serde_json",
  "simd-json",
  "static_assertions",
  "twox-hash",

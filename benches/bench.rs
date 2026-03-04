@@ -2,6 +2,7 @@
 
 mod bench_complex_replace_source;
 mod bench_source_map;
+mod bench_utf16_len;
 mod benchmark_repetitive_react_components;
 
 use std::collections::HashMap;
@@ -27,6 +28,7 @@ use bench_source_map::{
   benchmark_parse_source_map_from_json, benchmark_source_map_to_json,
 };
 
+use crate::bench_utf16_len::bench_utf16_len;
 use benchmark_repetitive_react_components::{
   benchmark_repetitive_react_components_map,
   benchmark_repetitive_react_components_source,
@@ -190,6 +192,8 @@ fn bench_rspack_sources(criterion: &mut Criterion) {
     "repetitive_react_components_source",
     benchmark_repetitive_react_components_source,
   );
+
+  bench_utf16_len(&mut group);
 
   group.finish();
 }
