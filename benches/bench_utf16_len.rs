@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 #[cfg(not(codspeed))]
 pub use criterion::*;
 
