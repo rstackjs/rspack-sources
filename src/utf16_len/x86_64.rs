@@ -25,7 +25,8 @@ pub(crate) fn utf16_length_from_utf8(bytes: &[u8]) -> usize {
 
 /// AVX2 implementation: processes 32 bytes per iteration.
 #[target_feature(enable = "avx2")]
-fn utf16_length_avx2(bytes: &[u8]) -> usize {
+#[allow(unsafe_code)]
+unsafe fn utf16_length_avx2(bytes: &[u8]) -> usize {
   let len = bytes.len();
   let mut continuation_count: usize = 0;
   let mut four_byte_count: usize = 0;
@@ -76,7 +77,8 @@ fn utf16_length_avx2(bytes: &[u8]) -> usize {
 /// Horizontal sum of all u8 lanes in a __m256i register.
 #[target_feature(enable = "avx2")]
 #[inline]
-fn hsum_u8_avx2(v: __m256i, zero: __m256i) -> usize {
+#[allow(unsafe_code)]
+unsafe fn hsum_u8_avx2(v: __m256i, zero: __m256i) -> usize {
   let sad = _mm256_sad_epu8(v, zero);
   let hi = _mm256_extracti128_si256::<1>(sad);
   let lo = _mm256_castsi256_si128(sad);
@@ -87,7 +89,7 @@ fn hsum_u8_avx2(v: __m256i, zero: __m256i) -> usize {
 
 /// SSE2 implementation: processes 16 bytes per iteration.
 #[allow(unsafe_code)]
-fn utf16_length_sse2(bytes: &[u8]) -> usize {
+unsafe fn utf16_length_sse2(bytes: &[u8]) -> usize {
   let len = bytes.len();
   let mut continuation_count: usize = 0;
   let mut four_byte_count: usize = 0;
