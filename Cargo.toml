@@ -40,6 +40,10 @@ harness = false
 name = "bench_source_map"
 harness = false
 
+[[bench]]
+name = "bench_utf16_len"
+harness = false
+
 [dependencies]
 serde = { version = "1.0.216", features = ["derive", "rc"] }
 dyn-clone = "1.0.17"
