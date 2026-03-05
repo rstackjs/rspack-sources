@@ -594,9 +594,8 @@ dependencies = [
  "regex",
  "rustc-hash",
  "serde",
- "serde_json",
  "simd-json",
- "simdutf",
+ "simd-utf16-len",
  "static_assertions",
  "twox-hash",
 ]
@@ -699,14 +698,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "simdutf"
-version = "0.7.0"
+name = "simd-utf16-len"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f542752c7335a9174e7bb81112c3ca1415a7a6b6ec2c3e840aca347a30f9141"
-dependencies = [
- "bitflags",
- "cc",
-]
+checksum = "2c17a83ac53a3ccce2d4fec2031c22b539d12dc95498e75935a6da589b7b4372"
 
 [[package]]
 name = "simdutf8"
