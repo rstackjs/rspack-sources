@@ -13,13 +13,13 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
   max_segments += 13;
 
   // Optional "file":"...",
-  if let Some(file) = sourcemap.file() {
-    max_segments += 8 /* "file":" */ + file.len() + 2 /* ", */;
+  if sourcemap.file().is_some()  {
+    max_segments += 8 /* "file":" */ + 2 /* ", */;
   }
 
   // Optional "sourceRoot":"...",
-  if let Some(source_root) = sourcemap.source_root() {
-    max_segments += 14 /* "sourceRoot":" */ + source_root.len() + 2 /* ", */;
+  if sourcemap.source_root().is_some() {
+    max_segments += 14 /* "sourceRoot":" */ + 2 /* ", */;
   }
 
   // Calculate string lengths in a single pass for better cache locality
@@ -36,6 +36,14 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
 
   // Accumulate total string bytes across all collections
   let mut total_string_bytes = 0usize;
+
+  if let Some(source_root) = sourcemap.source_root() {
+    total_string_bytes += source_root.len();
+  }
+
+  if let Some(file) = sourcemap.file() {
+    total_string_bytes += file.len();
+  }
 
   for name in sourcemap.names() {
     total_string_bytes += name.len();
@@ -100,13 +108,13 @@ pub fn to_json(sourcemap: &SourceMap) -> String {
   contents.push("{\"version\":3,");
   if let Some(file) = sourcemap.file() {
     contents.push("\"file\":\"");
-    contents.push(file.as_ref());
+    escape_into(file, contents.as_mut_vec());
     contents.push("\",");
   }
 
   if let Some(source_root) = sourcemap.source_root() {
     contents.push("\"sourceRoot\":\"");
-    contents.push(source_root);
+    escape_into(source_root, contents.as_mut_vec());
     contents.push("\",");
   }
 
