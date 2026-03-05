@@ -158,7 +158,7 @@ pub fn encode_mappings(mappings: impl Iterator<Item = Mapping>) -> String {
 /// Formula: `utf16_len = byte_length - continuation_bytes + four_byte_leaders`
 #[inline]
 pub fn utf16_len(s: &str) -> usize {
-  crate::utf16_len::utf16_length_from_utf8(s.as_bytes())
+  simd_utf16_len::utf16_len(s)
 }
 
 #[derive(Debug, PartialEq, Eq)]
