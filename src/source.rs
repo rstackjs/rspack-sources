@@ -320,7 +320,7 @@ impl std::fmt::Debug for SourceMap {
     write!(
       f,
       "{indent_str}SourceMap::from_json({:?}).unwrap()",
-      self.clone().to_json().unwrap()
+      self.clone().to_json()
     )?;
 
     Ok(())
@@ -516,15 +516,8 @@ impl SourceMap {
   }
 
   /// Generate source map to a json string.
-  pub fn to_json(&self) -> Result<String> {
-    let json = simd_json::serde::to_string(&self)?;
-    Ok(json)
-  }
-
-  /// Generate source map to writer.
-  pub fn to_writer<W: std::io::Write>(self, w: W) -> Result<()> {
-    simd_json::serde::to_writer(w, &self)?;
-    Ok(())
+  pub fn to_json(&self) -> String {
+    simd_json::to_string(self).expect("Serialization failed")
   }
 }
 
@@ -650,8 +643,7 @@ mod tests {
       vec!["".into(), "".into(), "".into()],
       vec!["".into(), "".into()],
     )
-    .to_json()
-    .unwrap();
+    .to_json();
     assert!(!map.contains("sourcesContent"));
   }
 
