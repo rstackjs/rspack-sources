@@ -8,12 +8,11 @@ use std::{
 };
 
 use dyn_clone::DynClone;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
   helpers::{decode_mappings, Chunks, StreamChunks},
   object_pool::ObjectPool,
-  to_json::to_json,
   Result,
 };
 
@@ -284,17 +283,29 @@ impl MapOptions {
   }
 }
 
+fn is_all_empty(val: &[Arc<str>]) -> bool {
+  if val.is_empty() {
+    return true;
+  }
+  val.iter().all(|s| s.is_empty())
+}
+
 /// The source map created by [Source::map].
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize)]
 pub struct SourceMap {
   version: u8,
+  #[serde(skip_serializing_if = "Option::is_none")]
   file: Option<Arc<str>>,
   sources: Arc<[String]>,
+  #[serde(rename = "sourcesContent", skip_serializing_if = "is_all_empty")]
   sources_content: Arc<[Arc<str>]>,
   names: Arc<[String]>,
   mappings: Arc<str>,
+  #[serde(rename = "sourceRoot", skip_serializing_if = "Option::is_none")]
   source_root: Option<Arc<str>>,
+  #[serde(rename = "debugId", skip_serializing_if = "Option::is_none")]
   debug_id: Option<Arc<str>>,
+  #[serde(rename = "ignoreList", skip_serializing_if = "Option::is_none")]
   ignore_list: Option<Arc<Vec<u32>>>,
 }
 
@@ -309,7 +320,7 @@ impl std::fmt::Debug for SourceMap {
     write!(
       f,
       "{indent_str}SourceMap::from_json({:?}).unwrap()",
-      self.to_json()
+      self.clone().to_json()
     )?;
 
     Ok(())
@@ -506,7 +517,7 @@ impl SourceMap {
 
   /// Generate source map to a json string.
   pub fn to_json(&self) -> String {
-    to_json(self)
+    simd_json::to_string(self).expect("Serialization failed")
   }
 }
 
