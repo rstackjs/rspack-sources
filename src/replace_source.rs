@@ -1053,45 +1053,44 @@ mod tests {
   fn with_readable_mappings(sourcemap: &SourceMap) -> String {
     let mut first = true;
     let mut last_line = 0;
-    sourcemap
-      .decoded_mappings()
-      .map(|token| {
-        format!(
-          "{}:{} ->{} {}:{}{}",
-          if !first && token.generated_line == last_line {
-            ", ".to_owned()
-          } else {
-            first = false;
-            last_line = token.generated_line;
-            format!("\n{}", token.generated_line)
-          },
-          token.generated_column,
-          token
-            .original
-            .as_ref()
-            .and_then(
-              |original| sourcemap.get_source(original.source_index as usize)
-            )
-            .map_or("".to_owned(), |source| format!(" [{source}]")),
-          token
-            .original
-            .as_ref()
-            .map(|original| original.original_line)
-            .unwrap_or(!0),
-          token
-            .original
-            .as_ref()
-            .map(|original| original.original_column)
-            .unwrap_or(!0),
-          token
-            .original
-            .as_ref()
-            .and_then(|original| original.name_index)
-            .and_then(|name_index| sourcemap.get_name(name_index as usize))
-            .map_or("".to_owned(), |source| format!(" ({source})")),
-        )
-      })
-      .collect()
+    let mut result = String::new();
+    sourcemap.decode_mappings_into(&mut |token: Mapping| {
+      result.push_str(&format!(
+        "{}:{} ->{} {}:{}{}",
+        if !first && token.generated_line == last_line {
+          ", ".to_owned()
+        } else {
+          first = false;
+          last_line = token.generated_line;
+          format!("\n{}", token.generated_line)
+        },
+        token.generated_column,
+        token
+          .original
+          .as_ref()
+          .and_then(
+            |original| sourcemap.get_source(original.source_index as usize)
+          )
+          .map_or("".to_owned(), |source| format!(" [{source}]")),
+        token
+          .original
+          .as_ref()
+          .map(|original| original.original_line)
+          .unwrap_or(!0),
+        token
+          .original
+          .as_ref()
+          .map(|original| original.original_column)
+          .unwrap_or(!0),
+        token
+          .original
+          .as_ref()
+          .and_then(|original| original.name_index)
+          .and_then(|name_index| sourcemap.get_name(name_index as usize))
+          .map_or("".to_owned(), |source| format!(" ({source})")),
+      ));
+    });
+    result
   }
 
   #[test]
