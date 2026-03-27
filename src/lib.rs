@@ -38,6 +38,6 @@ pub mod stream_chunks {
   };
 }
 
-pub use helpers::{decode_mappings, encode_mappings, utf16_len};
+pub use helpers::{encode_mappings, utf16_len};
 
 pub use object_pool::ObjectPool;

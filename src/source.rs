@@ -1,3 +1,4 @@
+use crate::decoder::MappingsDecoder;
 use std::{
   any::{Any, TypeId},
   borrow::Cow,
@@ -11,7 +12,7 @@ use dyn_clone::DynClone;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-  helpers::{decode_mappings, Chunks, StreamChunks},
+  helpers::{Chunks, StreamChunks},
   object_pool::ObjectPool,
   Result,
 };
@@ -386,8 +387,8 @@ impl SourceMap {
   }
 
   /// Get the decoded mappings in [SourceMap].
-  pub fn decoded_mappings(&self) -> impl Iterator<Item = Mapping> + '_ {
-    decode_mappings(self)
+  pub fn decode_mappings_into(&self, on_mapping: impl FnMut(Mapping)) {
+    MappingsDecoder::new(self.mappings()).decode_into(on_mapping);
   }
 
   /// Get the mappings string in [SourceMap].

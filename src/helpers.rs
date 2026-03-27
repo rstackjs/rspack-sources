@@ -8,7 +8,6 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
-  decoder::MappingsDecoder,
   encoder::create_encoder,
   linear_map::LinearMap,
   object_pool::ObjectPool,
@@ -137,21 +136,6 @@ pub struct GeneratedInfo {
   pub generated_line: u32,
   /// Generated column
   pub generated_column: u32,
-}
-
-/// Decodes the given mappings string into an iterator of `Mapping` items.
-pub fn decode_mappings(
-  source_map: &SourceMap,
-) -> impl Iterator<Item = Mapping> + '_ {
-  MappingsDecoder::new(source_map.mappings())
-}
-
-#[inline]
-fn decode_mappings_into(
-  source_map: &SourceMap,
-  on_mapping: impl FnMut(Mapping),
-) {
-  MappingsDecoder::new(source_map.mappings()).decode_into(on_mapping);
 }
 
 /// Encodes the given iterator of `Mapping` items into a `String`.
@@ -441,7 +425,7 @@ fn stream_chunks_of_source_map_final<'a>(
       );
     }
   };
-  decode_mappings_into(source_map, &mut on_mapping);
+  source_map.decode_mappings_into(&mut on_mapping);
   result
 }
 
@@ -573,7 +557,7 @@ fn stream_chunks_of_source_map_full<'a>(
     }
   };
 
-  decode_mappings_into(source_map, &mut on_mapping);
+  source_map.decode_mappings_into(&mut on_mapping);
   on_mapping(Mapping {
     generated_line: final_line,
     generated_column: final_column,
@@ -624,7 +608,7 @@ fn stream_chunks_of_source_map_lines_final<'a>(
       on_chunk(None, mapping);
     }
   };
-  decode_mappings_into(source_map, &mut on_mapping);
+  source_map.decode_mappings_into(&mut on_mapping);
   result
 }
 
@@ -683,7 +667,7 @@ fn stream_chunks_of_source_map_lines_full<'a>(
       current_generated_line += 1;
     }
   };
-  decode_mappings_into(source_map, &mut on_mapping);
+  source_map.decode_mappings_into(&mut on_mapping);
   while current_generated_line as usize <= lines.len() {
     let chunk = &lines[current_generated_line as usize - 1];
     on_chunk(
