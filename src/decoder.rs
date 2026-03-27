@@ -1,5 +1,3 @@
-use std::slice::Iter;
-
 use crate::{Mapping, OriginalLocation};
 
 const COM: u8 = 0x40; // END_SEGMENT_BIT
@@ -31,12 +29,13 @@ const B64: [u8; 256] = [
 ];
 
 pub(crate) struct MappingsDecoder<'a> {
-  mappings_iter: Iter<'a, u8>,
+  mappings: &'a [u8],
+  index: usize,
 
   current_data: [u32; 5],
   current_data_pos: usize,
   // current_value will include a sign bit at bit 0
-  current_value: i64,
+  current_value: u32,
   current_value_pos: usize,
   generated_line: u32,
 }
@@ -44,7 +43,8 @@ pub(crate) struct MappingsDecoder<'a> {
 impl<'a> MappingsDecoder<'a> {
   pub fn new(mappings: &'a str) -> Self {
     Self {
-      mappings_iter: mappings.as_bytes().iter(),
+      mappings: mappings.as_bytes(),
+      index: 0,
       current_data: [0u32, 0u32, 1u32, 0u32, 0u32],
       current_data_pos: 0,
       // current_value will include a sign bit at bit 0
@@ -53,112 +53,104 @@ impl<'a> MappingsDecoder<'a> {
       generated_line: 1,
     }
   }
-}
 
-impl Iterator for MappingsDecoder<'_> {
-  type Item = Mapping;
+  #[inline]
+  fn emit_segment(
+    &self,
+    generated_line: u32,
+    generated_column: u32,
+    current_data_pos: usize,
+  ) -> Option<Mapping> {
+    match current_data_pos {
+      1 => Some(Mapping {
+        generated_line,
+        generated_column,
+        original: None,
+      }),
+      4 => Some(Mapping {
+        generated_line,
+        generated_column,
+        original: Some(OriginalLocation {
+          source_index: self.current_data[1],
+          original_line: self.current_data[2],
+          original_column: self.current_data[3],
+          name_index: None,
+        }),
+      }),
+      5 => Some(Mapping {
+        generated_line,
+        generated_column,
+        original: Some(OriginalLocation {
+          source_index: self.current_data[1],
+          original_line: self.current_data[2],
+          original_column: self.current_data[3],
+          name_index: Some(self.current_data[4]),
+        }),
+      }),
+      _ => None,
+    }
+  }
 
-  fn next(&mut self) -> Option<Self::Item> {
-    for c in &mut self.mappings_iter {
-      let value = B64[*c as usize];
+  #[allow(unsafe_code)]
+  pub fn decode_into(self, mut on_mapping: impl FnMut(Mapping)) {
+    let mut this = self;
+
+    while this.index < this.mappings.len() {
+      let byte = unsafe { *this.mappings.get_unchecked(this.index) };
+      let value = unsafe { *B64.get_unchecked(byte as usize) };
+      this.index += 1;
+
+      if value < COM {
+        if (value & CONTINUATION_BIT) == 0 {
+          this.current_value |= (value as u32) << this.current_value_pos;
+          let final_value = if (this.current_value & 1) != 0 {
+            -((this.current_value >> 1) as i64)
+          } else {
+            (this.current_value >> 1) as i64
+          };
+          if this.current_data_pos < 5 {
+            this.current_data[this.current_data_pos] =
+              (this.current_data[this.current_data_pos] as i64 + final_value)
+                as u32;
+          }
+          this.current_data_pos += 1;
+          this.current_value_pos = 0;
+          this.current_value = 0;
+        } else {
+          this.current_value |=
+            ((value & DATA_MASK) as u32) << this.current_value_pos;
+          this.current_value_pos += 5;
+        }
+        continue;
+      }
+
       if value == ERR {
         continue;
       }
-      if (value & COM) != 0 {
-        let mut mapping = Mapping {
-          generated_line: self.generated_line,
-          generated_column: self.current_data[0],
-          original: None,
-        };
-        let current_data_pos = self.current_data_pos;
-        self.current_data_pos = 0;
-        if value == SEM {
-          self.generated_line += 1;
-          self.current_data[0] = 0;
-        }
-        match current_data_pos {
-          1 => return Some(mapping),
-          4 => {
-            mapping.original = Some(OriginalLocation {
-              source_index: self.current_data[1],
-              original_line: self.current_data[2],
-              original_column: self.current_data[3],
-              name_index: None,
-            });
-            return Some(mapping);
-          }
-          5 => {
-            mapping.original = Some(OriginalLocation {
-              source_index: self.current_data[1],
-              original_line: self.current_data[2],
-              original_column: self.current_data[3],
-              name_index: Some(self.current_data[4]),
-            });
-            return Some(mapping);
-          }
-          _ => (),
-        };
-      } else if (value & CONTINUATION_BIT) == 0 {
-        // last sextet
-        self.current_value |= (value as i64) << self.current_value_pos;
-        let final_value = if (self.current_value & 1) != 0 {
-          -(self.current_value >> 1)
-        } else {
-          self.current_value >> 1
-        };
-        if self.current_data_pos < 5 {
-          self.current_data[self.current_data_pos] =
-            (self.current_data[self.current_data_pos] as i64 + final_value)
-              as u32;
-        }
-        self.current_data_pos += 1;
-        self.current_value_pos = 0;
-        self.current_value = 0;
-      } else {
-        self.current_value |=
-          ((value & DATA_MASK) as i64) << self.current_value_pos;
-        self.current_value_pos += 5;
+
+      let generated_line = this.generated_line;
+      let generated_column = this.current_data[0];
+      let current_data_pos = this.current_data_pos;
+      this.current_data_pos = 0;
+      if value == SEM {
+        this.generated_line += 1;
+        this.current_data[0] = 0;
+      }
+      if let Some(mapping) =
+        this.emit_segment(generated_line, generated_column, current_data_pos)
+      {
+        on_mapping(mapping);
       }
     }
 
-    // end current segment
-    let current_data_pos = self.current_data_pos;
-    self.current_data_pos = 0;
-    match current_data_pos {
-      1 => {
-        return Some(Mapping {
-          generated_line: self.generated_line,
-          generated_column: self.current_data[0],
-          original: None,
-        })
-      }
-      4 => {
-        return Some(Mapping {
-          generated_line: self.generated_line,
-          generated_column: self.current_data[0],
-          original: Some(OriginalLocation {
-            source_index: self.current_data[1],
-            original_line: self.current_data[2],
-            original_column: self.current_data[3],
-            name_index: None,
-          }),
-        })
-      }
-      5 => {
-        return Some(Mapping {
-          generated_line: self.generated_line,
-          generated_column: self.current_data[0],
-          original: Some(OriginalLocation {
-            source_index: self.current_data[1],
-            original_line: self.current_data[2],
-            original_column: self.current_data[3],
-            name_index: Some(self.current_data[4]),
-          }),
-        })
-      }
-      _ => (),
+    let current_data_pos = this.current_data_pos;
+    this.current_data_pos = 0;
+    if let Some(mapping) = this.emit_segment(
+      this.generated_line,
+      this.current_data[0],
+      current_data_pos,
+    ) {
+      on_mapping(mapping);
     }
-
-    None
   }
 }

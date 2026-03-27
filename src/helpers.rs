@@ -146,6 +146,14 @@ pub fn decode_mappings(
   MappingsDecoder::new(source_map.mappings())
 }
 
+#[inline]
+fn decode_mappings_into(
+  source_map: &SourceMap,
+  on_mapping: impl FnMut(Mapping),
+) {
+  MappingsDecoder::new(source_map.mappings()).decode_into(on_mapping);
+}
+
 /// Encodes the given iterator of `Mapping` items into a `String`.
 pub fn encode_mappings(mappings: impl Iterator<Item = Mapping>) -> String {
   let mut encoder = create_encoder(true);
@@ -433,9 +441,7 @@ fn stream_chunks_of_source_map_final<'a>(
       );
     }
   };
-  for mapping in source_map.decoded_mappings() {
-    on_mapping(mapping);
-  }
+  decode_mappings_into(source_map, &mut on_mapping);
   result
 }
 
@@ -447,11 +453,9 @@ fn stream_chunks_of_source_map_full<'a>(
   on_source: OnSource<'_, 'a>,
   on_name: OnName<'_, 'a>,
 ) -> GeneratedInfo {
-  let lines = split_into_lines(source)
-    .map(|line| WithUtf16::new(object_pool, line))
-    .collect::<Vec<WithUtf16<'a, 'a>>>();
-
-  if lines.is_empty() {
+  let generated_info = get_generated_source_info(source);
+  if generated_info.generated_line == 1 && generated_info.generated_column == 0
+  {
     return GeneratedInfo {
       generated_line: 1,
       generated_column: 0,
@@ -467,58 +471,53 @@ fn stream_chunks_of_source_map_full<'a>(
   for (i, name) in source_map.names().iter().enumerate() {
     on_name(i as u32, Cow::Borrowed(name));
   }
-  let last_line = &lines[lines.len() - 1].line;
-  let last_new_line = last_line.ends_with('\n');
-  let final_line: u32 = if last_new_line {
-    lines.len() + 1
-  } else {
-    lines.len()
-  } as u32;
-  let final_column: u32 = if last_new_line {
-    0
-  } else {
-    utf16_len(last_line)
-  } as u32;
+  let final_line = generated_info.generated_line;
+  let final_column = generated_info.generated_column;
+  let mut lines =
+    split_into_lines(source).map(|line| WithUtf16::new(object_pool, line));
+  let mut current_line = lines.next();
   let mut current_generated_line: u32 = 1;
   let mut current_generated_column: u32 = 0;
   let mut mapping_active = false;
   let mut active_mapping_original: Option<OriginalLocation> = None;
 
   let mut on_mapping = |mapping: Mapping| {
-    if mapping_active && current_generated_line as usize <= lines.len() {
+    if mapping_active {
       let chunk: &str;
       let mapping_line = current_generated_line;
       let mapping_column = current_generated_column;
-      let line = &lines[(current_generated_line - 1) as usize];
-      if mapping.generated_line != current_generated_line {
-        chunk = line.substring(current_generated_column as usize, usize::MAX);
-        current_generated_line += 1;
-        current_generated_column = 0;
-      } else {
-        chunk = line.substring(
-          current_generated_column as usize,
-          mapping.generated_column as usize,
-        );
-        current_generated_column = mapping.generated_column;
-      }
-      if !chunk.is_empty() {
-        on_chunk(
-          Some(chunk),
-          Mapping {
-            generated_line: mapping_line,
-            generated_column: mapping_column,
-            original: active_mapping_original.clone(),
-          },
-        )
+      if let Some(line) = current_line.as_ref() {
+        if mapping.generated_line != current_generated_line {
+          chunk = line.substring(current_generated_column as usize, usize::MAX);
+          current_generated_line += 1;
+          current_generated_column = 0;
+          current_line = lines.next();
+        } else {
+          chunk = line.substring(
+            current_generated_column as usize,
+            mapping.generated_column as usize,
+          );
+          current_generated_column = mapping.generated_column;
+        }
+        if !chunk.is_empty() {
+          on_chunk(
+            Some(chunk),
+            Mapping {
+              generated_line: mapping_line,
+              generated_column: mapping_column,
+              original: active_mapping_original.clone(),
+            },
+          )
+        }
       }
       mapping_active = false;
     }
     if mapping.generated_line > current_generated_line
       && current_generated_column > 0
     {
-      if current_generated_line as usize <= lines.len() {
-        let chunk = lines[(current_generated_line - 1) as usize]
-          .substring(current_generated_column as usize, usize::MAX);
+      if let Some(line) = current_line.as_ref() {
+        let chunk =
+          line.substring(current_generated_column as usize, usize::MAX);
         on_chunk(
           Some(chunk),
           Mapping {
@@ -530,10 +529,11 @@ fn stream_chunks_of_source_map_full<'a>(
       }
       current_generated_line += 1;
       current_generated_column = 0;
+      current_line = lines.next();
     }
     while mapping.generated_line > current_generated_line {
-      if current_generated_line as usize <= lines.len() {
-        let chunk = &lines[(current_generated_line as usize) - 1].line;
+      if let Some(line) = current_line.as_ref() {
+        let chunk = line.line;
         on_chunk(
           Some(chunk),
           Mapping {
@@ -544,10 +544,11 @@ fn stream_chunks_of_source_map_full<'a>(
         );
       }
       current_generated_line += 1;
+      current_line = lines.next();
     }
     if mapping.generated_column > current_generated_column {
-      if current_generated_line as usize <= lines.len() {
-        let chunk = lines[(current_generated_line as usize) - 1].substring(
+      if let Some(line) = current_line.as_ref() {
+        let chunk = line.substring(
           current_generated_column as usize,
           mapping.generated_column as usize,
         );
@@ -572,9 +573,7 @@ fn stream_chunks_of_source_map_full<'a>(
     }
   };
 
-  for mapping in source_map.decoded_mappings() {
-    on_mapping(mapping);
-  }
+  decode_mappings_into(source_map, &mut on_mapping);
   on_mapping(Mapping {
     generated_line: final_line,
     generated_column: final_column,
@@ -625,9 +624,7 @@ fn stream_chunks_of_source_map_lines_final<'a>(
       on_chunk(None, mapping);
     }
   };
-  for mapping in source_map.decoded_mappings() {
-    on_mapping(mapping);
-  }
+  decode_mappings_into(source_map, &mut on_mapping);
   result
 }
 
@@ -686,9 +683,7 @@ fn stream_chunks_of_source_map_lines_full<'a>(
       current_generated_line += 1;
     }
   };
-  for mapping in source_map.decoded_mappings() {
-    on_mapping(mapping);
-  }
+  decode_mappings_into(source_map, &mut on_mapping);
   while current_generated_line as usize <= lines.len() {
     let chunk = &lines[current_generated_line as usize - 1];
     on_chunk(
