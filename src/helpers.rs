@@ -198,21 +198,17 @@ impl<'a> Iterator for PotentialTokens<'a> {
       next_potential_token_boundary(&self.bytes[self.index..])
     {
       self.index += boundary;
-      if self.bytes[self.index] == b'\n' {
-        self.index += 1;
-      } else {
-        while self.index < self.bytes.len() {
-          match self.bytes[self.index] {
-            b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
-              self.index += 1;
-            }
-            b'\n' => {
-              self.index += 1;
-              break;
-            }
-            _ => {
-              break;
-            }
+      while self.index < self.bytes.len() {
+        match self.bytes[self.index] {
+          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
+            self.index += 1;
+          }
+          b'\n' => {
+            self.index += 1;
+            break;
+          }
+          _ => {
+            break;
           }
         }
       }
