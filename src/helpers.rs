@@ -171,7 +171,17 @@ pub struct PotentialTokens<'a> {
   bytes: &'a [u8],
   text: &'a str,
   index: usize,
-  utf16_len: usize,
+}
+
+#[inline]
+fn next_potential_token_boundary(bytes: &[u8]) -> Option<usize> {
+  let primary = memchr::memchr3(b'\n', b';', b'{', bytes);
+  let closing_brace = memchr::memchr(b'}', bytes);
+  match (primary, closing_brace) {
+    (Some(lhs), Some(rhs)) => Some(lhs.min(rhs)),
+    (Some(pos), None) | (None, Some(pos)) => Some(pos),
+    (None, None) => None,
+  }
 }
 
 impl<'a> Iterator for PotentialTokens<'a> {
@@ -184,61 +194,33 @@ impl<'a> Iterator for PotentialTokens<'a> {
     }
 
     let start = self.index;
-    let mut c = self.bytes[self.index];
-    while c != b'\n' && c != b';' && c != b'{' && c != b'}' {
-      // Determine character boundaries based on UTF-8 bytes and calculate UTF-16 length
-      if c < 0x80 {
-        // ASCII character: 1 byte -> 1 UTF-16 code unit
-        self.utf16_len += 1;
-        self.index += 1;
-      } else if c < 0xE0 {
-        // 2-byte UTF-8 sequence -> 1 UTF-16 code unit
-        self.utf16_len += 1;
-        self.index += 2;
-      } else if c < 0xF0 {
-        // 3-byte UTF-8 sequence -> 1 UTF-16 code unit
-        self.utf16_len += 1;
-        self.index += 3;
-      } else {
-        // 4-byte UTF-8 sequence -> 2 UTF-16 code units (surrogate pair)
-        self.utf16_len += 2;
-        self.index += 4;
+    if let Some(boundary) =
+      next_potential_token_boundary(&self.bytes[self.index..])
+    {
+      self.index += boundary;
+      while self.index < self.bytes.len() {
+        match self.bytes[self.index] {
+          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
+            self.index += 1;
+          }
+          b'\n' => {
+            self.index += 1;
+            break;
+          }
+          _ => {
+            break;
+          }
+        }
       }
-
-      if self.index < self.bytes.len() {
-        c = self.bytes[self.index];
-      } else {
-        let text = unsafe { self.text.get_unchecked(start..) };
-        return Some(Token {
-          text,
-          utf16_len: self.utf16_len,
-        });
-      }
+    } else {
+      self.index = self.bytes.len();
     }
 
-    while self.index < self.bytes.len() {
-      match self.bytes[self.index] {
-        b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
-          self.index += 1;
-          self.utf16_len += 1;
-        }
-        b'\n' => {
-          self.index += 1;
-          self.utf16_len += 1;
-          break;
-        }
-        _ => {
-          break;
-        }
-      }
-    }
     let text = unsafe { self.text.get_unchecked(start..self.index) };
-    let token = Token {
+    Some(Token {
       text,
-      utf16_len: self.utf16_len,
-    };
-    self.utf16_len = 0;
-    Some(token)
+      utf16_len: simd_utf16_len::utf16_len(text),
+    })
   }
 }
 
@@ -248,7 +230,6 @@ pub fn split_into_potential_tokens<'a>(text: &'a str) -> PotentialTokens<'a> {
     bytes: text.as_bytes(),
     text,
     index: 0,
-    utf16_len: 0,
   }
 }
 
@@ -1455,6 +1436,37 @@ mod tests {
         Token {
           text: "__webpack_exports___ as 魑魅魍魉 };",
           utf16_len: 31,
+        },
+      ]
+    );
+  }
+
+  #[test]
+  fn test_split_into_potential_tokens_ascii_boundaries() {
+    let tokens = split_into_potential_tokens("\nfoo();\nbar { baz }\n{};\n")
+      .collect::<Vec<_>>();
+    assert_eq!(
+      tokens,
+      vec![
+        Token {
+          text: "\n",
+          utf16_len: 1,
+        },
+        Token {
+          text: "foo();\n",
+          utf16_len: 7,
+        },
+        Token {
+          text: "bar { ",
+          utf16_len: 6,
+        },
+        Token {
+          text: "baz }\n",
+          utf16_len: 6,
+        },
+        Token {
+          text: "{};\n",
+          utf16_len: 4,
         },
       ]
     );

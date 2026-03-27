@@ -758,8 +758,6 @@ impl Chunks for ReplaceSourceChunks<'_> {
           // SAFETY: The safety of this operation relies on the fact that the `ReplaceSource` type will not delete the `replacements` during its entire lifetime.
           let repl = &repls[i];
 
-          let lines =
-            split_into_lines(repl.content.as_ref()).collect::<Vec<_>>();
           let mut replacement_name_index = mapping
             .original
             .as_ref()
@@ -777,7 +775,9 @@ impl Chunks for ReplaceSourceChunks<'_> {
             }
             replacement_name_index = global_index;
           }
-          for (m, content_line) in lines.iter().enumerate() {
+          let mut lines = split_into_lines(repl.content.as_ref()).peekable();
+          while let Some(content_line) = lines.next() {
+            let is_last_line = lines.peek().is_none();
             on_chunk(
               Some(content_line),
               Mapping {
@@ -801,7 +801,7 @@ impl Chunks for ReplaceSourceChunks<'_> {
             // Only the first chunk has name assigned
             replacement_name_index = None;
 
-            if m == lines.len() - 1 && !content_line.ends_with('\n') {
+            if is_last_line && !content_line.ends_with('\n') {
               if generated_column_offset_line == line {
                 generated_column_offset += utf16_len(content_line) as i64;
               } else {
