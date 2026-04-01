@@ -38,5 +38,6 @@ jobs:
         uses: CodSpeedHQ/action@v4
         timeout-minutes: 30
         with:
+          mode: simulation
           run: cargo codspeed run
           token: ${{ secrets.CODSPEED_TOKEN }}
