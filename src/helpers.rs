@@ -161,76 +161,51 @@ pub fn utf16_len(s: &str) -> usize {
   simd_utf16_len::utf16_len(s)
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct Token<'a> {
-  pub text: &'a str,
-  pub utf16_len: usize,
-}
-
 pub struct PotentialTokens<'a> {
-  bytes: &'a [u8],
   text: &'a str,
-  index: usize,
-}
-
-#[inline]
-fn next_potential_token_boundary(bytes: &[u8]) -> Option<usize> {
-  let primary = memchr::memchr3(b'\n', b';', b'{', bytes);
-  let closing_brace = memchr::memchr(b'}', bytes);
-  match (primary, closing_brace) {
-    (Some(lhs), Some(rhs)) => Some(lhs.min(rhs)),
-    (Some(pos), None) | (None, Some(pos)) => Some(pos),
-    (None, None) => None,
-  }
 }
 
 impl<'a> Iterator for PotentialTokens<'a> {
-  type Item = Token<'a>;
+  type Item = &'a str;
 
   #[allow(unsafe_code)]
   fn next(&mut self) -> Option<Self::Item> {
-    if self.index >= self.bytes.len() {
+    if self.text.is_empty() {
       return None;
     }
 
-    let start = self.index;
-    if let Some(boundary) =
-      next_potential_token_boundary(&self.bytes[self.index..])
-    {
-      self.index += boundary;
-      while self.index < self.bytes.len() {
-        match self.bytes[self.index] {
-          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
-            self.index += 1;
-          }
+    let bytes = self.text.as_bytes();
+    let mut split_idx = bytes.len();
+
+    let primary = memchr::memchr3(b'\n', b';', b'{', bytes);
+    let limit = primary.unwrap_or(bytes.len());
+    let closing_brace = memchr::memchr(b'}', &bytes[..limit]);
+
+    if let Some(boundary) = closing_brace.or(primary) {
+      split_idx = boundary;
+
+      for &b in &bytes[boundary..] {
+        match b {
+          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => split_idx += 1,
           b'\n' => {
-            self.index += 1;
+            split_idx += 1;
             break;
           }
-          _ => {
-            break;
-          }
+          _ => break,
         }
       }
-    } else {
-      self.index = self.bytes.len();
     }
 
-    let text = unsafe { self.text.get_unchecked(start..self.index) };
-    Some(Token {
-      text,
-      utf16_len: simd_utf16_len::utf16_len(text),
-    })
+    let text = unsafe { self.text.get_unchecked(..split_idx) };
+    self.text = unsafe { self.text.get_unchecked(split_idx..) };
+
+    Some(text)
   }
 }
 
 // /[^\n;{}]+[;{} \r\t]*\n?|[;{} \r\t]+\n?|\n/g
 pub fn split_into_potential_tokens<'a>(text: &'a str) -> PotentialTokens<'a> {
-  PotentialTokens {
-    bytes: text.as_bytes(),
-    text,
-    index: 0,
-  }
+  PotentialTokens { text }
 }
 
 /// Split the string with a needle, each string will contain the needle.
@@ -1277,9 +1252,7 @@ mod tests {
     stream_chunks_of_source_map_full, stream_chunks_of_source_map_lines_final,
     stream_chunks_of_source_map_lines_full, GeneratedInfo,
   };
-  use crate::{
-    helpers::Token, Mapping, ObjectPool, OriginalLocation, SourceMap,
-  };
+  use crate::{Mapping, ObjectPool, OriginalLocation, SourceMap};
 
   const UTF16_SOURCE: &'static str = "var i18n = JSON.parse('{\"魑魅魍魉\":{\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}');\nvar __webpack_exports___ = i18n[\"魑魅魍魉\"];\nexport { __webpack_exports___ as 魑魅魍魉 };";
 
@@ -1409,34 +1382,13 @@ mod tests {
     assert_eq!(
       tokens,
       vec![
-        Token {
-          text: "var i18n = JSON.parse('{",
-          utf16_len: 24,
-        },
-        Token {
-          text: "\"魑魅魍魉\":{",
-          utf16_len: 8,
-        },
-        Token {
-          text: "\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}",
-          utf16_len: 39,
-        },
-        Token {
-          text: "');\n",
-          utf16_len: 4,
-        },
-        Token {
-          text: "var __webpack_exports___ = i18n[\"魑魅魍魉\"];\n",
-          utf16_len: 41,
-        },
-        Token {
-          text: "export { ",
-          utf16_len: 9,
-        },
-        Token {
-          text: "__webpack_exports___ as 魑魅魍魉 };",
-          utf16_len: 31,
-        },
+        "var i18n = JSON.parse('{",
+        "\"魑魅魍魉\":{",
+        "\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}",
+        "');\n",
+        "var __webpack_exports___ = i18n[\"魑魅魍魉\"];\n",
+        "export { ",
+        "__webpack_exports___ as 魑魅魍魉 };",
       ]
     );
   }
@@ -1445,30 +1397,6 @@ mod tests {
   fn test_split_into_potential_tokens_ascii_boundaries() {
     let tokens = split_into_potential_tokens("\nfoo();\nbar { baz }\n{};\n")
       .collect::<Vec<_>>();
-    assert_eq!(
-      tokens,
-      vec![
-        Token {
-          text: "\n",
-          utf16_len: 1,
-        },
-        Token {
-          text: "foo();\n",
-          utf16_len: 7,
-        },
-        Token {
-          text: "bar { ",
-          utf16_len: 6,
-        },
-        Token {
-          text: "baz }\n",
-          utf16_len: 6,
-        },
-        Token {
-          text: "{};\n",
-          utf16_len: 4,
-        },
-      ]
-    );
+    assert_eq!(tokens, vec!["\n", "foo();\n", "bar { ", "baz }\n", "{};\n"]);
   }
 }

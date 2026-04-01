@@ -135,11 +135,11 @@ impl Chunks for OriginalSourceChunks<'_> {
       let mut line = 1;
       let mut column = 0;
       for token in split_into_potential_tokens(self.0.value.as_ref()) {
-        let is_end_of_line = token.text.ends_with("\n");
-        if is_end_of_line && token.text.len() == 1 {
+        let is_end_of_line = token.ends_with("\n");
+        if is_end_of_line && token.len() == 1 {
           if !options.final_source {
             on_chunk(
-              Some(token.text),
+              Some(token),
               Mapping {
                 generated_line: line,
                 generated_column: column,
@@ -149,7 +149,7 @@ impl Chunks for OriginalSourceChunks<'_> {
           }
         } else {
           on_chunk(
-            (!options.final_source).then_some(token.text),
+            (!options.final_source).then_some(token),
             Mapping {
               generated_line: line,
               generated_column: column,
@@ -166,7 +166,7 @@ impl Chunks for OriginalSourceChunks<'_> {
           line += 1;
           column = 0;
         } else {
-          column += token.utf16_len as u32;
+          column += utf16_len(token) as u32;
         }
       }
       GeneratedInfo {
