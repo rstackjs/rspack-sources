@@ -164,7 +164,6 @@ pub fn utf16_len(s: &str) -> usize {
 #[derive(Debug, PartialEq, Eq)]
 pub struct Token<'a> {
   pub text: &'a str,
-  pub utf16_len: usize,
 }
 
 pub struct PotentialTokens<'a> {
@@ -217,10 +216,7 @@ impl<'a> Iterator for PotentialTokens<'a> {
     }
 
     let text = unsafe { self.text.get_unchecked(start..self.index) };
-    Some(Token {
-      text,
-      utf16_len: simd_utf16_len::utf16_len(text),
-    })
+    Some(Token { text })
   }
 }
 
@@ -1411,31 +1407,20 @@ mod tests {
       vec![
         Token {
           text: "var i18n = JSON.parse('{",
-          utf16_len: 24,
         },
         Token {
           text: "\"魑魅魍魉\":{",
-          utf16_len: 8,
         },
         Token {
           text: "\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}",
-          utf16_len: 39,
         },
-        Token {
-          text: "');\n",
-          utf16_len: 4,
-        },
+        Token { text: "');\n" },
         Token {
           text: "var __webpack_exports___ = i18n[\"魑魅魍魉\"];\n",
-          utf16_len: 41,
         },
-        Token {
-          text: "export { ",
-          utf16_len: 9,
-        },
+        Token { text: "export { " },
         Token {
           text: "__webpack_exports___ as 魑魅魍魉 };",
-          utf16_len: 31,
         },
       ]
     );
@@ -1448,26 +1433,11 @@ mod tests {
     assert_eq!(
       tokens,
       vec![
-        Token {
-          text: "\n",
-          utf16_len: 1,
-        },
-        Token {
-          text: "foo();\n",
-          utf16_len: 7,
-        },
-        Token {
-          text: "bar { ",
-          utf16_len: 6,
-        },
-        Token {
-          text: "baz }\n",
-          utf16_len: 6,
-        },
-        Token {
-          text: "{};\n",
-          utf16_len: 4,
-        },
+        Token { text: "\n" },
+        Token { text: "foo();\n" },
+        Token { text: "bar { " },
+        Token { text: "baz }\n" },
+        Token { text: "{};\n" },
       ]
     );
   }

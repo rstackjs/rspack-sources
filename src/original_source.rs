@@ -166,7 +166,7 @@ impl Chunks for OriginalSourceChunks<'_> {
           line += 1;
           column = 0;
         } else {
-          column += token.utf16_len as u32;
+          column += utf16_len(token.text) as u32;
         }
       }
       GeneratedInfo {
