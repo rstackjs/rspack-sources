@@ -162,20 +162,7 @@ pub fn utf16_len(s: &str) -> usize {
 }
 
 pub struct PotentialTokens<'a> {
-  bytes: &'a [u8],
   text: &'a str,
-  index: usize,
-}
-
-#[inline]
-fn next_potential_token_boundary(bytes: &[u8]) -> Option<usize> {
-  let primary = memchr::memchr3(b'\n', b';', b'{', bytes);
-  let closing_brace = memchr::memchr(b'}', bytes);
-  match (primary, closing_brace) {
-    (Some(lhs), Some(rhs)) => Some(lhs.min(rhs)),
-    (Some(pos), None) | (None, Some(pos)) => Some(pos),
-    (None, None) => None,
-  }
 }
 
 impl<'a> Iterator for PotentialTokens<'a> {
@@ -183,44 +170,42 @@ impl<'a> Iterator for PotentialTokens<'a> {
 
   #[allow(unsafe_code)]
   fn next(&mut self) -> Option<Self::Item> {
-    if self.index >= self.bytes.len() {
+    if self.text.is_empty() {
       return None;
     }
 
-    let start = self.index;
-    if let Some(boundary) =
-      next_potential_token_boundary(&self.bytes[self.index..])
-    {
-      self.index += boundary;
-      while self.index < self.bytes.len() {
-        match self.bytes[self.index] {
-          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => {
-            self.index += 1;
-          }
+    let bytes = self.text.as_bytes();
+    let mut split_idx = bytes.len();
+
+    let primary = memchr::memchr3(b'\n', b';', b'{', bytes);
+    let limit = primary.unwrap_or(bytes.len());
+    let closing_brace = memchr::memchr(b'}', &bytes[..limit]);
+
+    if let Some(boundary) = closing_brace.or(primary) {
+      split_idx = boundary;
+
+      for &b in &bytes[boundary..] {
+        match b {
+          b';' | b' ' | b'{' | b'}' | b'\r' | b'\t' => split_idx += 1,
           b'\n' => {
-            self.index += 1;
+            split_idx += 1;
             break;
           }
-          _ => {
-            break;
-          }
+          _ => break,
         }
       }
-    } else {
-      self.index = self.bytes.len();
     }
 
-    Some(unsafe { self.text.get_unchecked(start..self.index) })
+    let text = unsafe { self.text.get_unchecked(..split_idx) };
+    self.text = unsafe { self.text.get_unchecked(split_idx..) };
+
+    Some(text)
   }
 }
 
 // /[^\n;{}]+[;{} \r\t]*\n?|[;{} \r\t]+\n?|\n/g
 pub fn split_into_potential_tokens<'a>(text: &'a str) -> PotentialTokens<'a> {
-  PotentialTokens {
-    bytes: text.as_bytes(),
-    text,
-    index: 0,
-  }
+  PotentialTokens { text }
 }
 
 /// Split the string with a needle, each string will contain the needle.
