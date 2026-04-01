@@ -161,11 +161,6 @@ pub fn utf16_len(s: &str) -> usize {
   simd_utf16_len::utf16_len(s)
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct Token<'a> {
-  pub text: &'a str,
-}
-
 pub struct PotentialTokens<'a> {
   bytes: &'a [u8],
   text: &'a str,
@@ -184,7 +179,7 @@ fn next_potential_token_boundary(bytes: &[u8]) -> Option<usize> {
 }
 
 impl<'a> Iterator for PotentialTokens<'a> {
-  type Item = Token<'a>;
+  type Item = &'a str;
 
   #[allow(unsafe_code)]
   fn next(&mut self) -> Option<Self::Item> {
@@ -215,8 +210,7 @@ impl<'a> Iterator for PotentialTokens<'a> {
       self.index = self.bytes.len();
     }
 
-    let text = unsafe { self.text.get_unchecked(start..self.index) };
-    Some(Token { text })
+    Some(unsafe { self.text.get_unchecked(start..self.index) })
   }
 }
 
@@ -1273,9 +1267,7 @@ mod tests {
     stream_chunks_of_source_map_full, stream_chunks_of_source_map_lines_final,
     stream_chunks_of_source_map_lines_full, GeneratedInfo,
   };
-  use crate::{
-    helpers::Token, Mapping, ObjectPool, OriginalLocation, SourceMap,
-  };
+  use crate::{Mapping, ObjectPool, OriginalLocation, SourceMap};
 
   const UTF16_SOURCE: &'static str = "var i18n = JSON.parse('{\"魑魅魍魉\":{\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}');\nvar __webpack_exports___ = i18n[\"魑魅魍魉\"];\nexport { __webpack_exports___ as 魑魅魍魉 };";
 
@@ -1405,23 +1397,13 @@ mod tests {
     assert_eq!(
       tokens,
       vec![
-        Token {
-          text: "var i18n = JSON.parse('{",
-        },
-        Token {
-          text: "\"魑魅魍魉\":{",
-        },
-        Token {
-          text: "\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}",
-        },
-        Token { text: "');\n" },
-        Token {
-          text: "var __webpack_exports___ = i18n[\"魑魅魍魉\"];\n",
-        },
-        Token { text: "export { " },
-        Token {
-          text: "__webpack_exports___ as 魑魅魍魉 };",
-        },
+        "var i18n = JSON.parse('{",
+        "\"魑魅魍魉\":{",
+        "\"en-US\":\"Evil spirits\",\"zh-CN\":\"魑魅魍魉\"}}",
+        "');\n",
+        "var __webpack_exports___ = i18n[\"魑魅魍魉\"];\n",
+        "export { ",
+        "__webpack_exports___ as 魑魅魍魉 };",
       ]
     );
   }
@@ -1430,15 +1412,6 @@ mod tests {
   fn test_split_into_potential_tokens_ascii_boundaries() {
     let tokens = split_into_potential_tokens("\nfoo();\nbar { baz }\n{};\n")
       .collect::<Vec<_>>();
-    assert_eq!(
-      tokens,
-      vec![
-        Token { text: "\n" },
-        Token { text: "foo();\n" },
-        Token { text: "bar { " },
-        Token { text: "baz }\n" },
-        Token { text: "{};\n" },
-      ]
-    );
+    assert_eq!(tokens, vec!["\n", "foo();\n", "bar { ", "baz }\n", "{};\n"]);
   }
 }
