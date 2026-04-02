@@ -41,20 +41,20 @@ name = "bench_source_map"
 harness = false
 
 [dependencies]
-serde = { version = "1.0.216", features = ["derive", "rc"] }
-dyn-clone = "1.0.17"
-rustc-hash = "2.1.0"
-memchr = "2.7.4"
+serde = { version = "1.0.228", features = ["derive", "rc"] }
+dyn-clone = "1.0.20"
+rustc-hash = "2.1.2"
+memchr = "2.8.0"
 
-codspeed-criterion-compat = { version = "4.1.0", default-features = false, optional = true }
+codspeed-criterion-compat = { version = "4.4.1", default-features = false, optional = true }
 static_assertions = "1.1.0"
 simd-json = "0.17.0"
 simd-utf16-len = "0.1.0"
 
 [dev-dependencies]
-twox-hash = "2.1.0"
-regex = "1.11.1"
-criterion = { version = "0.5.1", default-features = false }
+twox-hash = "2.1.2"
+regex = "1.12.3"
+criterion = { version = "0.8.2", default-features = false }
 rayon = "1.11.0"
 
 [features]
