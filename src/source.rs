@@ -520,8 +520,8 @@ impl SourceMap {
   /// This estimation aims to be accurate in ~90% of cases to avoid reallocation.
   /// The formula accounts for:
   /// - Fixed overhead: `{"version":3,"sources":[],"names":[],"mappings":""}`
-  /// - String escaping: assumes ~5% of characters need escaping (×1.05)
-  /// - Array formatting: commas and quotes for each element
+  /// - Per-field and per-element lengths, including commas and quotes
+  /// - Extra escaping overhead for `sourcesContent` and a ~10% overall safety margin
   #[inline]
   fn json_size_hint(&self) -> usize {
     // Base structure overhead:
