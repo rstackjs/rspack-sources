@@ -21,13 +21,13 @@ jobs:
   benchmark:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
 
       - name: Install Rust
-        uses: moonrepo/setup-rust@v1
+        uses: moonrepo/setup-rust@abb2d32350334249b178c401e5ec5836e0cd88d3 # v1
 
       - name: Install codspeed
-        uses: taiki-e/install-action@v2
+        uses: taiki-e/install-action@0cccd59f03b32c54f0db097c518c320bfc8c73b3 # v2
         with:
           tool: cargo-codspeed
 
@@ -35,7 +35,7 @@ jobs:
         run: cargo codspeed build --features codspeed
 
       - name: Run benchmark
-        uses: CodSpeedHQ/action@v4
+        uses: CodSpeedHQ/action@d872884a306dd4853acf0f584f4b706cf0cc72a2 # v4
         timeout-minutes: 30
         with:
           mode: simulation
