@@ -515,9 +515,81 @@ impl SourceMap {
     RawSourceMap::from_reader(s)?.try_into()
   }
 
+  /// Estimate the JSON string size for pre-allocation.
+  ///
+  /// This estimation aims to be accurate in ~90% of cases to avoid reallocation.
+  /// The formula accounts for:
+  /// - Fixed overhead: `{"version":3,"sources":[],"names":[],"mappings":""}`
+  /// - Per-field and per-element lengths, including commas and quotes
+  /// - Extra escaping overhead for `sourcesContent` and a ~10% overall safety margin
+  #[inline]
+  fn json_size_hint(&self) -> usize {
+    // Base structure overhead:
+    // {"version":3,"sources":[],"sourcesContent":[],"names":[],"mappings":""}
+    // ≈ 70 bytes base + optional fields
+    let mut size: usize = 70;
+
+    // file field: "file":"...",
+    if let Some(file) = &self.file {
+      size += 9 + file.len(); // "file":"", + content
+    }
+
+    // sources array: each element needs quotes + comma + potential escaping
+    // ["src/a.js","src/b.js"] = 2 + (len + 3) * count - 1
+    let sources_len: usize = self.sources.iter().map(|s| s.len()).sum();
+    size += 2 + sources_len + self.sources.len() * 3;
+
+    // sourcesContent array
+    if !self.sources_content.is_empty() {
+      let content_len: usize =
+        self.sources_content.iter().map(|c| c.len()).sum();
+      // Source content often contains special characters that need escaping
+      // Estimate 10% escaping overhead for source content
+      size +=
+        19 + content_len + (content_len / 10) + self.sources_content.len() * 3;
+    }
+
+    // names array
+    let names_len: usize = self.names.iter().map(|n| n.len()).sum();
+    size += 2 + names_len + self.names.len() * 3;
+
+    // mappings string (usually the largest part)
+    // VLQ mappings rarely need escaping, add small overhead
+    size += self.mappings.len() + 14; // "mappings":"...",
+
+    // sourceRoot field
+    if let Some(source_root) = &self.source_root {
+      size += 15 + source_root.len(); // "sourceRoot":"...",
+    }
+
+    // debugId field
+    if let Some(debug_id) = &self.debug_id {
+      size += 12 + debug_id.len(); // "debugId":"...",
+    }
+
+    // ignoreList field: [0,1,2] - numbers as strings
+    if let Some(ignore_list) = &self.ignore_list {
+      // "ignoreList":[]
+      size += 14;
+      // Each number: up to 10 digits + comma
+      size += ignore_list.len() * 6;
+    }
+
+    // Add 10% safety margin to handle edge cases (escaping, larger numbers, etc.)
+    size + size / 10
+  }
+
   /// Generate source map to a json string.
   pub fn to_json(&self) -> String {
-    simd_json::to_string(self).expect("Serialization failed")
+    let mut buffer = Vec::with_capacity(self.json_size_hint());
+
+    simd_json::to_writer(&mut buffer, self).unwrap();
+
+    // SAFETY: simd_json always produces valid UTF-8 JSON
+    #[allow(unsafe_code)]
+    unsafe {
+      String::from_utf8_unchecked(buffer)
+    }
   }
 }
 
