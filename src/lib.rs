@@ -21,7 +21,7 @@ pub use concat_source::ConcatSource;
 pub use error::{Error, Result};
 pub use original_source::OriginalSource;
 pub use raw_source::{RawBufferSource, RawStringSource};
-pub use replace_source::{Replacement, ReplaceSource, ReplacementEnforce};
+pub use replace_source::{ReplaceSource, Replacement, ReplacementEnforce};
 pub use source::{
   BoxSource, MapOptions, Mapping, OriginalLocation, Source, SourceExt,
   SourceMap, SourceValue,
