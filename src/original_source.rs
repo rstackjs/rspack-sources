@@ -50,6 +50,16 @@ impl OriginalSource {
       name: name.into(),
     }
   }
+
+  /// Get the name of the source file.
+  pub fn name(&self) -> &str {
+    &self.name
+  }
+
+  /// Get the value as a shared string reference.
+  pub fn value(&self) -> &Arc<str> {
+    &self.value
+  }
 }
 
 impl Source for OriginalSource {

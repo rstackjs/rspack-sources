@@ -54,14 +54,42 @@ pub enum ReplacementEnforce {
   Post,
 }
 
+/// A single text replacement in a [ReplaceSource].
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct Replacement {
+pub struct Replacement {
   start: u32,
   end: u32,
   content: Cow<'static, str>,
   name: Option<Cow<'static, str>>,
   enforce: ReplacementEnforce,
   insertion_order: u32,
+}
+
+impl Replacement {
+  /// Get the start offset.
+  pub fn start(&self) -> u32 {
+    self.start
+  }
+
+  /// Get the end offset.
+  pub fn end(&self) -> u32 {
+    self.end
+  }
+
+  /// Get the replacement content.
+  pub fn content(&self) -> &str {
+    &self.content
+  }
+
+  /// Get the replacement name.
+  pub fn name(&self) -> Option<&str> {
+    self.name.as_deref()
+  }
+
+  /// Get the replacement enforce order.
+  pub fn enforce(&self) -> ReplacementEnforce {
+    self.enforce
+  }
 }
 
 impl Ord for Replacement {
@@ -88,6 +116,16 @@ impl ReplaceSource {
       inner: source.boxed(),
       replacements: Vec::new(),
     }
+  }
+
+  /// Get the inner source.
+  pub fn inner(&self) -> &BoxSource {
+    &self.inner
+  }
+
+  /// Get the sorted list of replacements.
+  pub fn replacements(&self) -> &[Replacement] {
+    &self.replacements
   }
 }
 

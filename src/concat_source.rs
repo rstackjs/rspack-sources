@@ -120,6 +120,11 @@ impl ConcatSource {
     })
   }
 
+  /// Get the (optimized) children of this concat source.
+  pub fn children(&self) -> &[BoxSource] {
+    self.optimized_children()
+  }
+
   /// Add a [Source] to concat.
   pub fn add<S: Source + 'static>(&mut self, source: S) {
     let children = &mut *self.children.lock().unwrap();
