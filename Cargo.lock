@@ -786,7 +786,7 @@ dependencies = [
 
 [[package]]
 name = "rspack_sources"
-version = "0.4.21"
+version = "0.4.22"
 dependencies = [
  "codspeed-criterion-compat",
  "criterion",
