@@ -14,7 +14,9 @@ const ANTD_MIN_JS_MAP: &str = include_str!(concat!(
 ));
 
 pub fn benchmark_parse_source_map_from_json(b: &mut Bencher) {
-  b.iter(|| black_box(SourceMap::from_json(ANTD_MIN_JS_MAP).unwrap()))
+  b.iter(|| {
+    std::hint::black_box(SourceMap::from_json(ANTD_MIN_JS_MAP).unwrap())
+  })
 }
 
 pub fn benchmark_source_map_to_json(b: &mut Bencher) {

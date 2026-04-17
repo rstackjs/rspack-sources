@@ -24,6 +24,10 @@ unimplemented = "warn"
 print_stdout = "warn"
 print_stderr = "warn"
 
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = ["cfg(codspeed)"]
+
 [[bench]]
 name = "bench"
 harness = false
@@ -50,12 +54,14 @@ codspeed-criterion-compat = { version = "4.4.1", default-features = false, optio
 static_assertions = "1.1.0"
 simd-json = "0.17.0"
 simd-utf16-len = "0.1.0"
+rkyv = { version = "=0.8.8", default-features = false, features = ["std", "bytecheck"], optional = true }
+
+[features]
+rspack_cacheable = ["rkyv"]
+codspeed = ["codspeed-criterion-compat"]
 
 [dev-dependencies]
 twox-hash = "2.1.2"
 regex = "1.12.3"
 criterion = { version = "0.8.2", default-features = false }
 rayon = "1.11.0"
-
-[features]
-codspeed = ["codspeed-criterion-compat"]

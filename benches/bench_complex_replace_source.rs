@@ -36725,7 +36725,9 @@ pub fn benchmark_complex_replace_source_map(b: &mut Bencher) {
   let source = LARGE_REPLACE_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.map(&ObjectPool::default(), &MapOptions::default()));
+    std::hint::black_box(
+      source.map(&ObjectPool::default(), &MapOptions::default()),
+    );
   });
 }
 
@@ -36737,7 +36739,7 @@ pub fn benchmark_complex_replace_source_map_cached_source_stream_chunks(
   cached_source.map(&ObjectPool::default(), &MapOptions::default());
 
   b.iter(|| {
-    black_box(cached_source.stream_chunks().stream(
+    std::hint::black_box(cached_source.stream_chunks().stream(
       &ObjectPool::default(),
       &MapOptions::default(),
       &mut |_chunk, _mapping| {},
@@ -36751,7 +36753,7 @@ pub fn benchmark_complex_replace_source_source(b: &mut Bencher) {
   let source = LARGE_REPLACE_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.source());
+    std::hint::black_box(source.source());
   });
 }
 
@@ -36759,7 +36761,7 @@ pub fn benchmark_complex_replace_source_size(b: &mut Bencher) {
   let source = LARGE_REPLACE_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.size());
+    std::hint::black_box(source.size());
   });
 }
 
