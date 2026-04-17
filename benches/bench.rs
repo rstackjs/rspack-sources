@@ -137,8 +137,8 @@ fn benchmark_cached_source_hash(b: &mut Bencher) {
   b.iter(|| {
     let mut m = HashMap::<BoxSource, ()>::new();
     m.insert(cached.clone(), ());
-    let _ = black_box(|| m.get(&cached));
-    let _ = black_box(|| m.get(&cached));
+    let _ = std::hint::black_box(|| m.get(&cached));
+    let _ = std::hint::black_box(|| m.get(&cached));
   })
 }
 

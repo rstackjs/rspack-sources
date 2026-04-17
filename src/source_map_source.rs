@@ -87,6 +87,36 @@ impl SourceMapSource {
       remove_original_source: options.remove_original_source,
     }
   }
+
+  /// Get the value as a shared string reference.
+  pub fn value(&self) -> &Arc<str> {
+    &self.value
+  }
+
+  /// Get the name of the source file.
+  pub fn name(&self) -> &str {
+    &self.name
+  }
+
+  /// Get the source map.
+  pub fn source_map(&self) -> &SourceMap {
+    &self.source_map
+  }
+
+  /// Get the original source code.
+  pub fn original_source(&self) -> Option<&Arc<str>> {
+    self.original_source.as_ref()
+  }
+
+  /// Get the inner source map.
+  pub fn inner_source_map(&self) -> Option<&SourceMap> {
+    self.inner_source_map.as_ref()
+  }
+
+  /// Whether to remove the original source.
+  pub fn remove_original_source(&self) -> bool {
+    self.remove_original_source
+  }
 }
 
 impl Source for SourceMapSource {

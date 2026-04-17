@@ -80,6 +80,11 @@ impl CachedSource {
     }
   }
 
+  /// Get the inner source.
+  pub fn inner(&self) -> &BoxSource {
+    &self.inner
+  }
+
   fn get_or_init_chunks(&self) -> &[&str] {
     self.cache.chunks.get_or_init(|| {
       let mut chunks = Vec::new();

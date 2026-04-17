@@ -3505,7 +3505,9 @@ pub fn benchmark_repetitive_react_components_map(b: &mut Bencher) {
   let source = REPETITIVE_1K_REACT_COMPONENTS_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.map(&ObjectPool::default(), &MapOptions::default()));
+    std::hint::black_box(
+      source.map(&ObjectPool::default(), &MapOptions::default()),
+    );
   });
 }
 
@@ -3513,7 +3515,7 @@ pub fn benchmark_repetitive_react_components_source(b: &mut Bencher) {
   let source = REPETITIVE_1K_REACT_COMPONENTS_SOURCE.clone();
 
   b.iter(|| {
-    black_box(source.source());
+    std::hint::black_box(source.source());
   });
 }
 

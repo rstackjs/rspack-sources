@@ -48,7 +48,7 @@ struct CompatSourceChunks<'source>(&'static str, Option<&'source SourceMap>);
 
 impl<'source> CompatSourceChunks<'source> {
   pub fn new(source: &'source CompatSource) -> Self {
-    CompatSourceChunks(&source.0, source.1.as_ref())
+    CompatSourceChunks(source.0, source.1.as_ref())
   }
 }
 
