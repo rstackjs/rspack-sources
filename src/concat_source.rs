@@ -127,7 +127,14 @@ impl ConcatSource {
 
   /// Add a [Source] to concat.
   pub fn add<S: Source + 'static>(&mut self, source: S) {
-    let children = &mut *self.children.lock().unwrap();
+    // `&mut self` guarantees exclusive access, so the Mutex doesn't need to be
+    // locked here — `get_mut` skips the atomic acquire/release. This matters
+    // because `add` is called many hundreds of times per chunk in rspack's
+    // code-generation hot path.
+    let children = self
+      .children
+      .get_mut()
+      .expect("ConcatSource children mutex poisoned");
 
     if let Some(optimized_children) = self.is_optimized.take() {
       *children = optimized_children;
