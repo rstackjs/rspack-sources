@@ -13,8 +13,9 @@ pub use criterion::*;
 pub use codspeed_criterion_compat::*;
 
 use rspack_sources::{
-  BoxSource, CachedSource, ConcatSource, MapOptions, ObjectPool, Source,
-  SourceExt, SourceMap, SourceMapSource, SourceMapSourceOptions,
+  BoxSource, CachedSource, ConcatSource, MapOptions, ObjectPool,
+  RawStringSource, Source, SourceExt, SourceMap, SourceMapSource,
+  SourceMapSourceOptions,
 };
 
 use bench_complex_replace_source::{
@@ -142,6 +143,38 @@ fn benchmark_cached_source_hash(b: &mut Bencher) {
   })
 }
 
+fn benchmark_concat_source_add_many(b: &mut Bencher) {
+  // Mimic rspack's concatenated_module / runtime hot path: build a ConcatSource
+  // by adding many small children sequentially. 500 matches the scale of a
+  // typical concatenated module (rspack chains 300+ adds per module).
+  let pieces: Vec<BoxSource> = (0..500)
+    .map(|i| RawStringSource::from(format!("// piece {i}\n")).boxed())
+    .collect();
+
+  b.iter(|| {
+    let mut concat = ConcatSource::default();
+    for piece in &pieces {
+      concat.add(piece.clone());
+    }
+    std::hint::black_box(concat);
+  })
+}
+
+fn benchmark_concat_source_add_few(b: &mut Bencher) {
+  // Smaller scale: closer to runtime module assembly (~10-15 adds per chunk).
+  let pieces: Vec<BoxSource> = (0..16)
+    .map(|i| RawStringSource::from(format!("// piece {i}\n")).boxed())
+    .collect();
+
+  b.iter(|| {
+    let mut concat = ConcatSource::default();
+    for piece in &pieces {
+      concat.add(piece.clone());
+    }
+    std::hint::black_box(concat);
+  })
+}
+
 fn bench_rspack_sources(criterion: &mut Criterion) {
   let mut group = criterion.benchmark_group("rspack_sources");
 
@@ -153,6 +186,11 @@ fn bench_rspack_sources(criterion: &mut Criterion) {
     .bench_function("concat_generate_string", benchmark_concat_generate_string);
 
   group.bench_function("cached_source_hash", benchmark_cached_source_hash);
+
+  group
+    .bench_function("concat_source_add_many", benchmark_concat_source_add_many);
+  group
+    .bench_function("concat_source_add_few", benchmark_concat_source_add_few);
 
   group.bench_function(
     "complex_replace_source_map",
