@@ -50,14 +50,14 @@ dyn-clone = "1.0.20"
 rustc-hash = "2.1.2"
 memchr = "2.8.0"
 
-codspeed-criterion-compat = { version = "4.4.1", default-features = false, optional = true }
+codspeed-criterion-compat = { version = "4.5.0", default-features = false, optional = true }
 static_assertions = "1.1.0"
 simd-json = "0.17.0"
 simd-utf16-len = "0.1.0"
-rkyv = { version = "=0.8.8", default-features = false, features = ["std", "bytecheck"], optional = true }
+rkyv = { version = "=0.8.16", default-features = false, features = ["std", "bytecheck"], optional = true }
 
 [dev-dependencies]
 twox-hash = "2.1.2"
 regex = "1.12.3"
 criterion = { version = "0.8.2", default-features = false }
-rayon = "1.11.0"
+rayon = "1.12.0"
