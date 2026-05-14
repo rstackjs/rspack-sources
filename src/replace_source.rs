@@ -8,14 +8,16 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
+  encoder::{FullMappingsEncoder, OriginalLocationInfo},
   helpers::{
-    get_map, split_into_lines, utf16_len, Chunks, GeneratedInfo, StreamChunks,
+    get_map, split_into_lines, split_into_potential_tokens, utf16_len_or_len,
+    Chunks, GeneratedInfo, StreamChunks,
   },
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
-  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource, Source,
-  SourceExt, SourceMap, SourceValue,
+  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource,
+  RawStringSource, Source, SourceExt, SourceMap, SourceMapSource, SourceValue,
 };
 
 /// Decorates a Source with replacements and insertions of source code,
@@ -341,12 +343,485 @@ impl ReplaceSource {
       self.replacements.push(replacement);
     }
   }
+
+  fn compute_size(&self) -> usize {
+    self.compute_size_with_inner_size(self.inner.size())
+  }
+
+  fn compute_size_with_inner_size(&self, inner_source_size: usize) -> usize {
+    if self.replacements.is_empty() {
+      return inner_source_size;
+    }
+
+    // Simulate the replacement process to calculate accurate size.
+    let mut size = inner_source_size;
+    let mut inner_pos = 0u32;
+
+    for replacement in self.replacements.iter() {
+      if replacement.start as usize >= inner_source_size {
+        size += replacement.content.len();
+        continue;
+      }
+
+      let original_length = replacement
+        .end
+        .saturating_sub(replacement.start.max(inner_pos))
+        as usize;
+      let replacement_length = replacement.content.len();
+
+      size = size
+        .saturating_sub(original_length)
+        .saturating_add(replacement_length);
+
+      inner_pos = inner_pos.max(replacement.end);
+    }
+
+    size
+  }
+
+  fn borrowed_inner_source(&self) -> Option<&str> {
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<OriginalSource>()
+    {
+      return Some(source.value());
+    }
+
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<SourceMapSource>()
+    {
+      return Some(source.value());
+    }
+
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<RawStringSource>()
+    {
+      if let SourceValue::String(Cow::Borrowed(inner_source)) = source.source()
+      {
+        return Some(inner_source);
+      }
+    }
+
+    None
+  }
+
+  #[allow(unsafe_code)]
+  fn source_from_replacements(&self, inner_source: &str) -> String {
+    let mut string = String::with_capacity(
+      self.compute_size_with_inner_size(inner_source.len()),
+    );
+    let mut source_pos = 0usize;
+    let source_len = inner_source.len();
+    let mut replacement_idx = 0usize;
+
+    while let Some(replacement) = self.replacements.get(replacement_idx) {
+      let start = replacement.start as usize;
+      if start >= source_len {
+        break;
+      }
+
+      if start > source_pos {
+        string
+          .push_str(unsafe { inner_source.get_unchecked(source_pos..start) });
+      }
+
+      string.push_str(&replacement.content);
+      source_pos = source_pos.max((replacement.end as usize).min(source_len));
+      replacement_idx += 1;
+    }
+
+    if source_pos < source_len {
+      string.push_str(unsafe { inner_source.get_unchecked(source_pos..) });
+    }
+
+    for replacement in &self.replacements[replacement_idx..] {
+      string.push_str(&replacement.content);
+    }
+
+    string
+  }
+
+  fn map_original_source_columns(
+    &self,
+    original_source: &OriginalSource,
+  ) -> Option<SourceMap> {
+    let source = original_source.value().as_ref();
+    let source_is_ascii = source.is_ascii();
+    let is_ascii = source_is_ascii
+      && self
+        .replacements
+        .iter()
+        .all(|replacement| replacement.content.is_ascii());
+
+    let mut encoder = FullMappingsEncoder::new();
+    let mut names: Vec<String> = Vec::new();
+    let mut name_mapping: HashMap<&str, u32> = HashMap::default();
+    let repls = &self.replacements;
+    let mut pos: u32 = 0;
+    let mut i: usize = 0;
+    let mut replacement_end: Option<u32> = None;
+    let mut next_replacement = (i < repls.len()).then(|| repls[i].start);
+    let mut generated_line_offset: i64 = 0;
+    let mut generated_column_offset: i64 = 0;
+    let mut generated_column_offset_line = 0;
+    let result: GeneratedInfo;
+
+    {
+      macro_rules! encode_mapping {
+        ($generated_line:expr, $generated_column:expr, $original:expr $(,)?) => {{
+          match $original {
+            Some(original)
+              if original.source_index == 0
+                && original.name_index.is_none() =>
+            {
+              encoder.encode_original_no_name(
+                $generated_line,
+                $generated_column,
+                original.original_line,
+                original.original_column,
+              );
+            }
+            Some(original) => {
+              encoder.encode_raw(
+                $generated_line,
+                $generated_column,
+                Some(original),
+              );
+            }
+            None => {
+              encoder.encode_raw($generated_line, $generated_column, None);
+            }
+          }
+        }};
+      }
+
+      let mut process_chunk = |chunk: &str,
+                               mapping_generated_line: u32,
+                               mut mapping_generated_column: u32,
+                               mut mapping_original: Option<
+        OriginalLocationInfo,
+      >| {
+        let mut chunk_pos = 0;
+        let end_pos = pos + chunk.len() as u32;
+
+        if let Some(replacement_end_value) =
+          replacement_end.filter(|replacement_end| *replacement_end > pos)
+        {
+          if replacement_end_value >= end_pos {
+            let line = mapping_generated_line as i64 + generated_line_offset;
+            if chunk.ends_with('\n') {
+              generated_line_offset -= 1;
+              if generated_column_offset_line == line {
+                generated_column_offset += mapping_generated_column as i64;
+              }
+            } else if generated_column_offset_line == line {
+              generated_column_offset -=
+                utf16_len_or_len(chunk, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                -(utf16_len_or_len(chunk, is_ascii) as i64);
+              generated_column_offset_line = line;
+            }
+            pos = end_pos;
+            return;
+          }
+
+          chunk_pos = replacement_end_value - pos;
+          if let Some(original) = mapping_original.as_mut() {
+            original.original_column += chunk_pos;
+          }
+          pos += chunk_pos;
+          let chunk_utf16_pos =
+            utf16_len_or_len(&chunk[..chunk_pos as usize], is_ascii);
+          let line = mapping_generated_line as i64 + generated_line_offset;
+          if generated_column_offset_line == line {
+            generated_column_offset -= chunk_utf16_pos as i64;
+          } else {
+            generated_column_offset = -(chunk_utf16_pos as i64);
+            generated_column_offset_line = line;
+          }
+          mapping_generated_column += chunk_utf16_pos as u32;
+        }
+
+        while let Some(next_replacement_pos) = next_replacement
+          .filter(|next_replacement_pos| *next_replacement_pos < end_pos)
+        {
+          let mut line = mapping_generated_line as i64 + generated_line_offset;
+          if next_replacement_pos > pos {
+            let offset = next_replacement_pos - pos;
+            let chunk_slice =
+              &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
+            let chunk_slice_utf16_offset =
+              utf16_len_or_len(chunk_slice, is_ascii) as u32;
+            encode_mapping!(
+              line as u32,
+              ((mapping_generated_column as i64)
+                + if line == generated_column_offset_line {
+                  generated_column_offset
+                } else {
+                  0
+                }) as u32,
+              mapping_original,
+            );
+            mapping_generated_column += chunk_slice_utf16_offset;
+            chunk_pos += offset;
+            pos = next_replacement_pos;
+            if let Some(original) = mapping_original.as_mut() {
+              original.original_column += chunk_slice_utf16_offset;
+            }
+          }
+
+          let repl = &repls[i];
+          let mut replacement_name_index =
+            mapping_original.and_then(|original| original.name_index);
+          if let Some(name) =
+            repl.name.as_ref().filter(|_| mapping_original.is_some())
+          {
+            let name = name.as_ref();
+            replacement_name_index =
+              Some(*name_mapping.entry(name).or_insert_with(|| {
+                let len = names.len() as u32;
+                names.push(name.to_string());
+                len
+              }));
+          }
+
+          let content = repl.content.as_ref();
+          if !content.is_empty() && !content.as_bytes().contains(&b'\n') {
+            encode_mapping!(
+              line as u32,
+              ((mapping_generated_column as i64)
+                + if line == generated_column_offset_line {
+                  generated_column_offset
+                } else {
+                  0
+                }) as u32,
+              mapping_original.map(|mut original| {
+                original.name_index = replacement_name_index;
+                original
+              }),
+            );
+
+            if generated_column_offset_line == line {
+              generated_column_offset +=
+                utf16_len_or_len(content, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                utf16_len_or_len(content, is_ascii) as i64;
+              generated_column_offset_line = line;
+            }
+          } else {
+            let mut lines = split_into_lines(content).peekable();
+            while let Some(content_line) = lines.next() {
+              let is_last_line = lines.peek().is_none();
+              encode_mapping!(
+                line as u32,
+                ((mapping_generated_column as i64)
+                  + if line == generated_column_offset_line {
+                    generated_column_offset
+                  } else {
+                    0
+                  }) as u32,
+                mapping_original.map(|mut original| {
+                  original.name_index = replacement_name_index;
+                  original
+                }),
+              );
+              replacement_name_index = None;
+
+              if is_last_line && !content_line.ends_with('\n') {
+                if generated_column_offset_line == line {
+                  generated_column_offset +=
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                } else {
+                  generated_column_offset =
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                  generated_column_offset_line = line;
+                }
+              } else {
+                generated_line_offset += 1;
+                line += 1;
+                generated_column_offset = -(mapping_generated_column as i64);
+                generated_column_offset_line = line;
+              }
+            }
+          }
+
+          replacement_end = if let Some(replacement_end) = replacement_end {
+            Some(replacement_end.max(repl.end))
+          } else {
+            Some(repl.end)
+          };
+
+          i += 1;
+          next_replacement = if i < repls.len() {
+            Some(repls[i].start)
+          } else {
+            None
+          };
+
+          let offset = chunk.len() as i64 - end_pos as i64
+            + replacement_end.unwrap() as i64
+            - chunk_pos as i64;
+          if offset > 0 {
+            if replacement_end
+              .is_some_and(|replacement_end| replacement_end >= end_pos)
+            {
+              let line = mapping_generated_line as i64 + generated_line_offset;
+              if chunk.ends_with('\n') {
+                generated_line_offset -= 1;
+                if generated_column_offset_line == line {
+                  generated_column_offset += mapping_generated_column as i64;
+                }
+              } else if generated_column_offset_line == line {
+                let remaining_chunk_utf16_len =
+                  utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64;
+                generated_column_offset -= remaining_chunk_utf16_len;
+              } else {
+                generated_column_offset =
+                  -(utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64);
+                generated_column_offset_line = line;
+              }
+              pos = end_pos;
+              return;
+            }
+
+            let line = mapping_generated_line as i64 + generated_line_offset;
+            if let Some(original) = mapping_original.as_mut() {
+              original.original_column += offset as u32;
+            }
+
+            let utf16_offset = utf16_len_or_len(
+              &chunk[chunk_pos as usize..(chunk_pos + offset as u32) as usize],
+              is_ascii,
+            ) as i64;
+            chunk_pos += offset as u32;
+            pos += offset as u32;
+
+            if generated_column_offset_line == line {
+              generated_column_offset -= utf16_offset;
+            } else {
+              generated_column_offset = -utf16_offset;
+              generated_column_offset_line = line;
+            }
+            mapping_generated_column += utf16_offset as u32;
+          }
+        }
+
+        if (chunk_pos as usize) < chunk.len() {
+          let line = mapping_generated_line as i64 + generated_line_offset;
+          encode_mapping!(
+            line as u32,
+            ((mapping_generated_column as i64)
+              + if line == generated_column_offset_line {
+                generated_column_offset
+              } else {
+                0
+              }) as u32,
+            mapping_original,
+          );
+        }
+        pos = end_pos;
+      };
+
+      let mut line = 1;
+      let mut column = 0;
+      for token in split_into_potential_tokens(source) {
+        let is_end_of_line = token.ends_with('\n');
+        let original = if is_end_of_line && token.len() == 1 {
+          None
+        } else {
+          Some(OriginalLocationInfo {
+            source_index: 0,
+            original_line: line,
+            original_column: column,
+            name_index: None,
+          })
+        };
+
+        process_chunk(token, line, column, original);
+
+        if is_end_of_line {
+          line += 1;
+          column = 0;
+        } else {
+          column += utf16_len_or_len(token, source_is_ascii) as u32;
+        }
+      }
+
+      result = GeneratedInfo {
+        generated_line: line,
+        generated_column: column,
+      };
+    }
+
+    let mut line = result.generated_line as i64 + generated_line_offset;
+    while i < repls.len() {
+      let content = &repls[i].content;
+
+      for content_line in split_into_lines(content) {
+        encoder.encode_raw(
+          line as u32,
+          ((result.generated_column as i64)
+            + if line == generated_column_offset_line {
+              generated_column_offset
+            } else {
+              0
+            }) as u32,
+          None,
+        );
+
+        if !content_line.ends_with('\n') {
+          let content_utf16_len =
+            utf16_len_or_len(content_line, is_ascii) as i64;
+          if generated_column_offset_line == line {
+            generated_column_offset += content_utf16_len;
+          } else {
+            generated_column_offset = content_utf16_len;
+            generated_column_offset_line = line;
+          }
+        } else {
+          line += 1;
+          generated_column_offset = -(result.generated_column as i64);
+          generated_column_offset_line = line;
+        }
+      }
+
+      i += 1;
+    }
+
+    let mappings = encoder.drain();
+    (!mappings.is_empty()).then(|| {
+      SourceMap::new(
+        mappings,
+        vec![original_source.name().to_string()],
+        vec![original_source.value().clone()],
+        names,
+      )
+    })
+  }
 }
 
 impl Source for ReplaceSource {
   fn source(&self) -> SourceValue<'_> {
     if self.replacements.is_empty() {
       return self.inner.source();
+    }
+
+    if let Some(inner_source) = self.borrowed_inner_source() {
+      return SourceValue::String(Cow::Owned(
+        self.source_from_replacements(inner_source),
+      ));
     }
 
     let mut string = String::with_capacity(self.size());
@@ -461,43 +936,11 @@ impl Source for ReplaceSource {
   }
 
   fn size(&self) -> usize {
-    let inner_source_size = self.inner.size();
-
     if self.replacements.is_empty() {
-      return inner_source_size;
+      return self.inner.size();
     }
 
-    // Simulate the replacement process to calculate accurate size
-    let mut size = inner_source_size;
-    let mut inner_pos = 0u32;
-
-    for replacement in self.replacements.iter() {
-      // Add original content before replacement
-      if inner_pos < replacement.start {
-        // This content is already counted in inner_source_size, so no change needed
-      }
-      if replacement.start as usize >= inner_source_size {
-        size += replacement.content.len();
-        continue;
-      }
-
-      // Handle the replacement itself
-      let original_length = replacement
-        .end
-        .saturating_sub(replacement.start.max(inner_pos))
-        as usize;
-      let replacement_length = replacement.content.len();
-
-      // Subtract original content length and add replacement content length
-      size = size
-        .saturating_sub(original_length)
-        .saturating_add(replacement_length);
-
-      // Move position forward, handling overlaps
-      inner_pos = inner_pos.max(replacement.end);
-    }
-
-    size
+    self.compute_size()
   }
 
   fn map(
@@ -508,6 +951,16 @@ impl Source for ReplaceSource {
     let replacements = &self.replacements;
     if replacements.is_empty() {
       return self.inner.map(&ObjectPool::default(), options);
+    }
+    if options.columns {
+      if let Some(original_source) = self
+        .inner
+        .as_ref()
+        .as_any()
+        .downcast_ref::<OriginalSource>()
+      {
+        return self.map_original_source_columns(original_source);
+      }
     }
     let chunks = self.stream_chunks();
     get_map(&ObjectPool::default(), chunks.as_ref(), options)
@@ -589,6 +1042,8 @@ fn check_content_at_position(
 
 struct ReplaceSourceChunks<'a> {
   is_original_source: bool,
+  inner_source: Option<&'a str>,
+  replacements_are_ascii: bool,
   chunks: Box<dyn Chunks + 'a>,
   replacements: &'a [Replacement],
 }
@@ -597,8 +1052,15 @@ impl<'a> ReplaceSourceChunks<'a> {
   pub fn new(source: &'a ReplaceSource) -> Self {
     let is_original_source =
       source.inner.as_ref().as_any().is::<OriginalSource>();
+    let inner_source = source.borrowed_inner_source();
+    let replacements_are_ascii = source
+      .replacements
+      .iter()
+      .all(|replacement| replacement.content.is_ascii());
     Self {
       is_original_source,
+      inner_source,
+      replacements_are_ascii,
       chunks: source.inner.stream_chunks(),
       replacements: &source.replacements,
     }
@@ -629,6 +1091,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
       RefCell::new(HashMap::default());
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
+    let is_ascii = self.replacements_are_ascii
+      && self.inner_source.is_some_and(str::is_ascii);
 
     // check if source_content[line][col] is equal to expect
     // Why this is needed?
@@ -710,9 +1174,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 generated_column_offset += mapping.generated_column as i64;
               }
             } else if generated_column_offset_line == line {
-              generated_column_offset -= utf16_len(chunk) as i64;
+              generated_column_offset -=
+                utf16_len_or_len(chunk, is_ascii) as i64;
             } else {
-              generated_column_offset = -(utf16_len(chunk) as i64);
+              generated_column_offset =
+                -(utf16_len_or_len(chunk, is_ascii) as i64);
               generated_column_offset_line = line;
             }
             pos = end_pos;
@@ -731,7 +1197,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             original.original_column += chunk_pos;
           }
           pos += chunk_pos;
-          let chunk_utf16_pos = utf16_len(&chunk[..chunk_pos as usize]);
+          let chunk_utf16_pos =
+            utf16_len_or_len(&chunk[..chunk_pos as usize], is_ascii);
           let line = mapping.generated_line as i64 + generated_line_offset;
           if generated_column_offset_line == line {
             generated_column_offset -= chunk_utf16_pos as i64;
@@ -752,7 +1219,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             let offset = next_replacement_pos - pos;
             let chunk_slice =
               &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
-            let chunk_slice_utf16_offset = utf16_len(chunk_slice) as u32;
+            let chunk_slice_utf16_offset =
+              utf16_len_or_len(chunk_slice, is_ascii) as u32;
             on_chunk(
               Some(chunk_slice),
               Mapping {
@@ -813,11 +1281,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
             }
             replacement_name_index = global_index;
           }
-          let mut lines = split_into_lines(repl.content.as_ref()).peekable();
-          while let Some(content_line) = lines.next() {
-            let is_last_line = lines.peek().is_none();
+
+          let content = repl.content.as_ref();
+          if !content.is_empty() && !content.as_bytes().contains(&b'\n') {
             on_chunk(
-              Some(content_line),
+              Some(content),
               Mapping {
                 generated_line: line as u32,
                 generated_column: ((mapping.generated_column as i64)
@@ -836,21 +1304,57 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }),
               },
             );
-            // Only the first chunk has name assigned
-            replacement_name_index = None;
 
-            if is_last_line && !content_line.ends_with('\n') {
-              if generated_column_offset_line == line {
-                generated_column_offset += utf16_len(content_line) as i64;
+            if generated_column_offset_line == line {
+              generated_column_offset +=
+                utf16_len_or_len(content, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                utf16_len_or_len(content, is_ascii) as i64;
+              generated_column_offset_line = line;
+            }
+          } else {
+            let mut lines = split_into_lines(content).peekable();
+            while let Some(content_line) = lines.next() {
+              let is_last_line = lines.peek().is_none();
+              on_chunk(
+                Some(content_line),
+                Mapping {
+                  generated_line: line as u32,
+                  generated_column: ((mapping.generated_column as i64)
+                    + if line == generated_column_offset_line {
+                      generated_column_offset
+                    } else {
+                      0
+                    }) as u32,
+                  original: mapping.original.as_ref().map(|original| {
+                    OriginalLocation {
+                      source_index: original.source_index,
+                      original_line: original.original_line,
+                      original_column: original.original_column,
+                      name_index: replacement_name_index,
+                    }
+                  }),
+                },
+              );
+              // Only the first chunk has name assigned
+              replacement_name_index = None;
+
+              if is_last_line && !content_line.ends_with('\n') {
+                if generated_column_offset_line == line {
+                  generated_column_offset +=
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                } else {
+                  generated_column_offset =
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                  generated_column_offset_line = line;
+                }
               } else {
-                generated_column_offset = utf16_len(content_line) as i64;
+                generated_line_offset += 1;
+                line += 1;
+                generated_column_offset = -(mapping.generated_column as i64);
                 generated_column_offset_line = line;
               }
-            } else {
-              generated_line_offset += 1;
-              line += 1;
-              generated_column_offset = -(mapping.generated_column as i64);
-              generated_column_offset_line = line;
             }
           }
 
@@ -887,11 +1391,13 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }
               } else if generated_column_offset_line == line {
                 let remaining_chunk_utf16_len =
-                  utf16_len(&chunk[chunk_pos as usize..]) as i64;
+                  utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64;
                 generated_column_offset -= remaining_chunk_utf16_len;
               } else {
                 generated_column_offset =
-                  -(utf16_len(&chunk[chunk_pos as usize..]) as i64);
+                  -(utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64);
                 generated_column_offset_line = line;
               }
               pos = end_pos;
@@ -914,8 +1420,9 @@ impl Chunks for ReplaceSourceChunks<'_> {
               original.original_column += offset as u32;
             }
 
-            let utf16_offset = utf16_len(
+            let utf16_offset = utf16_len_or_len(
               &chunk[chunk_pos as usize..(chunk_pos + offset as u32) as usize],
+              is_ascii,
             ) as i64;
             chunk_pos += offset as u32;
             pos += offset as u32;
@@ -1007,7 +1514,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
 
         // Handle line and column offset updates
         if !content_line.ends_with('\n') {
-          let content_utf16_len = utf16_len(content_line) as i64;
+          let content_utf16_len =
+            utf16_len_or_len(content_line, is_ascii) as i64;
           // Last line of current replacement doesn't end with newline
           if generated_column_offset_line == line {
             generated_column_offset += content_utf16_len;

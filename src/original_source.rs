@@ -7,8 +7,8 @@ use std::{
 use crate::{
   helpers::{
     get_generated_source_info, get_map, split_into_lines,
-    split_into_potential_tokens, utf16_len, Chunks, GeneratedInfo,
-    StreamChunks,
+    split_into_potential_tokens, utf16_len, utf16_len_or_len, Chunks,
+    GeneratedInfo, StreamChunks,
   },
   object_pool::ObjectPool,
   source::{Mapping, OriginalLocation},
@@ -142,6 +142,7 @@ impl Chunks for OriginalSourceChunks<'_> {
     on_source(0, Cow::Borrowed(&self.0.name), Some(&self.0.value));
     if options.columns {
       // With column info we need to read all lines and split them
+      let is_ascii = self.0.value.is_ascii();
       let mut line = 1;
       let mut column = 0;
       for token in split_into_potential_tokens(self.0.value.as_ref()) {
@@ -176,7 +177,7 @@ impl Chunks for OriginalSourceChunks<'_> {
           line += 1;
           column = 0;
         } else {
-          column += utf16_len(token) as u32;
+          column += utf16_len_or_len(token, is_ascii) as u32;
         }
       }
       GeneratedInfo {

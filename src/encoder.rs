@@ -5,11 +5,21 @@ const B64_CHARS: &[u8] =
 
 #[inline(always)]
 pub fn encode_vlq(out: &mut Vec<u8>, a: u32, b: u32) {
+  if a == b {
+    out.push(b'A');
+    return;
+  }
+
   let mut num = if a >= b {
     (a - b) << 1
   } else {
     ((b - a) << 1) + 1
   };
+
+  if num < 0b100000 {
+    out.push(B64_CHARS[num as usize]);
+    return;
+  }
 
   loop {
     let mut digit = num & 0b11111;
@@ -68,6 +78,14 @@ pub(crate) struct FullMappingsEncoder {
   mappings: Vec<u8>,
 }
 
+#[derive(Clone, Copy)]
+pub(crate) struct OriginalLocationInfo {
+  pub source_index: u32,
+  pub original_line: u32,
+  pub original_column: u32,
+  pub name_index: Option<u32>,
+}
+
 impl FullMappingsEncoder {
   pub fn new() -> Self {
     Self {
@@ -86,10 +104,73 @@ impl FullMappingsEncoder {
 }
 
 impl FullMappingsEncoder {
-  fn encode(&mut self, mapping: &Mapping) {
-    if self.active_mapping && self.current_line == mapping.generated_line {
+  #[inline(always)]
+  pub(crate) fn encode_original_no_name(
+    &mut self,
+    generated_line: u32,
+    generated_column: u32,
+    original_line: u32,
+    original_column: u32,
+  ) {
+    if self.active_mapping
+      && self.current_line == generated_line
+      && self.current_source_index == 0
+      && self.current_original_line == original_line
+      && self.current_original_column == original_column
+      && !self.active_name
+    {
+      return;
+    }
+
+    if self.current_line < generated_line {
+      let count = (generated_line - self.current_line) as usize;
+      self.mappings.extend(std::iter::repeat_n(b';', count));
+      self.current_line = generated_line;
+      self.current_column = 0;
+      self.initial = false;
+    } else if self.initial {
+      self.initial = false;
+    } else {
+      self.mappings.push(b',');
+    }
+
+    encode_vlq(&mut self.mappings, generated_column, self.current_column);
+    self.current_column = generated_column;
+    self.active_mapping = true;
+    self.active_name = false;
+    if self.current_source_index == 0 {
+      self.mappings.push(b'A');
+    } else {
+      encode_vlq(&mut self.mappings, 0, self.current_source_index);
+      self.current_source_index = 0;
+    }
+    encode_vlq(
+      &mut self.mappings,
+      original_line,
+      self.current_original_line,
+    );
+    self.current_original_line = original_line;
+    if original_column == self.current_original_column {
+      self.mappings.push(b'A');
+    } else {
+      encode_vlq(
+        &mut self.mappings,
+        original_column,
+        self.current_original_column,
+      );
+      self.current_original_column = original_column;
+    }
+  }
+
+  pub(crate) fn encode_raw(
+    &mut self,
+    generated_line: u32,
+    generated_column: u32,
+    original: Option<OriginalLocationInfo>,
+  ) {
+    if self.active_mapping && self.current_line == generated_line {
       // A mapping is still active
-      if mapping.original.as_ref().is_some_and(|original| {
+      if original.is_some_and(|original| {
         original.source_index == self.current_source_index
           && original.original_line == self.current_original_line
           && original.original_column == self.current_original_column
@@ -101,16 +182,16 @@ impl FullMappingsEncoder {
       }
     } else {
       // No mapping is active
-      if mapping.original.is_none() {
+      if original.is_none() {
         // avoid writing unnecessary generated mappings
         return;
       }
     }
 
-    if self.current_line < mapping.generated_line {
-      let count = (mapping.generated_line - self.current_line) as usize;
+    if self.current_line < generated_line {
+      let count = (generated_line - self.current_line) as usize;
       self.mappings.extend(std::iter::repeat_n(b';', count));
-      self.current_line = mapping.generated_line;
+      self.current_line = generated_line;
       self.current_column = 0;
       self.initial = false;
     } else if self.initial {
@@ -119,13 +200,9 @@ impl FullMappingsEncoder {
       self.mappings.push(b',');
     }
 
-    encode_vlq(
-      &mut self.mappings,
-      mapping.generated_column,
-      self.current_column,
-    );
-    self.current_column = mapping.generated_column;
-    if let Some(original) = &mapping.original {
+    encode_vlq(&mut self.mappings, generated_column, self.current_column);
+    self.current_column = generated_column;
+    if let Some(original) = original {
       self.active_mapping = true;
       if original.source_index == self.current_source_index {
         self.mappings.push(b'A');
@@ -165,8 +242,24 @@ impl FullMappingsEncoder {
     }
   }
 
+  fn encode(&mut self, mapping: &Mapping) {
+    self.encode_raw(
+      mapping.generated_line,
+      mapping.generated_column,
+      mapping
+        .original
+        .as_ref()
+        .map(|original| OriginalLocationInfo {
+          source_index: original.source_index,
+          original_line: original.original_line,
+          original_column: original.original_column,
+          name_index: original.name_index,
+        }),
+    );
+  }
+
   #[allow(unsafe_code)]
-  fn drain(&mut self) -> String {
+  pub(crate) fn drain(&mut self) -> String {
     unsafe {
       // SAFETY: The `mappings` field in the source map consists solely of ASCII characters.
       String::from_utf8_unchecked(std::mem::take(&mut self.mappings))
