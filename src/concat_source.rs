@@ -154,6 +154,9 @@ impl ConcatSource {
         children.extend(other_children.iter().cloned());
         return;
       }
+
+      children.push(box_source.clone());
+      return;
     }
 
     // Check if the source itself is a ConcatSource

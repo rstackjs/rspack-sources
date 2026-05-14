@@ -2,7 +2,7 @@ use std::{
   borrow::Cow,
   cell::RefCell,
   hash::{Hash, Hasher},
-  sync::Arc,
+  sync::{Arc, OnceLock},
 };
 
 use rustc_hash::FxHashMap as HashMap;
@@ -40,6 +40,7 @@ use crate::{
 pub struct ReplaceSource {
   inner: BoxSource,
   replacements: Vec<Replacement>,
+  cached_size: OnceLock<usize>,
 }
 
 /// Enforce replacement order when two replacement start and end are both equal
@@ -115,6 +116,7 @@ impl ReplaceSource {
     Self {
       inner: source.boxed(),
       replacements: Vec::new(),
+      cached_size: OnceLock::new(),
     }
   }
 
@@ -325,6 +327,8 @@ impl ReplaceSource {
   /// existing ones.
   #[inline]
   fn add_replacement(&mut self, replacement: Replacement) {
+    let _ = self.cached_size.take();
+
     if let Some(last) = self.replacements.last() {
       let cmp = replacement.cmp(last);
       if cmp == std::cmp::Ordering::Greater || cmp == std::cmp::Ordering::Equal
@@ -340,6 +344,39 @@ impl ReplaceSource {
     } else {
       self.replacements.push(replacement);
     }
+  }
+
+  fn compute_size(&self) -> usize {
+    let inner_source_size = self.inner.size();
+
+    if self.replacements.is_empty() {
+      return inner_source_size;
+    }
+
+    // Simulate the replacement process to calculate accurate size.
+    let mut size = inner_source_size;
+    let mut inner_pos = 0u32;
+
+    for replacement in self.replacements.iter() {
+      if replacement.start as usize >= inner_source_size {
+        size += replacement.content.len();
+        continue;
+      }
+
+      let original_length = replacement
+        .end
+        .saturating_sub(replacement.start.max(inner_pos))
+        as usize;
+      let replacement_length = replacement.content.len();
+
+      size = size
+        .saturating_sub(original_length)
+        .saturating_add(replacement_length);
+
+      inner_pos = inner_pos.max(replacement.end);
+    }
+
+    size
   }
 }
 
@@ -461,43 +498,11 @@ impl Source for ReplaceSource {
   }
 
   fn size(&self) -> usize {
-    let inner_source_size = self.inner.size();
-
     if self.replacements.is_empty() {
-      return inner_source_size;
+      return self.inner.size();
     }
 
-    // Simulate the replacement process to calculate accurate size
-    let mut size = inner_source_size;
-    let mut inner_pos = 0u32;
-
-    for replacement in self.replacements.iter() {
-      // Add original content before replacement
-      if inner_pos < replacement.start {
-        // This content is already counted in inner_source_size, so no change needed
-      }
-      if replacement.start as usize >= inner_source_size {
-        size += replacement.content.len();
-        continue;
-      }
-
-      // Handle the replacement itself
-      let original_length = replacement
-        .end
-        .saturating_sub(replacement.start.max(inner_pos))
-        as usize;
-      let replacement_length = replacement.content.len();
-
-      // Subtract original content length and add replacement content length
-      size = size
-        .saturating_sub(original_length)
-        .saturating_add(replacement_length);
-
-      // Move position forward, handling overlaps
-      inner_pos = inner_pos.max(replacement.end);
-    }
-
-    size
+    *self.cached_size.get_or_init(|| self.compute_size())
   }
 
   fn map(
@@ -1046,9 +1051,15 @@ impl StreamChunks for ReplaceSource {
 
 impl Clone for ReplaceSource {
   fn clone(&self) -> Self {
+    let cached_size = OnceLock::new();
+    if let Some(size) = self.cached_size.get() {
+      let _ = cached_size.set(*size);
+    }
+
     Self {
       inner: self.inner.clone(),
       replacements: self.replacements.clone(),
+      cached_size,
     }
   }
 }
@@ -1692,6 +1703,17 @@ return <div>{data.foo}</div>
     );
     source.replace_static(10000000, 20000000, "// end line", None);
 
+    assert_eq!(source.size(), source.source().into_string_lossy().len());
+  }
+
+  #[test]
+  fn size_cache_is_invalidated_after_replacement() {
+    let mut source =
+      ReplaceSource::new(RawStringSource::from_static("hello world").boxed());
+
+    assert_eq!(source.size(), 11);
+    source.replace_static(6, 11, "rspack", None);
+    assert_eq!(source.size(), 12);
     assert_eq!(source.size(), source.source().into_string_lossy().len());
   }
 
