@@ -8,9 +8,10 @@ use std::{
 use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
+  encoder::{FullMappingsEncoder, OriginalLocationInfo},
   helpers::{
-    get_map, split_into_lines, utf16_len_or_len, Chunks, GeneratedInfo,
-    StreamChunks,
+    get_map, split_into_lines, split_into_potential_tokens, utf16_len_or_len,
+    Chunks, GeneratedInfo, StreamChunks,
   },
   linear_map::LinearMap,
   object_pool::ObjectPool,
@@ -447,6 +448,368 @@ impl ReplaceSource {
 
     string
   }
+
+  fn map_original_source_columns(
+    &self,
+    original_source: &OriginalSource,
+  ) -> Option<SourceMap> {
+    let source = original_source.value().as_ref();
+    let source_is_ascii = source.is_ascii();
+    let is_ascii = source_is_ascii
+      && self
+        .replacements
+        .iter()
+        .all(|replacement| replacement.content.is_ascii());
+
+    let mut encoder = FullMappingsEncoder::new();
+    let mut names: Vec<String> = Vec::new();
+    let mut name_mapping: HashMap<&str, u32> = HashMap::default();
+    let repls = &self.replacements;
+    let mut pos: u32 = 0;
+    let mut i: usize = 0;
+    let mut replacement_end: Option<u32> = None;
+    let mut next_replacement = (i < repls.len()).then(|| repls[i].start);
+    let mut generated_line_offset: i64 = 0;
+    let mut generated_column_offset: i64 = 0;
+    let mut generated_column_offset_line = 0;
+    let result: GeneratedInfo;
+
+    {
+      macro_rules! encode_mapping {
+        ($generated_line:expr, $generated_column:expr, $original:expr $(,)?) => {{
+          match $original {
+            Some(original)
+              if original.source_index == 0
+                && original.name_index.is_none() =>
+            {
+              encoder.encode_original_no_name(
+                $generated_line,
+                $generated_column,
+                original.original_line,
+                original.original_column,
+              );
+            }
+            Some(original) => {
+              encoder.encode_raw(
+                $generated_line,
+                $generated_column,
+                Some(original),
+              );
+            }
+            None => {
+              encoder.encode_raw($generated_line, $generated_column, None);
+            }
+          }
+        }};
+      }
+
+      let mut process_chunk = |chunk: &str,
+                               mapping_generated_line: u32,
+                               mut mapping_generated_column: u32,
+                               mut mapping_original: Option<
+        OriginalLocationInfo,
+      >| {
+        let mut chunk_pos = 0;
+        let end_pos = pos + chunk.len() as u32;
+
+        if let Some(replacement_end_value) =
+          replacement_end.filter(|replacement_end| *replacement_end > pos)
+        {
+          if replacement_end_value >= end_pos {
+            let line = mapping_generated_line as i64 + generated_line_offset;
+            if chunk.ends_with('\n') {
+              generated_line_offset -= 1;
+              if generated_column_offset_line == line {
+                generated_column_offset += mapping_generated_column as i64;
+              }
+            } else if generated_column_offset_line == line {
+              generated_column_offset -=
+                utf16_len_or_len(chunk, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                -(utf16_len_or_len(chunk, is_ascii) as i64);
+              generated_column_offset_line = line;
+            }
+            pos = end_pos;
+            return;
+          }
+
+          chunk_pos = replacement_end_value - pos;
+          if let Some(original) = mapping_original.as_mut() {
+            original.original_column += chunk_pos;
+          }
+          pos += chunk_pos;
+          let chunk_utf16_pos =
+            utf16_len_or_len(&chunk[..chunk_pos as usize], is_ascii);
+          let line = mapping_generated_line as i64 + generated_line_offset;
+          if generated_column_offset_line == line {
+            generated_column_offset -= chunk_utf16_pos as i64;
+          } else {
+            generated_column_offset = -(chunk_utf16_pos as i64);
+            generated_column_offset_line = line;
+          }
+          mapping_generated_column += chunk_utf16_pos as u32;
+        }
+
+        while let Some(next_replacement_pos) = next_replacement
+          .filter(|next_replacement_pos| *next_replacement_pos < end_pos)
+        {
+          let mut line = mapping_generated_line as i64 + generated_line_offset;
+          if next_replacement_pos > pos {
+            let offset = next_replacement_pos - pos;
+            let chunk_slice =
+              &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
+            let chunk_slice_utf16_offset =
+              utf16_len_or_len(chunk_slice, is_ascii) as u32;
+            encode_mapping!(
+              line as u32,
+              ((mapping_generated_column as i64)
+                + if line == generated_column_offset_line {
+                  generated_column_offset
+                } else {
+                  0
+                }) as u32,
+              mapping_original,
+            );
+            mapping_generated_column += chunk_slice_utf16_offset;
+            chunk_pos += offset;
+            pos = next_replacement_pos;
+            if let Some(original) = mapping_original.as_mut() {
+              original.original_column += chunk_slice_utf16_offset;
+            }
+          }
+
+          let repl = &repls[i];
+          let mut replacement_name_index =
+            mapping_original.and_then(|original| original.name_index);
+          if let Some(name) =
+            repl.name.as_ref().filter(|_| mapping_original.is_some())
+          {
+            let name = name.as_ref();
+            replacement_name_index =
+              Some(*name_mapping.entry(name).or_insert_with(|| {
+                let len = names.len() as u32;
+                names.push(name.to_string());
+                len
+              }));
+          }
+
+          let content = repl.content.as_ref();
+          if !content.is_empty() && !content.as_bytes().contains(&b'\n') {
+            encode_mapping!(
+              line as u32,
+              ((mapping_generated_column as i64)
+                + if line == generated_column_offset_line {
+                  generated_column_offset
+                } else {
+                  0
+                }) as u32,
+              mapping_original.map(|mut original| {
+                original.name_index = replacement_name_index;
+                original
+              }),
+            );
+
+            if generated_column_offset_line == line {
+              generated_column_offset +=
+                utf16_len_or_len(content, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                utf16_len_or_len(content, is_ascii) as i64;
+              generated_column_offset_line = line;
+            }
+          } else {
+            let mut lines = split_into_lines(content).peekable();
+            while let Some(content_line) = lines.next() {
+              let is_last_line = lines.peek().is_none();
+              encode_mapping!(
+                line as u32,
+                ((mapping_generated_column as i64)
+                  + if line == generated_column_offset_line {
+                    generated_column_offset
+                  } else {
+                    0
+                  }) as u32,
+                mapping_original.map(|mut original| {
+                  original.name_index = replacement_name_index;
+                  original
+                }),
+              );
+              replacement_name_index = None;
+
+              if is_last_line && !content_line.ends_with('\n') {
+                if generated_column_offset_line == line {
+                  generated_column_offset +=
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                } else {
+                  generated_column_offset =
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                  generated_column_offset_line = line;
+                }
+              } else {
+                generated_line_offset += 1;
+                line += 1;
+                generated_column_offset = -(mapping_generated_column as i64);
+                generated_column_offset_line = line;
+              }
+            }
+          }
+
+          replacement_end = if let Some(replacement_end) = replacement_end {
+            Some(replacement_end.max(repl.end))
+          } else {
+            Some(repl.end)
+          };
+
+          i += 1;
+          next_replacement = if i < repls.len() {
+            Some(repls[i].start)
+          } else {
+            None
+          };
+
+          let offset = chunk.len() as i64 - end_pos as i64
+            + replacement_end.unwrap() as i64
+            - chunk_pos as i64;
+          if offset > 0 {
+            if replacement_end
+              .is_some_and(|replacement_end| replacement_end >= end_pos)
+            {
+              let line = mapping_generated_line as i64 + generated_line_offset;
+              if chunk.ends_with('\n') {
+                generated_line_offset -= 1;
+                if generated_column_offset_line == line {
+                  generated_column_offset += mapping_generated_column as i64;
+                }
+              } else if generated_column_offset_line == line {
+                let remaining_chunk_utf16_len =
+                  utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64;
+                generated_column_offset -= remaining_chunk_utf16_len;
+              } else {
+                generated_column_offset =
+                  -(utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64);
+                generated_column_offset_line = line;
+              }
+              pos = end_pos;
+              return;
+            }
+
+            let line = mapping_generated_line as i64 + generated_line_offset;
+            if let Some(original) = mapping_original.as_mut() {
+              original.original_column += offset as u32;
+            }
+
+            let utf16_offset = utf16_len_or_len(
+              &chunk[chunk_pos as usize..(chunk_pos + offset as u32) as usize],
+              is_ascii,
+            ) as i64;
+            chunk_pos += offset as u32;
+            pos += offset as u32;
+
+            if generated_column_offset_line == line {
+              generated_column_offset -= utf16_offset;
+            } else {
+              generated_column_offset = -utf16_offset;
+              generated_column_offset_line = line;
+            }
+            mapping_generated_column += utf16_offset as u32;
+          }
+        }
+
+        if (chunk_pos as usize) < chunk.len() {
+          let line = mapping_generated_line as i64 + generated_line_offset;
+          encode_mapping!(
+            line as u32,
+            ((mapping_generated_column as i64)
+              + if line == generated_column_offset_line {
+                generated_column_offset
+              } else {
+                0
+              }) as u32,
+            mapping_original,
+          );
+        }
+        pos = end_pos;
+      };
+
+      let mut line = 1;
+      let mut column = 0;
+      for token in split_into_potential_tokens(source) {
+        let is_end_of_line = token.ends_with('\n');
+        let original = if is_end_of_line && token.len() == 1 {
+          None
+        } else {
+          Some(OriginalLocationInfo {
+            source_index: 0,
+            original_line: line,
+            original_column: column,
+            name_index: None,
+          })
+        };
+
+        process_chunk(token, line, column, original);
+
+        if is_end_of_line {
+          line += 1;
+          column = 0;
+        } else {
+          column += utf16_len_or_len(token, source_is_ascii) as u32;
+        }
+      }
+
+      result = GeneratedInfo {
+        generated_line: line,
+        generated_column: column,
+      };
+    }
+
+    let mut line = result.generated_line as i64 + generated_line_offset;
+    while i < repls.len() {
+      let content = &repls[i].content;
+
+      for content_line in split_into_lines(content) {
+        encoder.encode_raw(
+          line as u32,
+          ((result.generated_column as i64)
+            + if line == generated_column_offset_line {
+              generated_column_offset
+            } else {
+              0
+            }) as u32,
+          None,
+        );
+
+        if !content_line.ends_with('\n') {
+          let content_utf16_len =
+            utf16_len_or_len(content_line, is_ascii) as i64;
+          if generated_column_offset_line == line {
+            generated_column_offset += content_utf16_len;
+          } else {
+            generated_column_offset = content_utf16_len;
+            generated_column_offset_line = line;
+          }
+        } else {
+          line += 1;
+          generated_column_offset = -(result.generated_column as i64);
+          generated_column_offset_line = line;
+        }
+      }
+
+      i += 1;
+    }
+
+    let mappings = encoder.drain();
+    (!mappings.is_empty()).then(|| {
+      SourceMap::new(
+        mappings,
+        vec![original_source.name().to_string()],
+        vec![original_source.value().clone()],
+        names,
+      )
+    })
+  }
 }
 
 impl Source for ReplaceSource {
@@ -588,6 +951,16 @@ impl Source for ReplaceSource {
     let replacements = &self.replacements;
     if replacements.is_empty() {
       return self.inner.map(&ObjectPool::default(), options);
+    }
+    if options.columns {
+      if let Some(original_source) = self
+        .inner
+        .as_ref()
+        .as_any()
+        .downcast_ref::<OriginalSource>()
+      {
+        return self.map_original_source_columns(original_source);
+      }
     }
     let chunks = self.stream_chunks();
     get_map(&ObjectPool::default(), chunks.as_ref(), options)
@@ -908,11 +1281,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
             }
             replacement_name_index = global_index;
           }
-          let mut lines = split_into_lines(repl.content.as_ref()).peekable();
-          while let Some(content_line) = lines.next() {
-            let is_last_line = lines.peek().is_none();
+
+          let content = repl.content.as_ref();
+          if !content.is_empty() && !content.as_bytes().contains(&b'\n') {
             on_chunk(
-              Some(content_line),
+              Some(content),
               Mapping {
                 generated_line: line as u32,
                 generated_column: ((mapping.generated_column as i64)
@@ -931,23 +1304,57 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }),
               },
             );
-            // Only the first chunk has name assigned
-            replacement_name_index = None;
 
-            if is_last_line && !content_line.ends_with('\n') {
-              if generated_column_offset_line == line {
-                generated_column_offset +=
-                  utf16_len_or_len(content_line, is_ascii) as i64;
+            if generated_column_offset_line == line {
+              generated_column_offset +=
+                utf16_len_or_len(content, is_ascii) as i64;
+            } else {
+              generated_column_offset =
+                utf16_len_or_len(content, is_ascii) as i64;
+              generated_column_offset_line = line;
+            }
+          } else {
+            let mut lines = split_into_lines(content).peekable();
+            while let Some(content_line) = lines.next() {
+              let is_last_line = lines.peek().is_none();
+              on_chunk(
+                Some(content_line),
+                Mapping {
+                  generated_line: line as u32,
+                  generated_column: ((mapping.generated_column as i64)
+                    + if line == generated_column_offset_line {
+                      generated_column_offset
+                    } else {
+                      0
+                    }) as u32,
+                  original: mapping.original.as_ref().map(|original| {
+                    OriginalLocation {
+                      source_index: original.source_index,
+                      original_line: original.original_line,
+                      original_column: original.original_column,
+                      name_index: replacement_name_index,
+                    }
+                  }),
+                },
+              );
+              // Only the first chunk has name assigned
+              replacement_name_index = None;
+
+              if is_last_line && !content_line.ends_with('\n') {
+                if generated_column_offset_line == line {
+                  generated_column_offset +=
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                } else {
+                  generated_column_offset =
+                    utf16_len_or_len(content_line, is_ascii) as i64;
+                  generated_column_offset_line = line;
+                }
               } else {
-                generated_column_offset =
-                  utf16_len_or_len(content_line, is_ascii) as i64;
+                generated_line_offset += 1;
+                line += 1;
+                generated_column_offset = -(mapping.generated_column as i64);
                 generated_column_offset_line = line;
               }
-            } else {
-              generated_line_offset += 1;
-              line += 1;
-              generated_column_offset = -(mapping.generated_column as i64);
-              generated_column_offset_line = line;
             }
           }
 
