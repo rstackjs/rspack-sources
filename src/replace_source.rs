@@ -9,7 +9,8 @@ use rustc_hash::FxHashMap as HashMap;
 
 use crate::{
   helpers::{
-    get_map, split_into_lines, utf16_len, Chunks, GeneratedInfo, StreamChunks,
+    get_map, split_into_lines, utf16_len_or_len, Chunks, GeneratedInfo,
+    StreamChunks,
   },
   linear_map::LinearMap,
   object_pool::ObjectPool,
@@ -668,6 +669,8 @@ fn check_content_at_position(
 
 struct ReplaceSourceChunks<'a> {
   is_original_source: bool,
+  inner_source: Option<&'a str>,
+  replacements_are_ascii: bool,
   chunks: Box<dyn Chunks + 'a>,
   replacements: &'a [Replacement],
 }
@@ -676,8 +679,15 @@ impl<'a> ReplaceSourceChunks<'a> {
   pub fn new(source: &'a ReplaceSource) -> Self {
     let is_original_source =
       source.inner.as_ref().as_any().is::<OriginalSource>();
+    let inner_source = source.borrowed_inner_source();
+    let replacements_are_ascii = source
+      .replacements
+      .iter()
+      .all(|replacement| replacement.content.is_ascii());
     Self {
       is_original_source,
+      inner_source,
+      replacements_are_ascii,
       chunks: source.inner.stream_chunks(),
       replacements: &source.replacements,
     }
@@ -708,6 +718,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
       RefCell::new(HashMap::default());
     let name_index_mapping: RefCell<LinearMap<u32>> =
       RefCell::new(LinearMap::default());
+    let is_ascii = self.replacements_are_ascii
+      && self.inner_source.is_some_and(str::is_ascii);
 
     // check if source_content[line][col] is equal to expect
     // Why this is needed?
@@ -789,9 +801,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 generated_column_offset += mapping.generated_column as i64;
               }
             } else if generated_column_offset_line == line {
-              generated_column_offset -= utf16_len(chunk) as i64;
+              generated_column_offset -=
+                utf16_len_or_len(chunk, is_ascii) as i64;
             } else {
-              generated_column_offset = -(utf16_len(chunk) as i64);
+              generated_column_offset =
+                -(utf16_len_or_len(chunk, is_ascii) as i64);
               generated_column_offset_line = line;
             }
             pos = end_pos;
@@ -810,7 +824,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             original.original_column += chunk_pos;
           }
           pos += chunk_pos;
-          let chunk_utf16_pos = utf16_len(&chunk[..chunk_pos as usize]);
+          let chunk_utf16_pos =
+            utf16_len_or_len(&chunk[..chunk_pos as usize], is_ascii);
           let line = mapping.generated_line as i64 + generated_line_offset;
           if generated_column_offset_line == line {
             generated_column_offset -= chunk_utf16_pos as i64;
@@ -831,7 +846,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
             let offset = next_replacement_pos - pos;
             let chunk_slice =
               &chunk[chunk_pos as usize..(chunk_pos + offset) as usize];
-            let chunk_slice_utf16_offset = utf16_len(chunk_slice) as u32;
+            let chunk_slice_utf16_offset =
+              utf16_len_or_len(chunk_slice, is_ascii) as u32;
             on_chunk(
               Some(chunk_slice),
               Mapping {
@@ -920,9 +936,11 @@ impl Chunks for ReplaceSourceChunks<'_> {
 
             if is_last_line && !content_line.ends_with('\n') {
               if generated_column_offset_line == line {
-                generated_column_offset += utf16_len(content_line) as i64;
+                generated_column_offset +=
+                  utf16_len_or_len(content_line, is_ascii) as i64;
               } else {
-                generated_column_offset = utf16_len(content_line) as i64;
+                generated_column_offset =
+                  utf16_len_or_len(content_line, is_ascii) as i64;
                 generated_column_offset_line = line;
               }
             } else {
@@ -966,11 +984,13 @@ impl Chunks for ReplaceSourceChunks<'_> {
                 }
               } else if generated_column_offset_line == line {
                 let remaining_chunk_utf16_len =
-                  utf16_len(&chunk[chunk_pos as usize..]) as i64;
+                  utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64;
                 generated_column_offset -= remaining_chunk_utf16_len;
               } else {
                 generated_column_offset =
-                  -(utf16_len(&chunk[chunk_pos as usize..]) as i64);
+                  -(utf16_len_or_len(&chunk[chunk_pos as usize..], is_ascii)
+                    as i64);
                 generated_column_offset_line = line;
               }
               pos = end_pos;
@@ -993,8 +1013,9 @@ impl Chunks for ReplaceSourceChunks<'_> {
               original.original_column += offset as u32;
             }
 
-            let utf16_offset = utf16_len(
+            let utf16_offset = utf16_len_or_len(
               &chunk[chunk_pos as usize..(chunk_pos + offset as u32) as usize],
+              is_ascii,
             ) as i64;
             chunk_pos += offset as u32;
             pos += offset as u32;
@@ -1086,7 +1107,8 @@ impl Chunks for ReplaceSourceChunks<'_> {
 
         // Handle line and column offset updates
         if !content_line.ends_with('\n') {
-          let content_utf16_len = utf16_len(content_line) as i64;
+          let content_utf16_len =
+            utf16_len_or_len(content_line, is_ascii) as i64;
           // Last line of current replacement doesn't end with newline
           if generated_column_offset_line == line {
             generated_column_offset += content_utf16_len;

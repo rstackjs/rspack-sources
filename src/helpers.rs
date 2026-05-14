@@ -161,6 +161,15 @@ pub fn utf16_len(s: &str) -> usize {
   simd_utf16_len::utf16_len(s)
 }
 
+#[inline]
+pub(crate) fn utf16_len_or_len(s: &str, is_ascii: bool) -> usize {
+  if is_ascii {
+    s.len()
+  } else {
+    utf16_len(s)
+  }
+}
+
 pub struct PotentialTokens<'a> {
   text: &'a str,
 }

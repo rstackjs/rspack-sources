@@ -1,5 +1,6 @@
 use std::{
   borrow::Cow,
+  cell::OnceCell,
   hash::{Hash, Hasher},
   sync::{Arc, OnceLock},
 };
@@ -166,7 +167,8 @@ impl Source for CachedSource {
 }
 
 struct CachedSourceChunks<'source> {
-  chunks: Box<dyn Chunks + 'source>,
+  inner: &'source BoxSource,
+  chunks: OnceCell<Box<dyn Chunks + 'source>>,
   cache: Arc<CachedData>,
   source: Cow<'source, str>,
 }
@@ -176,7 +178,8 @@ impl<'a> CachedSourceChunks<'a> {
     let source = cache_source.source().into_string_lossy();
 
     Self {
-      chunks: cache_source.inner.stream_chunks(),
+      inner: &cache_source.inner,
+      chunks: OnceCell::new(),
       cache: cache_source.cache.clone(),
       source,
     }
@@ -220,10 +223,11 @@ impl Chunks for CachedSourceChunks<'_> {
         }
       }
       None => {
+        let chunks = self.chunks.get_or_init(|| self.inner.stream_chunks());
         let (generated_info, map) = stream_and_get_source_and_map(
           options,
           object_pool,
-          self.chunks.as_ref(),
+          chunks.as_ref(),
           on_chunk,
           on_source,
           on_name,
