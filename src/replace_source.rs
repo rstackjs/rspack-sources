@@ -2,7 +2,7 @@ use std::{
   borrow::Cow,
   cell::RefCell,
   hash::{Hash, Hasher},
-  sync::{Arc, OnceLock},
+  sync::Arc,
 };
 
 use rustc_hash::FxHashMap as HashMap;
@@ -14,8 +14,8 @@ use crate::{
   linear_map::LinearMap,
   object_pool::ObjectPool,
   source_content_lines::SourceContentLines,
-  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource, Source,
-  SourceExt, SourceMap, SourceValue,
+  BoxSource, MapOptions, Mapping, OriginalLocation, OriginalSource,
+  RawStringSource, Source, SourceExt, SourceMap, SourceMapSource, SourceValue,
 };
 
 /// Decorates a Source with replacements and insertions of source code,
@@ -40,7 +40,6 @@ use crate::{
 pub struct ReplaceSource {
   inner: BoxSource,
   replacements: Vec<Replacement>,
-  cached_size: OnceLock<usize>,
 }
 
 /// Enforce replacement order when two replacement start and end are both equal
@@ -116,7 +115,6 @@ impl ReplaceSource {
     Self {
       inner: source.boxed(),
       replacements: Vec::new(),
-      cached_size: OnceLock::new(),
     }
   }
 
@@ -327,8 +325,6 @@ impl ReplaceSource {
   /// existing ones.
   #[inline]
   fn add_replacement(&mut self, replacement: Replacement) {
-    let _ = self.cached_size.take();
-
     if let Some(last) = self.replacements.last() {
       let cmp = replacement.cmp(last);
       if cmp == std::cmp::Ordering::Greater || cmp == std::cmp::Ordering::Equal
@@ -347,8 +343,10 @@ impl ReplaceSource {
   }
 
   fn compute_size(&self) -> usize {
-    let inner_source_size = self.inner.size();
+    self.compute_size_with_inner_size(self.inner.size())
+  }
 
+  fn compute_size_with_inner_size(&self, inner_source_size: usize) -> usize {
     if self.replacements.is_empty() {
       return inner_source_size;
     }
@@ -378,12 +376,88 @@ impl ReplaceSource {
 
     size
   }
+
+  fn borrowed_inner_source(&self) -> Option<&str> {
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<OriginalSource>()
+    {
+      return Some(source.value());
+    }
+
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<SourceMapSource>()
+    {
+      return Some(source.value());
+    }
+
+    if let Some(source) = self
+      .inner
+      .as_ref()
+      .as_any()
+      .downcast_ref::<RawStringSource>()
+    {
+      if let SourceValue::String(Cow::Borrowed(inner_source)) = source.source()
+      {
+        return Some(inner_source);
+      }
+    }
+
+    None
+  }
+
+  #[allow(unsafe_code)]
+  fn source_from_replacements(&self, inner_source: &str) -> String {
+    let mut string = String::with_capacity(
+      self.compute_size_with_inner_size(inner_source.len()),
+    );
+    let mut source_pos = 0usize;
+    let source_len = inner_source.len();
+    let mut replacement_idx = 0usize;
+
+    while let Some(replacement) = self.replacements.get(replacement_idx) {
+      let start = replacement.start as usize;
+      if start >= source_len {
+        break;
+      }
+
+      if start > source_pos {
+        string
+          .push_str(unsafe { inner_source.get_unchecked(source_pos..start) });
+      }
+
+      string.push_str(&replacement.content);
+      source_pos = source_pos.max((replacement.end as usize).min(source_len));
+      replacement_idx += 1;
+    }
+
+    if source_pos < source_len {
+      string.push_str(unsafe { inner_source.get_unchecked(source_pos..) });
+    }
+
+    for replacement in &self.replacements[replacement_idx..] {
+      string.push_str(&replacement.content);
+    }
+
+    string
+  }
 }
 
 impl Source for ReplaceSource {
   fn source(&self) -> SourceValue<'_> {
     if self.replacements.is_empty() {
       return self.inner.source();
+    }
+
+    if let Some(inner_source) = self.borrowed_inner_source() {
+      return SourceValue::String(Cow::Owned(
+        self.source_from_replacements(inner_source),
+      ));
     }
 
     let mut string = String::with_capacity(self.size());
@@ -502,7 +576,7 @@ impl Source for ReplaceSource {
       return self.inner.size();
     }
 
-    *self.cached_size.get_or_init(|| self.compute_size())
+    self.compute_size()
   }
 
   fn map(
@@ -1051,15 +1125,9 @@ impl StreamChunks for ReplaceSource {
 
 impl Clone for ReplaceSource {
   fn clone(&self) -> Self {
-    let cached_size = OnceLock::new();
-    if let Some(size) = self.cached_size.get() {
-      let _ = cached_size.set(*size);
-    }
-
     Self {
       inner: self.inner.clone(),
       replacements: self.replacements.clone(),
-      cached_size,
     }
   }
 }
@@ -1703,17 +1771,6 @@ return <div>{data.foo}</div>
     );
     source.replace_static(10000000, 20000000, "// end line", None);
 
-    assert_eq!(source.size(), source.source().into_string_lossy().len());
-  }
-
-  #[test]
-  fn size_cache_is_invalidated_after_replacement() {
-    let mut source =
-      ReplaceSource::new(RawStringSource::from_static("hello world").boxed());
-
-    assert_eq!(source.size(), 11);
-    source.replace_static(6, 11, "rspack", None);
-    assert_eq!(source.size(), 12);
     assert_eq!(source.size(), source.source().into_string_lossy().len());
   }
 
