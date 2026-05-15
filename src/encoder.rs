@@ -5,11 +5,21 @@ const B64_CHARS: &[u8] =
 
 #[inline(always)]
 pub fn encode_vlq(out: &mut Vec<u8>, a: u32, b: u32) {
+  if a == b {
+    out.push(b'A');
+    return;
+  }
+
   let mut num = if a >= b {
     (a - b) << 1
   } else {
     ((b - a) << 1) + 1
   };
+
+  if num < 0b100000 {
+    out.push(B64_CHARS[num as usize]);
+    return;
+  }
 
   loop {
     let mut digit = num & 0b11111;
@@ -30,7 +40,7 @@ pub(crate) enum MappingsEncoder {
 }
 
 impl MappingsEncoder {
-  #[inline]
+  #[inline(always)]
   pub fn encode(&mut self, mapping: &Mapping) {
     match self {
       MappingsEncoder::Full(enc) => enc.encode(mapping),
@@ -86,6 +96,7 @@ impl FullMappingsEncoder {
 }
 
 impl FullMappingsEncoder {
+  #[inline(always)]
   fn encode(&mut self, mapping: &Mapping) {
     if self.active_mapping && self.current_line == mapping.generated_line {
       // A mapping is still active
@@ -137,12 +148,16 @@ impl FullMappingsEncoder {
         );
         self.current_source_index = original.source_index;
       }
-      encode_vlq(
-        &mut self.mappings,
-        original.original_line,
-        self.current_original_line,
-      );
-      self.current_original_line = original.original_line;
+      if original.original_line == self.current_original_line {
+        self.mappings.push(b'A');
+      } else {
+        encode_vlq(
+          &mut self.mappings,
+          original.original_line,
+          self.current_original_line,
+        );
+        self.current_original_line = original.original_line;
+      }
       if original.original_column == self.current_original_column {
         self.mappings.push(b'A');
       } else {
@@ -166,6 +181,7 @@ impl FullMappingsEncoder {
   }
 
   #[allow(unsafe_code)]
+  #[inline]
   fn drain(&mut self) -> String {
     unsafe {
       // SAFETY: The `mappings` field in the source map consists solely of ASCII characters.
@@ -195,6 +211,7 @@ impl LinesOnlyMappingsEncoder {
 }
 
 impl LinesOnlyMappingsEncoder {
+  #[inline(always)]
   fn encode(&mut self, mapping: &Mapping) {
     if let Some(original) = &mapping.original {
       if self.last_written_line == mapping.generated_line {
@@ -246,6 +263,7 @@ impl LinesOnlyMappingsEncoder {
   }
 
   #[allow(unsafe_code)]
+  #[inline]
   fn drain(&mut self) -> String {
     unsafe {
       // SAFETY: The `mappings` field in the source map consists solely of ASCII characters.

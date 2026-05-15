@@ -639,7 +639,7 @@ impl TryFrom<RawSourceMap> for SourceMap {
 }
 
 /// Represent a [Mapping] information of source map.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Mapping {
   /// Generated line.
   pub generated_line: u32,
@@ -650,7 +650,7 @@ pub struct Mapping {
 }
 
 /// Represent original position information of a [Mapping].
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OriginalLocation {
   /// Source index.
   pub source_index: u32,
