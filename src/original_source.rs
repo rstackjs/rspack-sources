@@ -6,8 +6,8 @@ use std::{
 
 use crate::{
   helpers::{
-    get_generated_source_info, get_map, split_into_lines,
-    split_into_potential_tokens, utf16_len, Chunks, GeneratedInfo,
+    get_generated_source_info_with_known_ascii, get_map, split_into_lines,
+    split_into_potential_tokens, utf16_len, Chunks, GeneratedInfo, StreamChunk,
     StreamChunks,
   },
   object_pool::ObjectPool,
@@ -130,6 +130,27 @@ impl<'source> OriginalSourceChunks<'source> {
   }
 }
 
+#[inline]
+fn utf16_len_with_known_ascii(is_ascii: bool, value: &str) -> usize {
+  if is_ascii {
+    value.len()
+  } else {
+    utf16_len(value)
+  }
+}
+
+#[inline]
+fn stream_chunk_with_known_ascii(
+  is_ascii: bool,
+  value: &str,
+) -> StreamChunk<'_> {
+  if is_ascii {
+    StreamChunk::with_ascii(value, true)
+  } else {
+    StreamChunk::new(value)
+  }
+}
+
 impl Chunks for OriginalSourceChunks<'_> {
   fn stream<'b>(
     &'b self,
@@ -140,6 +161,7 @@ impl Chunks for OriginalSourceChunks<'_> {
     _on_name: crate::helpers::OnName<'_, 'b>,
   ) -> GeneratedInfo {
     on_source(0, Cow::Borrowed(&self.0.name), Some(&self.0.value));
+    let is_ascii = self.0.value.as_ref().is_ascii();
     if options.columns {
       // With column info we need to read all lines and split them
       let mut line = 1;
@@ -149,7 +171,7 @@ impl Chunks for OriginalSourceChunks<'_> {
         if is_end_of_line && token.len() == 1 {
           if !options.final_source {
             on_chunk(
-              Some(token),
+              Some(stream_chunk_with_known_ascii(is_ascii, token)),
               Mapping {
                 generated_line: line,
                 generated_column: column,
@@ -159,7 +181,8 @@ impl Chunks for OriginalSourceChunks<'_> {
           }
         } else {
           on_chunk(
-            (!options.final_source).then_some(token),
+            (!options.final_source)
+              .then_some(stream_chunk_with_known_ascii(is_ascii, token)),
             Mapping {
               generated_line: line,
               generated_column: column,
@@ -176,7 +199,7 @@ impl Chunks for OriginalSourceChunks<'_> {
           line += 1;
           column = 0;
         } else {
-          column += utf16_len(token) as u32;
+          column += utf16_len_with_known_ascii(is_ascii, token) as u32;
         }
       }
       GeneratedInfo {
@@ -186,7 +209,10 @@ impl Chunks for OriginalSourceChunks<'_> {
     } else if options.final_source {
       // Without column info and with final source we only
       // need meta info to generate mapping
-      let result = get_generated_source_info(self.0.value.as_ref());
+      let result = get_generated_source_info_with_known_ascii(
+        self.0.value.as_ref(),
+        is_ascii,
+      );
       if result.generated_column == 0 {
         for line in 1..result.generated_line {
           on_chunk(
@@ -228,7 +254,8 @@ impl Chunks for OriginalSourceChunks<'_> {
       let mut last_line = None;
       for l in split_into_lines(self.0.value.as_ref()) {
         on_chunk(
-          (!options.final_source).then_some(l),
+          (!options.final_source)
+            .then_some(stream_chunk_with_known_ascii(is_ascii, l)),
           Mapping {
             generated_line: line,
             generated_column: 0,
@@ -248,7 +275,8 @@ impl Chunks for OriginalSourceChunks<'_> {
       {
         GeneratedInfo {
           generated_line: line - 1,
-          generated_column: utf16_len(last_line) as u32,
+          generated_column: utf16_len_with_known_ascii(is_ascii, last_line)
+            as u32,
         }
       } else {
         GeneratedInfo {
@@ -333,6 +361,29 @@ mod tests {
   }
 
   #[test]
+  fn stream_chunks_expose_ascii_metadata() {
+    let source = OriginalSource::new("let answer = 42;\nanswer;", "file.js");
+    let object_pool = ObjectPool::default();
+    let chunks = source.stream_chunks();
+    let mut seen_chunk = false;
+
+    chunks.stream(
+      &object_pool,
+      &MapOptions::default(),
+      &mut |chunk, _mapping| {
+        let chunk = chunk.unwrap();
+        seen_chunk = true;
+        assert!(chunk.is_ascii());
+        assert_eq!(chunk.utf16_len(), chunk.len());
+      },
+      &mut |_source_index, _source, _source_content| {},
+      &mut |_name_index, _name| {},
+    );
+
+    assert!(seen_chunk);
+  }
+
+  #[test]
   fn should_split_code_into_statements() {
     let input = "if (hello()) { world(); hi(); there(); } done();\nif (hello()) { world(); hi(); there(); } done();";
     let source = OriginalSource::new(input, "file.js");
@@ -381,7 +432,7 @@ mod tests {
       &object_pool,
       &MapOptions::default(),
       &mut |chunk, mapping| {
-        chunks.push((chunk.unwrap(), mapping));
+        chunks.push((chunk.unwrap().as_str(), mapping));
       },
       &mut |_source_index, _source, _source_content| {},
       &mut |_name_index, _name| {},

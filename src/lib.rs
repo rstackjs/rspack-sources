@@ -38,7 +38,7 @@ pub use source_map_source::{
 pub mod stream_chunks {
   pub use super::helpers::{
     stream_chunks_default, Chunks, GeneratedInfo, OnChunk, OnName, OnSource,
-    StreamChunks,
+    StreamChunk, StreamChunks,
   };
 }
 

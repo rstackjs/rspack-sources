@@ -6,8 +6,9 @@ use std::{
 
 use crate::{
   helpers::{
-    get_generated_source_info, stream_chunks_of_raw_source, Chunks,
-    GeneratedInfo, StreamChunks,
+    get_generated_source_info_with_known_ascii,
+    stream_chunks_of_raw_source_with_known_ascii, Chunks, GeneratedInfo,
+    StreamChunks,
   },
   object_pool::ObjectPool,
   MapOptions, Source, SourceMap, SourceValue,
@@ -124,10 +125,18 @@ impl Chunks for RawStringChunks<'_> {
     on_source: crate::helpers::OnSource<'_, 'a>,
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> crate::helpers::GeneratedInfo {
+    let source_is_ascii = self.0.is_ascii();
     if options.final_source {
-      get_generated_source_info(self.0)
+      get_generated_source_info_with_known_ascii(self.0, source_is_ascii)
     } else {
-      stream_chunks_of_raw_source(self.0, options, on_chunk, on_source, on_name)
+      stream_chunks_of_raw_source_with_known_ascii(
+        self.0,
+        options,
+        source_is_ascii,
+        on_chunk,
+        on_source,
+        on_name,
+      )
     }
   }
 }
@@ -265,10 +274,18 @@ impl Chunks for RawBufferSourceChunks<'_> {
     on_name: crate::helpers::OnName<'_, 'a>,
   ) -> GeneratedInfo {
     let code = self.0.get_or_init_value_as_string();
+    let source_is_ascii = code.is_ascii();
     if options.final_source {
-      get_generated_source_info(code)
+      get_generated_source_info_with_known_ascii(code, source_is_ascii)
     } else {
-      stream_chunks_of_raw_source(code, options, on_chunk, on_source, on_name)
+      stream_chunks_of_raw_source_with_known_ascii(
+        code,
+        options,
+        source_is_ascii,
+        on_chunk,
+        on_source,
+        on_name,
+      )
     }
   }
 }
