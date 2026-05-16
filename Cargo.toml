@@ -54,7 +54,7 @@ codspeed-criterion-compat = { version = "4.6.0", default-features = false, optio
 static_assertions = "1.1.0"
 simd-json = "0.17.0"
 simd-utf16-len = "0.1.0"
-rkyv = { version = "=0.8.16", default-features = false, features = ["std", "bytecheck"], optional = true }
+rkyv = { version = "0.8.16", default-features = false, features = ["std", "bytecheck"], optional = true }
 
 [dev-dependencies]
 twox-hash = "2.1.2"
