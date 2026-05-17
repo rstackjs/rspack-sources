@@ -27,7 +27,7 @@ jobs:
         uses: moonrepo/setup-rust@abb2d32350334249b178c401e5ec5836e0cd88d3 # v1
 
       - name: Install codspeed
-        uses: taiki-e/install-action@7ea35f098a7369cd23488403f58be9c491a6c55f # v2
+        uses: taiki-e/install-action@0e01fba183f89b991766ac4092315c09f1acb55c # v2
         with:
           tool: cargo-codspeed
 
@@ -35,7 +35,7 @@ jobs:
         run: cargo codspeed build --features codspeed
 
       - name: Run benchmark
-        uses: CodSpeedHQ/action@c381be0bfd20e844fb45594f6aa182ffcd94545c # v4
+        uses: CodSpeedHQ/action@3194d9a39c4d46684cb44bf7207fc56626aad8fd # v4
         timeout-minutes: 30
         with:
           mode: simulation
